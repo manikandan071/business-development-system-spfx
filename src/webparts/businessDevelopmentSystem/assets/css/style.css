@@ -1,0 +1,43 @@
+#workbenchPageContent {
+    max-width: 100%;
+    margin: 0 auto;
+}
+.sp-appBar {
+    display: none !important;
+}
+
+.content_3f3fd3c2,
+.CanvasZone {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
+.ControlZone {
+    padding: 0 !important;
+    margin: 0px !important;
+    max-width: 100% !important;
+}
+
+.CanvasZone>div {
+    /* max-width: 100% !important; */
+    padding: 0 !important;
+}
+
+.spAppAndPropertyPanelContainer {
+    padding-bottom: 10px !important;
+}
+
+#CommentsWrapper {
+    display: none !important;
+}
+
+.commandBarWrapper {
+    display: none !important;
+}
+
+#spSiteHeader{
+    display: none !important;
+}
+.n_c_8474018e{
+    padding: 10px 30px 10px 10px!important;
+}

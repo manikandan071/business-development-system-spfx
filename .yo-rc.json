@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.18.1",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "business-development-system",
+    "libraryId": "5fc4b321-87ef-48c7-a8ea-52227882baae",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "BusinessDevelopmentSystem",
+    "solutionShortDescription": "BusinessDevelopmentSystem description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

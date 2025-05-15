@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "business-development-system-client-side-solution",
+    "id": "5fc4b321-87ef-48c7-a8ea-52227882baae",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "BusinessDevelopmentSystem description"
+      },
+      "longDescription": {
+        "default": "BusinessDevelopmentSystem description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "business-development-system Feature",
+        "description": "The feature that activates elements of the business-development-system solution.",
+        "id": "3d8dc2b7-3700-4c03-99d5-0ce211e9063b",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/business-development-system.sppkg"
+  }
+}
