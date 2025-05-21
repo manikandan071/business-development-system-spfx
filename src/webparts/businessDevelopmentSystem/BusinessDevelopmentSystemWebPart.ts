@@ -1,25 +1,27 @@
-import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import { Version } from '@microsoft/sp-core-library';
+import * as React from "react";
+import * as ReactDom from "react-dom";
+import { Version } from "@microsoft/sp-core-library";
 import {
   type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
+  PropertyPaneTextField,
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import { sp } from "@pnp/sp/presets/all";
 import { graph } from "@pnp/graph/presets/all";
+import { SPComponentLoader } from "@microsoft/sp-loader";
+import * as strings from "BusinessDevelopmentSystemWebPartStrings";
+import BusinessDevelopmentSystem from "./components/BusinessDevelopmentSystem";
+import { IBusinessDevelopmentSystemProps } from "./components/IBusinessDevelopmentSystemProps";
 
-import * as strings from 'BusinessDevelopmentSystemWebPartStrings';
-import BusinessDevelopmentSystem from './components/BusinessDevelopmentSystem';
-import { IBusinessDevelopmentSystemProps } from './components/IBusinessDevelopmentSystemProps';
+require("../../../node_modules/primereact/resources/themes/bootstrap4-light-blue/theme.css");
 
 export interface IBusinessDevelopmentSystemWebPartProps {
   description: string;
 }
 
 export default class BusinessDevelopmentSystemWebPart extends BaseClientSideWebPart<IBusinessDevelopmentSystemWebPartProps> {
-
   public async onInit(): Promise<void> {
+    SPComponentLoader.loadCss("https://unpkg.com/primeicons/primeicons.css");
     sp.setup({
       spfxContext: this.context as unknown as undefined,
     });
@@ -33,12 +35,10 @@ export default class BusinessDevelopmentSystemWebPart extends BaseClientSideWebP
   }
 
   public render(): void {
-    const element: React.ReactElement<IBusinessDevelopmentSystemProps> = React.createElement(
-      BusinessDevelopmentSystem,
-      {
+    const element: React.ReactElement<IBusinessDevelopmentSystemProps> =
+      React.createElement(BusinessDevelopmentSystem, {
         context: this.context,
-      }
-    );
+      });
 
     ReactDom.render(element, this.domElement);
   }
@@ -48,7 +48,7 @@ export default class BusinessDevelopmentSystemWebPart extends BaseClientSideWebP
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse("1.0");
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -56,20 +56,20 @@ export default class BusinessDevelopmentSystemWebPart extends BaseClientSideWebP
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: strings.PropertyPaneDescription,
           },
           groups: [
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
+                PropertyPaneTextField("description", {
+                  label: strings.DescriptionFieldLabel,
+                }),
+              ],
+            },
+          ],
+        },
+      ],
     };
   }
 }

@@ -1,0 +1,24 @@
+@import '../../../../assets/scss//variables.module.scss';
+
+.mainHeader_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: $background-theme-color;
+}
+.mainHeader_UserDetails{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    .mainHeader_UserDetails_text{
+        p{
+            margin: 0px;
+            font-weight: 600;
+        }
+        span{
+            font-size: 12px;
+            color: rgb(224, 39, 39);
+        }
+    }
+}

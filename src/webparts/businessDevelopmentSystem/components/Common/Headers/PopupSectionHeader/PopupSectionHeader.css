@@ -1,0 +1,9 @@
+.popup-section-header {
+    margin-bottom: 10px;
+}
+.popup-section-header span{
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--basic-font-color);
+    text-decoration: underline;
+}
