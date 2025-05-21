@@ -1,5 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
     --primary-color: #000000;
     --secondary-color: #6ed12c;
     --active-color: #ffffff; 
+    --input-fields-border-color: #d3d3f1;
+    --basic-font-color: #555555;
+
+    --font-family-main: 'Inter', sans-serif;
+}
+
+* {
+    font-family: 'Inter', sans-serif; 
 }

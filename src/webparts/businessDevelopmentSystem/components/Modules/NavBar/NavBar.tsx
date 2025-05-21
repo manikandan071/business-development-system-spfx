@@ -2,8 +2,12 @@ import * as React from "react";
 import { useState } from "react";
 import styles from "./NavBar.module.scss";
 
-const NavBar = () => {
-  const [activeIndex, setActiveIndex] = useState("Dashboard");
+interface NavBarProps {
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
+  const [activeIndex, setActiveIndex] = useState("");
 
   const navOptions = [
     {
@@ -33,22 +37,30 @@ const NavBar = () => {
     },
   ];
   React.useEffect(() => {
-    setActiveIndex("Countries");
+    setActiveIndex("Dashboard");
+    setActiveTab("Dashboard");
   }, []);
   return (
     <div>
       <div className={styles.navBar_wrapper}>
         <div className={styles.navBar_logo}>
           <img
-            src={require("../../../assets/images/png/navImages/logo.png")}
+            src={require("../../../assets/images/png/navImages/logo.svg")}
             alt="Logo"
           />
-          <span>Business Development</span>
+          {/* <span>Business Development</span> */}
         </div>
         <div className={styles.navBar_options}>
           {navOptions.map((option, index) =>
             activeIndex === option?.name ? (
-              <div key={index} className={styles.navBar_active_option}>
+              <div
+                key={index}
+                className={styles.navBar_active_option}
+                onClick={() => {
+                  setActiveIndex(option.name);
+                  setActiveTab(option.name);
+                }}
+              >
                 <img
                   src={option.activeIcon}
                   alt={option.name}
@@ -58,7 +70,14 @@ const NavBar = () => {
                 <span>{option.name}</span>
               </div>
             ) : (
-              <div key={index} className={styles.navBar_option}>
+              <div
+                key={index}
+                className={styles.navBar_option}
+                onClick={() => {
+                  setActiveIndex(option.name);
+                  setActiveTab(option.name);
+                }}
+              >
                 <img
                   src={option.icon}
                   alt={option.name}

@@ -1,0 +1,120 @@
+@import "../../../assets/css/variables.css";
+
+.three {
+    flex: 0 0 calc(33.333% - 7px);
+}
+
+.two {
+    flex: 0 0 calc(50% - 5px);
+}
+
+.one {
+    flex: 0 0 calc(100% - 1px);
+}
+
+.customInputWrapper .p-inputtext:focus{
+    box-shadow: none;
+    border-color: #8295aa;
+}
+.customInputWrapper .p-inputtext{
+    width: 100%;
+   font-size: 14px;
+    padding: 5px 10px;
+}
+
+/* input style */
+.customInputWrapper .MuiInputBase-root{
+    padding: 0px!important;
+}
+.customInputWrapper .MuiTextField-root{
+    width: 100%;
+    font-size: 14px!important;
+    /* height: 35px; */
+    outline: none !important;
+    box-shadow: none !important;
+}
+.customInputWrapper .MuiInputBase-input{
+    font-family: var(--font-family-main)!important;
+    padding: 9px 10px;
+    font-size: 14px;
+}
+.customInputWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.customInputWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border: 1.5px solid #8295aa !important;
+}
+.customInputWrapper .MuiOutlinedInput-notchedOutline {
+    border-color: var(--input-fields-border-color)!important;
+    border-radius: 2px !important;
+}
+
+
+/* DropDown Style */
+.customDropDownWrapper .MuiInputBase-root{
+    width: 100%;
+    font-size: 14px!important;
+    height: 38px;
+    align-items: center;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.MuiMenuItem-root {
+    font-size: 14px !important; 
+}
+.customDropDownWrapper .MuiInputBase-root .MuiSelect-select{
+    min-height: auto;
+}
+.customDropDownWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.customDropDownWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border: 1.5px solid #8295aa !important;
+}
+.customDropDownWrapper .MuiOutlinedInput-notchedOutline {
+    border-color: var(--input-fields-border-color);
+    border-radius: 2px !important;
+}
+.customDropDownWrapper .MuiOutlinedInput-input{
+    padding: 0px 10px !important;
+}
+
+
+/* Date picker style */
+.MuiDateCalendar-root{
+    width: 300px!important;
+}
+.customDatePickerWrapper .MuiStack-root{
+    overflow: hidden!important;
+    padding: 0px!important;
+}
+.customDatePickerWrapper .MuiInputBase-root .MuiInputBase-input{
+    font-size: 14px !important;
+    padding: 6px 10px;
+    height: auto;
+    align-items: center;
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--input-fields-border-color);
+}
+.customDatePickerWrapper .MuiInputBase-root{
+    height: 38px!important;
+}
+.customDatePickerWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.customDatePickerWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border: 1.5px solid #8295aa !important;
+}
+.customDatePickerWrapper .MuiOutlinedInput-notchedOutline{
+    border: 1px solid var(--input-fields-border-color) !important;
+    border-radius: 2px !important;
+}
+
+
+/* people picker style */
+.ms-PickerItem-removeButton{
+    font-family: "Segoe UI", sans-serif !important;
+}
+
+/* error style */
+
+.sectionError .MuiOutlinedInput-notchedOutline, .sectionError .ms-BasePicker-text {
+    border: 2px solid !important;
+    /* border-image: linear-gradient(90deg, #d8111185, #c48b8b54) 1 !important; */
+    border-image: linear-gradient(23deg, #d8111178, #dcdcf3bd) 1 !important;
+}

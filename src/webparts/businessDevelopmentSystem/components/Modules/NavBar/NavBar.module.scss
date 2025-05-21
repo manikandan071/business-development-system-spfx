@@ -1,5 +1,8 @@
-
-
+@import '../../../assets/scss/variables.module.scss';
+.navBar_wrapper{
+    border-right: 1px solid #eaeaea;
+    height: calc(100vh - 80px);
+}
 .navBar_wrapper, .navBar_options{
     padding: 10px;
 }
@@ -7,11 +10,11 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 0px 10px;
+    padding: 0px 10px 20px 10px;
     img{
-        width: 25%;
+        width: 100%;
         height: auto;
-        border-radius: 50%;
+        // border-radius: 50%;
     }
     span{
         font-size: 20px;
@@ -23,7 +26,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 0px;
+    padding: 7px 10px;
+    cursor: pointer;
+    margin-top: 5px;
+    &:hover{
+        background-color: #e6dcdc52;
+        border-radius: 5px;
+    }
     span{
         font-size: 15px;
         color: #68728c;
@@ -33,8 +42,11 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: #faf8f6;
-    padding: 10px 0px;
+    background-color: $background-theme-color;
+    padding: 7px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 5px;
     span{
         font-size: 15px;
         color: #6b5e43;
