@@ -18,6 +18,10 @@ import PopupSectionHeader from "../../Common/Headers/PopupSectionHeader/PopupSec
 import { onChangeFunction } from "../../../../../Utils/onChange";
 import { validateForm } from "../../../../../Utils/validations";
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
+import { tempFormDetails } from "../../../../../Config/initialStates";
+import { deepClone } from "../../../../../Utils/deepClone";
+import CustomFileUpload from "../../Common/CustomInputFields/CustomFileUpload/CustomFileUpload";
+import CustomAutoSelect from "../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
 
 const initialPopupController = [
   {
@@ -30,38 +34,15 @@ const initialPopupController = [
   },
 ];
 
+const cloneFormDetails = deepClone(tempFormDetails);
+
 const Events: React.FC = () => {
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
   };
 
-  const [formDetails, setFormDetails] = useState({
-    CountryName: {
-      value: "",
-      isValid: true,
-    },
-    TypeOfCountry: {
-      value: "",
-      isValid: true,
-    },
-    Number: {
-      value: null,
-      isValid: true,
-    },
-    SelectDate: {
-      value: null,
-      isValid: true,
-    },
-    selectedPeople: {
-      value: [],
-      isValid: true,
-    },
-    manageAccessList: {
-      value: [],
-      isValid: true,
-    },
-  });
-  console.log("formDetails", formDetails);
+  const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
+  console.log("formDetails", cloneFormDetails, formDetails);
 
   const popupInputs: any[] = [
     [
@@ -77,6 +58,11 @@ const Events: React.FC = () => {
               onChangeFunction("CountryName", value, setFormDetails);
             }}
             isValid={formDetails.CountryName.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
+            readOnly={true}
+            disabled={false}
           />
           <CustomDropDown
             options={[
@@ -98,6 +84,11 @@ const Events: React.FC = () => {
               onChangeFunction("TypeOfCountry", value, setFormDetails);
             }}
             isValid={formDetails.TypeOfCountry.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
+            disabled={false}
+            readOnly={true}
           />
           <CustomInput
             value={formDetails.Number.value}
@@ -108,41 +99,102 @@ const Events: React.FC = () => {
               onChangeFunction("Number", value, setFormDetails);
             }}
             isValid={formDetails.Number.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
           />
           <CustomDatePicker
             value={formDetails.SelectDate.value}
             sectionType="three"
+            placeholder="Select Date"
             disabled={false}
             readOnly={false}
             onChange={(value: string) => {
               onChangeFunction("SelectDate", value, setFormDetails);
             }}
             isValid={formDetails.SelectDate.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
           />
           <CustomPeoplePicker
             selectedItem={formDetails.selectedPeople.value}
             sectionType="three"
-            personSelectionLimit={2}
+            personSelectionLimit={1}
             minHeight="38px"
             maxHeight="38px"
             onChange={(value: any[]) => {
               onChangeFunction("selectedPeople", value, setFormDetails);
             }}
             isValid={formDetails.selectedPeople.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
+          />
+          <CustomAutoSelect
+            value={formDetails.AutoSelect.value}
+            options={[
+              { Text: "Oliver Hansen", Id: 1 },
+              { Text: "Van Henry", Id: 2 },
+              { Text: "April Tucker", Id: 3 },
+              { Text: "Ralph Hubbard", Id: 4 },
+              { Text: "Omar Alexander", Id: 5 },
+              { Text: "Carlos Abbott", Id: 6 },
+              { Text: "Miriam Wagner", Id: 7 },
+              { Text: "Bradley Wilkerson", Id: 8 },
+              { Text: "Virginia Andrews", Id: 9 },
+              { Text: "Kelly Snyder", Id: 10 },
+            ]}
+            onChange={async (value: { Text: string; Id: number } | null) => {
+              onChangeFunction("AutoSelect", value, setFormDetails);
+              onChangeFunction("AutoSelectId", value?.Id, setFormDetails);
+            }}
+            placeholder="Type of Country"
+            sectionType="three"
+            isValid={formDetails.AutoSelect.isValid}
+            withLabel={true}
+            mandatory={true}
+            labelText="Label Text"
+          />
+          <CustomInput
+            value={formDetails.AutoSelectId.value}
+            type="text"
+            placeholder="Country ISO Code"
+            sectionType="three"
+            // onChange={(value: string) => {
+            //   onChangeFunction("AutoSelectId", value, setFormDetails);
+            // }}
+            isValid={formDetails.AutoSelectId.isValid}
+            withLabel={true}
+            mandatory={true}
+            disabled={true}
+            labelText="Label Text"
           />
         </div>
+        <PopupSectionHeader Title="Attachments" />
+        <div className="section-wrapper">
+          <CustomFileUpload />
+        </div>
         <ManageAccess
-          ManageAccessList={formDetails?.manageAccessList?.value}
+          ManageAccess={formDetails?.manageAccess?.value}
           onChange={(value: any) => {
-            onChangeFunction("manageAccessList", value, setFormDetails);
+            console.log("value", value);
+
+            onChangeFunction("manageAccess", value, setFormDetails);
           }}
+          showList="3"
+          showSectionTitle={true}
         />
       </div>,
     ],
   ];
 
   const handleSubmitFuction = (): void => {
-    const isFormValid = validateForm(formDetails, setFormDetails);
+    const isFormValid = validateForm(
+      formDetails,
+      setFormDetails,
+      "manageAccessList"
+    );
     console.log("isFormValid", isFormValid);
 
     if (isFormValid) {
@@ -159,6 +211,7 @@ const Events: React.FC = () => {
         endIcon: false,
         startIcon: false,
         onClick: () => {
+          setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(0);
         },
       },
@@ -191,6 +244,7 @@ const Events: React.FC = () => {
             "open",
             `Add New Country`
           );
+          setFormDetails(deepClone(cloneFormDetails));
           // ApproveDefinition(definitionsData, setPopupLoaders);
         }}
       />
@@ -242,6 +296,7 @@ const Events: React.FC = () => {
           width: "100%",
           marginTop: "20px",
           display: "flex",
+          flexWrap: "wrap",
           gap: "10px",
         }}
       >
@@ -258,6 +313,7 @@ const Events: React.FC = () => {
           minHeight="85px"
           maxHeight="85px"
         />
+        <CustomFileUpload />
       </div>
 
       {popupController?.map((popupData: any, index: number) => (

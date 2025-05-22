@@ -56,7 +56,7 @@
 .AlertPopupFooter {
   @extend .flexEnd;
   width: 100%;
-  margin: 15px 0px 10px 0px;
+  // margin: 15px 0px 10px 0px;
   gap: 20px;
   // margin-top: 15px;
 }
@@ -71,7 +71,7 @@
   flex-direction: column;
   gap: 6px;
   overflow-y: auto;
-  max-height: 71vh;
+  // max-height: 78vh;
 }
 .promoteContentContainer {
   display: flex;

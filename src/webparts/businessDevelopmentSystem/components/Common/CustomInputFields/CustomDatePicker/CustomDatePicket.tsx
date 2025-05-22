@@ -5,11 +5,13 @@
 
 import * as React from "react";
 import * as dayjs from "dayjs";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+// import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
+import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
+import { IconButton, InputAdornment, TextField } from "@mui/material";
 const CalendarIcon = require("../../../../assets/images/png/calendar.png");
 
 interface ICutomDatePickerProps {
@@ -18,17 +20,13 @@ interface ICutomDatePickerProps {
   onClickFunction?: (value: boolean) => void;
   type?: "text" | "number";
   placeholder?: string;
-  size?: "SM" | "MD" | "XL";
   isValid?: any;
-  errorMsg?: string;
   sectionType?: "three" | "two" | "one";
   withLabel?: boolean;
   labelText?: string;
   disabled?: boolean;
   readOnly?: any;
   mandatory?: boolean;
-  autoFocus?: boolean;
-  onKeyDown?: any;
 }
 
 const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
@@ -36,18 +34,16 @@ const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
   onChange,
   onClickFunction,
   placeholder = "",
-  size = "MD",
   isValid = true,
-  errorMsg,
   sectionType,
   labelText,
   withLabel,
-  disabled,
+  disabled = false,
   readOnly,
   mandatory,
-  autoFocus,
-  onKeyDown,
 }) => {
+  const inputRef = useRef(null);
+  const [open, setOpen] = useState(false);
   const handleChange = useCallback(
     (date: dayjs.Dayjs | null) => {
       onChange?.(date);
@@ -63,21 +59,71 @@ const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
         isValid ? "" : "sectionError"
       }`}
     >
+      {withLabel && (
+        <CustomInputLabel
+          labelText={labelText ?? ""}
+          mandatory={mandatory ? true : false}
+        />
+      )}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DemoContainer components={["StaticDatePicker"]}>
-          <DemoItem>
-            <DatePicker
-              defaultValue={dayjs(value)}
-              onChange={handleChange}
-              disabled={disabled}
-              readOnly={readOnly}
-              minDate={dayjs(new Date())}
-              slots={{
-                openPickerIcon: CustomCalendarIcon,
-              }}
-            />
-          </DemoItem>
-        </DemoContainer>
+        {/* <DemoContainer components={[""]}> */}
+        {/* <DemoItem> */}
+        <DatePicker
+          // placeholder={placeholder}
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+          defaultValue={dayjs(value)}
+          onChange={handleChange}
+          disabled={disabled}
+          readOnly={readOnly}
+          minDate={dayjs(new Date())}
+          // slots={{
+          //   openPickerIcon: CustomCalendarIcon,
+          // }}
+          slots={{
+            textField: (params) => (
+              <TextField
+                {...params}
+                placeholder={placeholder}
+                value={value ? dayjs(value).format("DD/MM/YYYY") : ""}
+                inputRef={inputRef}
+                onClick={() => setOpen(true)} // open on input click
+                inputProps={{
+                  ...params.inputProps,
+                  readOnly: true,
+                }}
+                sx={{
+                  "& .MuiInputBase-input::placeholder": {
+                    fontWeight: "300",
+                    fontStyle: "normal",
+                    fontSize: "14px",
+                    fontFamily: "var(--font-family-main) !important",
+                    color: "var(--input-placeholder-font-color)",
+                    opacity: 1,
+                  },
+                  "& .MuiInputBase-input": {
+                    fontFamily: "var(--font-family-main) !important",
+                    cursor: "pointer",
+                  },
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setOpen(true)}>
+                        {CustomCalendarIcon()}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                disabled={disabled}
+              />
+            ),
+          }}
+        />
+        {/* </DemoItem> */}
+        {/* </DemoContainer> */}
       </LocalizationProvider>
     </div>
   );

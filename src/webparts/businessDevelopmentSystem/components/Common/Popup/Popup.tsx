@@ -103,7 +103,7 @@ const Popup = ({
         >
           <span className={styles.confirmTitleText}>{confirmationTitle}</span>
         </div>
-        {footerContent()}
+        {/* {footerContent()} */}
       </div>
     ) : PopupType === "custom" ? (
       <div className={styles.contentWrapper}>
@@ -116,7 +116,7 @@ const Popup = ({
         >
           {content}
         </div>
-        {footerContent()}
+        {/* {footerContent()} */}
       </div>
     ) : (
       "some thing is wrong with the properties!, please check."
@@ -125,7 +125,6 @@ const Popup = ({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
-        console.log("Enter key pressed", event);
         event.preventDefault();
       }
     };
@@ -140,12 +139,14 @@ const Popup = ({
       // closeIcon={defaultCloseBtn}
       closable={defaultCloseBtn}
       draggable={false}
+      position="right"
       className={`popupWrapper ${styles.popupWrapper}`}
       visible={visibility}
       modal
       header={PopupType !== "confirmation" && headerElement}
       style={{ width: popupWidth }}
       onHide={onHide}
+      footer={footerContent()}
     >
       {isLoading ? (
         <div className={styles?.loaderElement}>

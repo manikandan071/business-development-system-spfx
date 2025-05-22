@@ -1,0 +1,32 @@
+.three {
+    flex: 0 0 calc(33.333% - 7px);
+}
+
+.two {
+    flex: 0 0 calc(50% - 5px);
+}
+
+.one {
+    flex: 0 0 calc(100% - 1px);
+}
+.manage-access-table-header{
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--header-font-color);
+    padding: 10px 0px;
+}
+.manage-access-table-body-container-3{
+    min-height: 48px;
+    max-height: 144px;
+    overflow: auto;
+}
+.manage-access-table-body-container-5{
+    min-height: 240px;
+    max-height: 240px;
+    overflow: auto;
+}
+.manage-access-table-body-container-7{
+    min-height: 346px;
+    max-height: 346px;
+    overflow: auto;
+}

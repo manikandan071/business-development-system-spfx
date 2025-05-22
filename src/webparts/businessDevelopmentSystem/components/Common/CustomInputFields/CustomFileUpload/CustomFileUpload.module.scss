@@ -1,0 +1,54 @@
+.file_upload_wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0px 20px;
+}
+
+.file_upload_box {
+    width: 100%;
+    // max-width: 600px;
+    border: 2px dotted var(--input-fields-border-color);
+    border-radius: 1rem;
+    background-color: #fff;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: var(--input-fields-bg-hovor-color);
+    }
+
+    &.dragging {
+        background-color: #eef3ff;
+        border-color: #3f51b5;
+    }
+
+    .upload_icon {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .upload_text {
+        font-size: 14px;
+        color: #666;
+        margin: 0px;
+    }
+    // .upload_button {
+    //     display: inline-block;
+    //     background-color: #3f51b5;
+    //     color: #fff;
+    //     padding: 0.5rem 1.5rem;
+    //     border-radius: 6px;
+    //     font-weight: 500;
+    //     margin-top: 0.5rem;
+    // }
+    .file_input {
+        display: none;
+    }
+}
