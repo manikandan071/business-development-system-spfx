@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import * as React from "react";
 import { useEffect, useState } from "react";
 import NavBar from "./Modules/NavBar/NavBar";
@@ -23,9 +24,9 @@ import { sp } from "@pnp/sp";
 import Events from "./Modules/Events/Events";
 
 const MainComponent = (props: any) => {
-  console.log("MainComponent props", props);
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("Dashboard");
+
   useEffect(() => {
     sp.web.currentUser
       .get()
@@ -56,6 +57,7 @@ const MainComponent = (props: any) => {
           <div style={{ width: "100%", padding: "0px 20px" }}>
             <MainHeader />
           </div>
+
           <div className={styles.screen_container}>
             <div>
               <ModuleHeader title={activeTab} />

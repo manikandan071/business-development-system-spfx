@@ -7,25 +7,20 @@ import {
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { useSelector } from "react-redux";
+import { memo } from "react";
+import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
 
 interface ICustomPeoplePickerProps {
   selectedItem?: any;
-  tempselectedItem?: any;
   onChange?: (value: any[]) => void;
-  onSubmit?: any;
   placeholder?: string;
   personSelectionLimit?: number | any;
   size?: "SM" | "MD" | "XL";
-  isValid?: boolean;
-  errorMsg?: string;
-  labelText?: string;
   withLabel?: boolean;
+  labelText?: string;
   disabled?: boolean;
-  readOnly?: boolean;
+  isValid?: boolean;
   minWidth?: any;
-  hideErrMsg?: boolean;
-  noErrorMsg?: boolean; // if true, no error message will be shown
-  noBorderInput?: boolean;
   maxWidth?: any;
   minHeight?: any;
   maxHeight?: any;
@@ -33,35 +28,27 @@ interface ICustomPeoplePickerProps {
   multiUsers?: boolean;
   mandatory?: boolean;
   popupControl?: boolean;
-  hasSubmitBtn?: boolean;
   sectionType?: "three" | "two" | "one";
 }
 
 const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
+  selectedItem,
   onChange,
-  tempselectedItem,
-  onSubmit,
   placeholder = "User",
   personSelectionLimit,
-  selectedItem,
   size,
   withLabel,
   labelText,
   disabled,
   isValid = true,
-  errorMsg,
   minWidth,
-  noErrorMsg = false,
-  readOnly,
-  noBorderInput,
   maxWidth,
-  noRemoveBtn,
   minHeight,
   maxHeight,
-  mandatory,
+  noRemoveBtn,
   multiUsers = false,
+  mandatory,
   popupControl = false,
-  hasSubmitBtn = false,
   sectionType,
 }) => {
   const mainContext: any = useSelector(
@@ -80,18 +67,13 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
     onChange?.(obj);
   };
   const selectedUserItem = (() => {
-    if (!multiUsers) {
-      return personSelectionLimit > 1 ? [] : [selectedItem];
-    } else {
-      if (personSelectionLimit >= 1) {
-        return (
-          selectedItem?.map(
-            (item: any) => item.secondaryText || item.Email || item.email
-          ) || []
-        );
-      }
-    }
-    return [selectedItem];
+    const bindSelectUsers =
+      selectedItem?.map(
+        (item: any) => item.secondaryText || item.Email || item.email
+      ) || [];
+    console.log("bindSelectUsers", bindSelectUsers);
+
+    return [bindSelectUsers];
   })();
 
   const multiPeoplePickerStyle = {
@@ -99,8 +81,15 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
       zIndex: "2",
       minWidth: minWidth ? minWidth : "100%",
       maxWidth: maxWidth ? maxWidth : "100%",
-      background: "rgba(218, 218, 218, 0.29)",
+      background: "transparent",
       pointerEvents: popupControl && multiUsers ? "none" : "auto",
+      selectors: {
+        "input::placeholder": {
+          fontWeight: "400",
+          fontSize: "14px",
+          color: "var(--input-placeholder-font-color)",
+        },
+      },
       ".ms-BasePicker-text": {
         alignItems: "start",
         // maxHeight: "50px",
@@ -110,7 +99,7 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         padding: "0px 4px",
         minHeight: minHeight ? minHeight : "34px",
         maxHeight: maxHeight ? maxHeight : "50px",
-        minWidth: minWidth ? minWidth : "290px",
+        // minWidth: minWidth ? minWidth : "290px",
         maxWidth: maxWidth ? maxWidth : "100%",
         background: "#fff",
         border: "1px solid var(--input-fields-border-color)",
@@ -127,14 +116,13 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         display:
           popupControl && selectedUserItem?.length !== 0 ? "none" : "block",
       },
-      //   ".ms-BasePicker-input::placeholder": {
-      //     fontFamily: "interMedium",
-      //   },
       ".ms-BasePicker-text:hover": {
-        border: "1px solid #8295aa",
+        border: "1px solid var(--input-fields-border-hovor-color)!important",
+        background: "var(--input-fields-bg-hovor-color)!important",
       },
       ".ms-BasePicker-text:focus-within": {
-        border: "1.5px solid #8295aa",
+        border: "1.5px solid var(--input-fields-border-hovor-color)!important",
+        background: "var(--input-fields-bg-hovor-color)!important",
       },
       ".ms-BasePicker-text:after": {
         display: "none",
@@ -176,9 +164,15 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         isValid ? "" : "sectionError"
       }`}
     >
+      {withLabel && (
+        <CustomInputLabel
+          labelText={labelText ?? ""}
+          mandatory={mandatory ? true : false}
+        />
+      )}
       <PeoplePicker
-        context={mainContext ? mainContext : null}
-        webAbsoluteUrl={webUrl ? webUrl : null}
+        context={mainContext}
+        webAbsoluteUrl={webUrl}
         personSelectionLimit={personSelectionLimit}
         showtooltip={false}
         ensureUser={true}
@@ -186,12 +180,17 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         onChange={handleChange}
         styles={multiPeoplePickerStyle}
         principalTypes={[PrincipalType.User]}
-        defaultSelectedUsers={selectedUserItem}
+        // defaultSelectedUsers={selectedUserItem ? selectedUserItem : []}
+        defaultSelectedUsers={
+          selectedItem?.map(
+            (u: any) => u.secondaryText || u.Email || u.email
+          ) ?? []
+        }
         resolveDelay={1000}
-        disabled={readOnly}
+        disabled={disabled}
       />
     </div>
   );
 };
 
-export default CustomPeoplePicker;
+export default memo(CustomPeoplePicker);

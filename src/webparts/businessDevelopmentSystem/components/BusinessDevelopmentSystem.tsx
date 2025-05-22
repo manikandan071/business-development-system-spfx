@@ -5,6 +5,7 @@ import { graph } from "@pnp/graph/presets/all";
 import { Provider } from "react-redux";
 import "../assets/css/variables.css";
 import "../assets/css/style.css";
+import "../assets/css/commonstyle.css";
 import MainComponent from "./MainComponent";
 import { store } from "../../../Redux/Store/Store";
 

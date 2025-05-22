@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 
 import "../CustomStyles.css";
+import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
 
 interface ICutomDropDownProps {
   value: string | number | any;
@@ -66,7 +67,7 @@ const CustomDropDown: React.FC<ICutomDropDownProps> = ({
   sectionType,
   labelText,
   withLabel,
-  disabled,
+  disabled = false,
   readOnly,
   mandatory,
   autoFocus,
@@ -90,19 +91,28 @@ const CustomDropDown: React.FC<ICutomDropDownProps> = ({
         isValid ? "" : "sectionError"
       }`}
     >
+      {withLabel && (
+        <CustomInputLabel
+          labelText={labelText ?? ""}
+          mandatory={mandatory ? true : false}
+        />
+      )}
       <Select
         displayEmpty
         value={value}
         onChange={handleChange}
         input={<OutlinedInput />}
+        disabled={disabled}
+        readOnly={readOnly}
         renderValue={(selected) => {
           if (selected.length === 0) {
             return (
               <em
                 style={{
                   fontStyle: "normal",
-                  color: "#a2a2a2",
+                  color: "var(--input-placeholder-font-color)",
                   fontWeight: "300",
+                  fontFamily: "var(--font-family-main) !important",
                 }}
               >
                 {placeholder}
@@ -118,7 +128,7 @@ const CustomDropDown: React.FC<ICutomDropDownProps> = ({
         <MenuItem disabled value="">
           <em style={{ fontStyle: "normal", color: "#a2a2a2" }}>Placeholder</em>
         </MenuItem>
-        {options.map((name: any) => (
+        {options?.map((name: any) => (
           <MenuItem
             key={name}
             value={name}

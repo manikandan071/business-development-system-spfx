@@ -12,9 +12,19 @@
     flex: 0 0 calc(100% - 1px);
 }
 
+/* input label style */
+
+.input-label-text{
+    display: flex;
+    margin-bottom: 3px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--input-label-font-color);
+}
+
 .customInputWrapper .p-inputtext:focus{
     box-shadow: none;
-    border-color: #8295aa;
+    border-color: var(--input-fields-border-hovor-color);
 }
 .customInputWrapper .p-inputtext{
     width: 100%;
@@ -37,10 +47,12 @@
     font-family: var(--font-family-main)!important;
     padding: 9px 10px;
     font-size: 14px;
+    font-weight: 400;
 }
 .customInputWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
 .customInputWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-    border: 1.5px solid #8295aa !important;
+    border: 1.5px solid var(--input-fields-border-hovor-color) !important;
+    background-color: var(--input-fields-bg-hovor-color) !important;
 }
 .customInputWrapper .MuiOutlinedInput-notchedOutline {
     border-color: var(--input-fields-border-color)!important;
@@ -56,6 +68,7 @@
     align-items: center;
     outline: none !important;
     box-shadow: none !important;
+    font-family: var(--font-family-main) !important;
 }
 .MuiMenuItem-root {
     font-size: 14px !important; 
@@ -65,7 +78,8 @@
 }
 .customDropDownWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
 .customDropDownWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-    border: 1.5px solid #8295aa !important;
+    border: 1.5px solid var(--input-fields-border-hovor-color) !important;
+    background-color: var(--input-fields-bg-hovor-color) !important;
 }
 .customDropDownWrapper .MuiOutlinedInput-notchedOutline {
     border-color: var(--input-fields-border-color);
@@ -73,6 +87,29 @@
 }
 .customDropDownWrapper .MuiOutlinedInput-input{
     padding: 0px 10px !important;
+}
+
+/* auto select style */
+
+.customAutoSelectWrapper .MuiInputBase-root {
+    padding: 0px !important;
+    height: 38px !important;
+}
+.customAutoSelectWrapper .MuiAutocomplete-root{
+    width: 100%;
+}
+.customAutoSelectWrapper .MuiInputBase-input{
+    padding: 0px 10px !important;
+}
+.customAutoSelectWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.customAutoSelectWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border: 1.5px solid var(--input-fields-border-hovor-color) !important;
+    background-color: var(--input-fields-bg-hovor-color) !important;
+}
+
+.customAutoSelectWrapper .MuiOutlinedInput-notchedOutline {
+    border: 1px solid var(--input-fields-border-color) !important;
+    border-radius: 2px !important;
 }
 
 
@@ -95,14 +132,22 @@
 }
 .customDatePickerWrapper .MuiInputBase-root{
     height: 38px!important;
+    padding-right: 0px!important;
 }
 .customDatePickerWrapper .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
 .customDatePickerWrapper .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-    border: 1.5px solid #8295aa !important;
+    border: 1.5px solid var(--input-fields-border-hovor-color) !important;
+    background-color: var(--input-fields-bg-hovor-color) !important;
 }
 .customDatePickerWrapper .MuiOutlinedInput-notchedOutline{
     border: 1px solid var(--input-fields-border-color) !important;
     border-radius: 2px !important;
+}
+.customDatePickerWrapper .MuiFormControl-root{
+    width: 100%!important;
+}
+.customDatePickerWrapper .MuiFormControl-root{
+    width: 100%!important;
 }
 
 
@@ -114,7 +159,8 @@
 /* error style */
 
 .sectionError .MuiOutlinedInput-notchedOutline, .sectionError .ms-BasePicker-text {
-    border: 2px solid !important;
-    /* border-image: linear-gradient(90deg, #d8111185, #c48b8b54) 1 !important; */
-    border-image: linear-gradient(23deg, #d8111178, #dcdcf3bd) 1 !important;
+    /* border: 1px solid !important;
+    border-image: linear-gradient(23deg, #d8111178, var(--input-fields-border-hovor-color)) 1 !important; */
+    border: 1px solid #ff000038 !important;
+    background: #e4c5c52e !important;
 }

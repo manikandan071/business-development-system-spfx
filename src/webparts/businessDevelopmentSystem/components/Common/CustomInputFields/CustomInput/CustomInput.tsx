@@ -6,6 +6,7 @@ import * as React from "react";
 import TextField from "@mui/material/TextField";
 import { memo, useCallback } from "react";
 import "../CustomStyles.css";
+import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
 
 interface ICutomInputProps {
   value: string | number | any;
@@ -20,7 +21,7 @@ interface ICutomInputProps {
   withLabel?: boolean;
   labelText?: string;
   disabled?: boolean;
-  readOnly?: any;
+  readOnly?: boolean;
   mandatory?: boolean;
   autoFocus?: boolean;
   onKeyDown?: any;
@@ -38,14 +39,12 @@ const CustomInput: React.FC<ICutomInputProps> = ({
   sectionType,
   labelText,
   withLabel,
-  disabled,
+  disabled = false,
   readOnly,
   mandatory,
   autoFocus,
   onKeyDown,
 }) => {
-  console.log("isValid", isValid);
-
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue =
@@ -62,6 +61,12 @@ const CustomInput: React.FC<ICutomInputProps> = ({
         isValid ? "" : "sectionError"
       }`}
     >
+      {withLabel && (
+        <CustomInputLabel
+          labelText={labelText ?? ""}
+          mandatory={mandatory ? true : false}
+        />
+      )}
       {/* <InputText
         v-model="value1"
         readOnly={readOnly}
@@ -87,6 +92,23 @@ const CustomInput: React.FC<ICutomInputProps> = ({
         type={type}
         rows={rows}
         multiline={rows ? true : false}
+        inputProps={{
+          readOnly: readOnly,
+        }}
+        sx={{
+          "& .MuiInputBase-input::placeholder": {
+            fontWeight: "300",
+            fontStyle: "normal",
+            fontSize: "14px",
+            fontFamily: "var(--font-family-main) !important",
+            color: "var(--input-placeholder-font-color)",
+            opacity: 1,
+          },
+          "& .MuiInputBase-input": {
+            fontFamily: "var(--font-family-main) !important",
+            cursor: "pointer",
+          },
+        }}
       />
     </div>
   );
