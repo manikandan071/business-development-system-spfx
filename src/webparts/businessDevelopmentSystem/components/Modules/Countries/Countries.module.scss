@@ -1,3 +1,68 @@
 .countries_container {
     display: block;
+    margin-top: 15px;
+}
+.inner_container{
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    gap:1.7%;
+    row-gap: 18px;  
+    height: 60vh;
+    overflow: scroll;
+}
+.card_container{
+    width: 30%;
+    border: 1px solid #eeeefa;    
+}
+.cardCountry{
+    width: 70%;
+    display: flex;
+    gap: 7%;
+}
+.cardStatus{
+    justify-content: center;
+    font-size: 11px;
+    display: flex;
+    width: 30%;
+    gap: 10px;
+    color: #006f04;
+}
+.countryTag{
+    display: flex;
+    flex-direction: column;
+    row-gap: 7px;
+}
+.cardFirst{
+    padding: 12px;
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    justify-content: space-around;
+}
+.projectCount{
+  color: #973813;
+  font-size: 13px;
+  font-weight: 500;
+}
+.projectnumber{
+     padding: 2px;
+  background-color: #fbede8;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+.peopleContainer{
+     padding: 12px;
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    justify-content: space-around;
+    gap:40%;
+}
+.manageAccess{
+     padding: 12px;
+     padding-top: 4px !important;
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
 }

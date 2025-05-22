@@ -1,0 +1,18 @@
+.avatar{
+    background: #929696;
+    background: linear-gradient(90deg,rgba(146, 150, 150, 1) 0%, rgba(218, 217, 212, 0.86) 100%);
+    border: 1px solid #fff;
+    font-size: 8px !important;
+     width:25px !important ;
+    height: 25px !important;
+}
+.p-avatar{
+    width:25px;
+    height: 25px;
+    
+}
+ .p-avatar-group{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+ }
