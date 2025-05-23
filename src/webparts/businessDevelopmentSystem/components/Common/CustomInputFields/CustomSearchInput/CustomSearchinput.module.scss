@@ -1,0 +1,41 @@
+.search_input_wrapper {
+    position: relative;
+    min-width: 400px;
+
+    input {
+        width: 100%;
+        padding: 7px 10px 7px 10px;
+        font-size: 13px;
+        border: 1px solid var(--input-fields-border-color);
+        border-radius: 2px;
+        font-family: var(--font-family-main);
+        &:hover,
+            &:focus-visible {
+                border: 1px solid var(--input-fields-border-hovor-color);
+                outline:none;
+            }
+    }
+
+    .search_icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 15px;
+        height: 15px;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    // Hide icon on hover
+    &:hover .search_icon {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    // Hide icon when text is typed (via class toggle)
+    &.has-text .search_icon {
+        opacity: 0;
+        visibility: hidden;
+    }
+}

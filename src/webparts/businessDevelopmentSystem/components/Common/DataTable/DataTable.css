@@ -1,0 +1,36 @@
+
+.custom-data-table .p-datatable thead>tr>th {
+    color: var(--data-table-header-font-color) !important;
+    background-color: var(--data-table-header-bg-color) !important;
+    border: none !important;   
+    font-size: 14px !important; 
+}
+
+.custom-data-table .p-datatable thead>tr>th:hover {
+    color: #60553b !important;
+    background-color: #b3abac5c!important;
+    border: none !important;    
+}
+
+.custom-data-table .p-datatable thead>tr>th svg {
+    width: 12px;
+}
+
+.custom-data-table .p-datatable thead>tr>th:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.custom-data-table .p-datatable thead>tr>th:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.custom-data-table .p-datatable tbody>tr:first-child>td {
+    border-width: 0px !important; 
+}
+
+.custom-data-table .p-datatable tbody tr td {
+    border: 1px solid var(--data-table-body-border-color) !important;
+    border-width: 1px 0px 0px 0px !important;
+}

@@ -5,14 +5,13 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
 import NavBar from "./Modules/NavBar/NavBar";
-import MainHeader from "./Common/Headers/MainHeader/MainHeader";
+// import MainHeader from "./Common/Headers/MainHeader/MainHeader";
 import Dashboard from "./Modules/Dashboard/Dashboard";
 
 import styles from "./MainComponent.module.scss";
 import Countries from "./Modules/Countries/Countries";
 import Projects from "./Modules/Projects/Projects";
 import MyTasks from "./Modules/MyTasks/MyTasks";
-import ModuleHeader from "./Common/Headers/ModuleHeader/ModuleHeader";
 import { useDispatch } from "react-redux";
 import {
   setMainSPContext,
@@ -49,19 +48,16 @@ const MainComponent = (props: any) => {
   }, []);
   return (
     <div className={styles.container}>
+      <div style={{ width: "100%" }}>
+        <NavBar setActiveTab={setActiveTab} />
+      </div>
       <div style={{ width: "100%", display: "flex" }}>
-        <div style={{ width: "20%" }}>
-          <NavBar setActiveTab={setActiveTab} />
-        </div>
-        <div style={{ width: "80%" }}>
-          <div style={{ width: "100%", padding: "0px 20px" }}>
+        <div style={{ width: "100%" }}>
+          {/* <div style={{ width: "100%", padding: "0px 20px" }}>
             <MainHeader />
-          </div>
+          </div> */}
 
           <div className={styles.screen_container}>
-            <div>
-              <ModuleHeader title={activeTab} />
-            </div>
             {activeTab === "Dashboard" && <Dashboard />}
             {activeTab === "Countries" && <Countries />}
             {activeTab === "Projects" && <Projects />}

@@ -9,6 +9,9 @@
     --input-label-font-color: #5e6285;
     --input-placeholder-font-color: #a2a2a2;
     --font-family-main: 'Inter', sans-serif;
+    --data-table-header-bg-color: #eee9ea;
+    --data-table-header-font-color: #4e232a;
+    --data-table-body-border-color: #f2f2f2;
 }
 
 * {

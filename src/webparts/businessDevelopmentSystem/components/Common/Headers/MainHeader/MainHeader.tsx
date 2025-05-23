@@ -18,6 +18,10 @@ const MainHeader = () => {
   return (
     <div className={styles.mainHeader_container}>
       <div className={styles.mainHeader_UserDetails}>
+        <div className={styles.mainHeader_UserDetails_text}>
+          <p>Good Morning, {person.name}!</p>
+          <span>Have a great day on your management </span>
+        </div>
         <Persona
           styles={{
             root: {
@@ -44,10 +48,6 @@ const MainHeader = () => {
           title={person.name}
           size={PersonaSize.size24}
         />
-        <div className={styles.mainHeader_UserDetails_text}>
-          <p>Good Morning, {person.name}!</p>
-          <span>Have a great day on your management </span>
-        </div>
       </div>
     </div>
   );

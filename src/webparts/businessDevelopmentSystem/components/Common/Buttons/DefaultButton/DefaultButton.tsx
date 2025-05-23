@@ -32,7 +32,6 @@ const DefaultButton = ({
     editBtn: styles.editBtn,
     closeBtn: styles.closeBtn,
   };
-  
 
   // Dynamically select the CSS class based on btnType
   const buttonClass = `${styles.DefaultButtonWrapper} ${btnTypeClassMap[btnType]}`;
@@ -48,6 +47,11 @@ const DefaultButton = ({
       endIcon={endIcon}
       startIcon={startIcon}
       disabled={disabled}
+      sx={{
+        padding: "10px 20px",
+        whiteSpace: "nowrap",
+        fontSize: "14px",
+      }}
     >
       {text}
     </Button>

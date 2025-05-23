@@ -232,7 +232,7 @@ const Events: React.FC = () => {
     initialPopupController
   );
   return (
-    <div style={{ width: "100%", padding: "20px" }}>
+    <div style={{ width: "100%", padding: " 15px 20px" }}>
       <DefaultButton
         btnType="primaryBtn"
         text="Add new country"

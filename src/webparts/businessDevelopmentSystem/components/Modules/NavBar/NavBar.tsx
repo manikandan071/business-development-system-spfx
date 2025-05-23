@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import styles from "./NavBar.module.scss";
+import MainHeader from "../../Common/Headers/MainHeader/MainHeader";
 
 interface NavBarProps {
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
@@ -42,13 +43,12 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
   }, []);
   return (
     <div>
-      <div className={styles.navBar_wrapper}>
+      {/* <div className={styles.navBar_wrapper}>
         <div className={styles.navBar_logo}>
           <img
             src={require("../../../assets/images/png/navImages/logo.svg")}
             alt="Logo"
           />
-          {/* <span>Business Development</span> */}
         </div>
         <div className={styles.navBar_options}>
           {navOptions.map((option, index) =>
@@ -88,6 +88,54 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
               </div>
             )
           )}
+        </div>
+      </div> */}
+      <div className={styles.navBar_wrapper}>
+        <div className={styles.navBar_logo_options}>
+          <img
+            src={require("../../../assets/images/png/navImages/logo.svg")}
+            alt="Logo"
+          />
+          {navOptions.map((option, index) =>
+            activeIndex === option?.name ? (
+              <div
+                key={index}
+                className={styles.navBar_active_option}
+                onClick={() => {
+                  setActiveIndex(option.name);
+                  setActiveTab(option.name);
+                }}
+              >
+                <img
+                  src={option.activeIcon}
+                  alt={option.name}
+                  width={15}
+                  height={15}
+                />
+                <span>{option.name}</span>
+              </div>
+            ) : (
+              <div
+                key={index}
+                className={styles.navBar_option}
+                onClick={() => {
+                  setActiveIndex(option.name);
+                  setActiveTab(option.name);
+                }}
+              >
+                <img
+                  src={option.icon}
+                  alt={option.name}
+                  width={15}
+                  height={15}
+                />
+                <span>{option.name}</span>
+              </div>
+            )
+          )}
+        </div>
+        <div>
+          <MainHeader />
         </div>
       </div>
     </div>
