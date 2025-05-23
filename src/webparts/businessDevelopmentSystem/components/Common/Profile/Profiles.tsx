@@ -1,7 +1,12 @@
-import * as React from 'react';
-import { Avatar } from 'primereact/avatar';
-import { AvatarGroup } from 'primereact/avatargroup';   
-import "./Profiles.css"
+/* eslint-disable react/jsx-key */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+import * as React from "react";
+import { Avatar } from "primereact/avatar";
+import { AvatarGroup } from "primereact/avatargroup";
+import "./Profiles.css";
 
 interface ProfileProps {
   value: any[];
@@ -14,7 +19,6 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
 
   return (
     <>
-    
       {maxVisible > 1 ? (
         <div className="avatarGroup">
           <AvatarGroup>
@@ -30,7 +34,11 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
             ))}
             {remainingCount > 0 && (
               <Avatar
-                label={remainingCount<10?(`+0${remainingCount}`):(`+${remainingCount}`)}
+                label={
+                  remainingCount < 10
+                    ? `+0${remainingCount}`
+                    : `+${remainingCount}`
+                }
                 className="avatar"
                 shape="circle"
                 size="large"
@@ -38,22 +46,26 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
             )}
           </AvatarGroup>
         </div>
-      ):(<div>
+      ) : (
+        <div>
           <AvatarGroup>
             {visibleUsers.map((user, index) => (
-              <><Avatar
-                    key={index}
-                    image={user.imgUrl}
-                    size="large"
-                    shape="circle"
-                    title={user.text} /><span>{user.text}</span></>
+              <>
+                <Avatar
+                  key={index}
+                  image={user.imgUrl}
+                  size="large"
+                  shape="circle"
+                  title={user.text}
+                />
+                <span>{user.text}</span>
+              </>
             ))}
           </AvatarGroup>
-         
-        </div>)}
+        </div>
+      )}
     </>
   );
 };
 
 export default Profiles;
-
