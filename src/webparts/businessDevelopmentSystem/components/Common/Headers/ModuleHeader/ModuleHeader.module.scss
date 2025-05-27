@@ -1,3 +1,4 @@
+@import "../../../../assets/scss/variables.module.scss";
 .section_with_line {
     display: flex;
     align-items: center;
@@ -6,13 +7,7 @@
 .section_title {
     font-size: 20px;
     font-weight: 600;
-    color: #403b3b;
+    color: $module-header-font-color;
     margin-right: 10px;
     white-space: nowrap;
 }
-
-// .section_with_line::after {
-//     content: '';
-//     flex: 1;
-//     height: 0.5px;
-//     background-color: #eaeaea; }

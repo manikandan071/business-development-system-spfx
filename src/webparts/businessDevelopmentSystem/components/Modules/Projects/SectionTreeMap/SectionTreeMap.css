@@ -1,0 +1,47 @@
+.section_tree_map_wrapper{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.back_icon{
+    border-radius: 50px;
+    border: 2px solid #000000;
+    width: 21px!important;
+    height: 21px!important;
+    padding: 1px;
+    color: #000000;
+}
+/* .section_tree_map_text{
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0px;
+    display: flex;
+    align-items: center;
+    color: var(--section-header-font-color);
+} */
+
+.section_tree_map_wrapper p{
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0px;
+    display: flex;
+    align-items: center;
+    color: var(--section-header-font-color);
+}
+.section_tree_map_wrapper .tree_map_country_text span{
+    min-width: 20vh;
+    max-width: 20vh;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+.section_tree_map_wrapper .tree_map_project_text span{
+    min-width: 30vh;
+    max-width: 120vh;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}

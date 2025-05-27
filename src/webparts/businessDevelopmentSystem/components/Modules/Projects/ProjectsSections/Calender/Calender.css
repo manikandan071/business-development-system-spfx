@@ -1,0 +1,74 @@
+.fc-theme-standard, .fc-scrollgrid{
+    border: none !important;
+}
+.fc .fc-daygrid-day-top {
+    justify-content: start;
+}
+.fc-header-toolbar{
+    margin-bottom: 15px !important;
+}
+.fc-col-header-cell{
+    text-align: left !important;
+    padding: 10px 0px !important;
+    background-color: #ecebeb;
+}
+.fc-event {
+    background-color: #d4f0f7;
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 12px;
+    margin-bottom: 2px;
+    color: #000;
+    cursor: pointer;
+}
+
+.fc-event:hover {
+    background-color: #bcd9e2;
+}
+
+.fc-daygrid-event-dot {
+    display: none; 
+}
+
+.fc-daygrid-day-number {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.fc .fc-daygrid-event-harness+.fc-daygrid-event-harness {
+    margin-top: 2px;
+}
+
+.fc .fc-daygrid-more-link {
+    background-color: #c4b6b6;
+    border-radius: 4px;
+    color: white;
+    padding: 2px 4px;
+    font-size: 12px;
+}
+.fc-theme-standard td,
+.fc-theme-standard th{
+    border: none !important;
+}
+.fc-daygrid-body td{
+    border: none !important;
+    padding: 0px 10px !important;
+}
+.fc-col-header th{
+    border: none !important;
+    padding: 10px !important;
+}
+.fc-button-primary{
+    text-transform: capitalize !important;
+    color: var(--section-header-font-color) !important;
+    background-color: #fff !important;
+    border: none !important;
+}
+.fc-button-primary:focus{
+    box-shadow: none !important;
+}
+tbody .fc-scroller{
+    height: 50vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}

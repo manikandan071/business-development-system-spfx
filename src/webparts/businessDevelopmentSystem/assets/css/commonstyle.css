@@ -58,6 +58,10 @@
     justify-content: flex-end;
     align-items: center;
 }
+.align-center{
+    display: flex;
+    align-items: center;
+}
 .justify-space-between{
     display: flex;
     justify-content: space-between;
