@@ -1,3 +1,7 @@
+/* eslint-disable react/jsx-key */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import * as React from "react";
 import { useState } from "react";
 import styles from "./NavBar.module.scss";

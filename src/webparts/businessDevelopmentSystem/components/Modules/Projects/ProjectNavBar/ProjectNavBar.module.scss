@@ -1,0 +1,46 @@
+@import '../../../../assets/scss/variables.module.scss';
+
+.project_nav_bar_wrapper{
+    width: 100%;
+}
+.project_nav_bar_options{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    // gap: 10px;
+    .navBar_option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            cursor: pointer;
+    
+            // margin-top: 5px;
+            &:hover {
+                background-color: #e6dcdc52;
+                border-radius: 2px;
+            }
+    
+            span {
+                font-size: 15px;
+                color: $nav-bar-options-font-color;
+            }
+        }
+    
+        .navBar_active_option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: $nav-bar-active-option-bg-color;
+            padding: 7px 10px;
+            cursor: pointer;
+            border-radius: 2px;
+    
+            // margin-top: 5px;
+            span {
+                font-size: 15px;
+                color: #fff;
+                font-weight: 500;
+            }
+        }
+}

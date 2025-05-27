@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
+    --section-header-font-color :#403b3b;
+    --section-header-secondary-font-color :#6b5e43;
     --input-fields-border-color: #d3d3f1a3;
     --input-fields-border-hovor-color: #c8c8f0;
     --input-fields-bg-hovor-color: #b4b1d81b;
@@ -12,6 +14,11 @@
     --data-table-header-bg-color: #eee9ea;
     --data-table-header-font-color: #4e232a;
     --data-table-body-border-color: #f2f2f2;
+    --data-table-footer-font-color: #676767;
+    --data-table-paginator-active-bg-color: #4e232a;
+    --data-table-paginator-hover-bg-color: #e9ecefe0;
+    --data-table-paginator-active-font-color: #fff;
+    --data-table-paginator-disabled-button-color: #cccccc;
 }
 
 * {

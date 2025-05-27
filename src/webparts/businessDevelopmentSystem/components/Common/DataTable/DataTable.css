@@ -1,4 +1,7 @@
 
+.custom-data-table .p-datatable-wrapper{
+    min-height: 60vh !important;
+}
 .custom-data-table .p-datatable thead>tr>th {
     color: var(--data-table-header-font-color) !important;
     background-color: var(--data-table-header-bg-color) !important;
@@ -33,4 +36,47 @@
 .custom-data-table .p-datatable tbody tr td {
     border: 1px solid var(--data-table-body-border-color) !important;
     border-width: 1px 0px 0px 0px !important;
+}
+
+.custom-data-table .p-paginator-current{
+    color: var(--data-table-footer-font-color);
+    font-size: 14px;
+    border: none;
+}
+
+.custom-data-table .p-paginator{
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    padding: 15px 0px;
+    gap: 5px;
+}
+.custom-data-table .p-paginator .p-paginator-pages {
+    display: flex;
+    gap: 5px;
+}
+.custom-data-table .p-paginator .p-paginator-pages .p-paginator-page{
+    color: var(--data-table-paginator-active-bg-color);
+}
+.custom-data-table .p-paginator-bottom .p-link:hover{
+    background-color: var(--data-table-paginator-hover-bg-color);
+}
+.custom-data-table .p-paginator .p-paginator-pages .p-highlight{
+    color: var(--data-table-paginator-active-font-color);
+    background-color: var(--data-table-paginator-active-bg-color);
+    border-color: var(--data-table-paginator-active-bg-color);
+}
+.custom-data-table .p-paginator button{
+    border-radius: 50%;
+}
+.custom-data-table .p-paginator-bottom .p-paginator-first,
+.custom-data-table .p-paginator-bottom .p-paginator-prev,
+.custom-data-table .p-paginator-bottom .p-paginator-next,
+.custom-data-table .p-paginator-bottom .p-paginator-last{
+    color: var(--data-table-paginator-active-bg-color);
+    border: none;
+}   
+.custom-data-table .p-paginator-bottom .p-disabled{
+    color: var(--data-table-paginator-disabled-button-color);
+    border: none;
 }
