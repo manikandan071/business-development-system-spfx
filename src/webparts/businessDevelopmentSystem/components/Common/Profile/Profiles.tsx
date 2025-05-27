@@ -2,21 +2,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-var-requires */
-
 import * as React from "react";
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
 import "./Profiles.css";
-
 interface ProfileProps {
   value: any[];
   maxVisible: number;
 }
-
 const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
-  const visibleUsers = value.slice(0, maxVisible);
-  const remainingCount = value.length - maxVisible;
-
+  let visibleUsers =value
+  let remainingCount =0
+  if(maxVisible>1){
+      visibleUsers = value.slice(0, maxVisible);
+   remainingCount = value.length - maxVisible;
+  }
   return (
     <>
       {maxVisible > 1 ? (
@@ -46,7 +46,7 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
             )}
           </AvatarGroup>
         </div>
-      ) : (
+      ) :maxVisible === 1 ? (
         <div>
           <AvatarGroup>
             {visibleUsers.map((user, index) => (
@@ -63,9 +63,8 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
             ))}
           </AvatarGroup>
         </div>
-      )}
+      ):null}
     </>
   );
 };
-
 export default Profiles;
