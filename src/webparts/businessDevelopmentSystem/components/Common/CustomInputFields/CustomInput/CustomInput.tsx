@@ -50,7 +50,8 @@ const CustomInput: React.FC<ICutomInputProps> = ({
       const newValue =
         type === "number"
           ? parseFloat(e.target.value)
-          : e.target?.value?.trimStart();
+          : e.target?.value?.trimStart().charAt(0).toUpperCase() +
+            e.target?.value?.trimStart().slice(1);
       onChange?.(newValue);
     },
     [onChange, type]

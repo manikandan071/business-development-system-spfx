@@ -1,6 +1,7 @@
 const SPLists = {
   SampleList: "SampleList",
-  Countrieslist:"Countries"
+  Countrieslist: "Countries",
+  Projectslist: "Projects",
 };
 
 const SPLibraries = {

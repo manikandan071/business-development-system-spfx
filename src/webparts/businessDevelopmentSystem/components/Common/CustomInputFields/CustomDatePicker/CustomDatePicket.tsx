@@ -16,6 +16,7 @@ const CalendarIcon = require("../../../../assets/images/png/calendar.png");
 
 interface ICutomDatePickerProps {
   value: string | number | any;
+  minDate?: string | number | any;
   onChange?: (value: string | any) => void;
   onClickFunction?: (value: boolean) => void;
   type?: "text" | "number";
@@ -31,6 +32,7 @@ interface ICutomDatePickerProps {
 
 const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
   value,
+  minDate,
   onChange,
   onClickFunction,
   placeholder = "",
@@ -45,8 +47,9 @@ const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
   const inputRef = useRef(null);
   const [open, setOpen] = useState(false);
   const handleChange = useCallback(
-    (date: dayjs.Dayjs | null) => {
-      onChange?.(date);
+    (date: dayjs.Dayjs) => {
+      console.log("date", date.toDate());
+      onChange?.(date ? date.toDate() : null);
     },
     [onChange]
   );
@@ -77,7 +80,7 @@ const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
           onChange={handleChange}
           disabled={disabled}
           readOnly={readOnly}
-          minDate={dayjs(new Date())}
+          minDate={minDate ? dayjs(minDate) : dayjs(new Date())}
           // slots={{
           //   openPickerIcon: CustomCalendarIcon,
           // }}

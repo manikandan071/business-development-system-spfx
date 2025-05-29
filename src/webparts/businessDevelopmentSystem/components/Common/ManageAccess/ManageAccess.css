@@ -10,9 +10,9 @@
     flex: 0 0 calc(100% - 1px);
 }
 .manage-access-table-header{
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--header-font-color);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--input-label-font-color);
     padding: 10px 0px;
 }
 .manage-access-table-body-container-3{

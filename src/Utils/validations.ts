@@ -2,19 +2,20 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-export const validateForm = (
-  formDetails: any,
-  setFormDetails: any,
-  manageAccess: any
-) => {
+export const validateForm = (formDetails: any, setFormDetails: any) => {
   let isFormValid = true;
   const updatedForm = { ...formDetails };
 
-  // Validate normal fields (excluding manageAccess or similar arrays)
+  // Validate top-level fields
   Object.keys(updatedForm).forEach((key) => {
-    if (key === "manageAccess") return;
+    if (key === "ManageAccess") return;
 
-    const value = updatedForm[key].value;
+    const field = updatedForm[key];
+
+    // Skip validation if field is not marked mandatory
+    if (!field.isMandatory) return;
+
+    const value = field.value;
     let isValid = true;
 
     if (typeof value === "string") {
@@ -31,17 +32,25 @@ export const validateForm = (
     if (!isValid) isFormValid = false;
   });
 
-  // Handle manageAccess separately
-  if (Array.isArray(updatedForm.manageAccess?.value)) {
+  // Validate manageAccess array if present
+  if (Array.isArray(updatedForm.ManageAccess?.value)) {
     let manageAccessValid = true;
 
-    const updatedManageAccess = updatedForm.manageAccess.value.map(
+    const updatedManageAccess = updatedForm.ManageAccess.value.map(
       (row: any) => {
         const updatedRow: any = {};
         let rowIsValid = true;
 
         Object.keys(row).forEach((fieldKey) => {
-          const fieldValue = row[fieldKey].value;
+          const field = row[fieldKey];
+
+          // Skip if not mandatory
+          if (!field.isMandatory) {
+            updatedRow[fieldKey] = { ...field, isValid: true };
+            return;
+          }
+
+          const fieldValue = field.value;
           let isValid = true;
 
           if (typeof fieldValue === "string") {
@@ -63,7 +72,7 @@ export const validateForm = (
           }
 
           updatedRow[fieldKey] = {
-            ...row[fieldKey],
+            ...field,
             isValid,
           };
         });
@@ -76,8 +85,8 @@ export const validateForm = (
       }
     );
 
-    updatedForm.manageAccess = {
-      ...updatedForm.manageAccess,
+    updatedForm.ManageAccess = {
+      ...updatedForm.ManageAccess,
       value: updatedManageAccess,
       isValid: manageAccessValid,
     };
