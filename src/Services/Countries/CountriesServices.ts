@@ -27,73 +27,81 @@ export const getCountriesList = async (
   setCountries: any,
   setAllCountries: any,
 ) => {
-   const customCountries = [
-    {
-      CountryName: "England",
-      CountryISOCode: "gb-eng",
-       Languages:"",
-      languageOptions:["English"],
-      Region:"Northern Europe",
-      Currency:"GBP",
-      TimeZone:"UTC+0 / UTC+1"
-    },
-    {
-      CountryName: "Scotland",
-      CountryISOCode: "gb-sct",
-       Languages:"",
-      languageOptions: ["English", "Scots", "Scottish Gaelic"],
-      Region:"Northern Europe",
-      Currency:"GBP",
-      TimeZone:"UTC+0 / UTC+1"
-    },
-    {
-      CountryName: "Wales",
-      CountryISOCode: "gb-wls",
-       Languages:"",
-      languageOptions: ["English", "Welsh"],
-      Region:"Northern Europe",
-      Currency:"GBP",
-      TimeZone:"UTC+0 / UTC+1"
-    },
-    {
-      CountryName: "Northern Ireland",
-      CountryISOCode: "gb-nir",
-      Languages:"",
-      languageOptions: ["English", "Irish", "Ulster Scots"],
-      Region:"Northern Europe",
-      Currency:"GBP",
-      TimeZone:"UTC+0 / UTC+1"
-    },
-  ];
-  const response = await fetch("https://restcountries.com/v3.1/all");
-  const data = await response.json();
-  let tempCountryData: any[] = [];
-  data.forEach((country: any) => {
-    const currencyKeys = Object.keys(country.currencies || {});
-    tempCountryData.push({
-      CountryName: country.name.common,
-      CountryISOCode: country.cca2,
-      Languages:"",
-      languageOptions: ( Object.keys(country?.languages || {}).map(
-      (languageKey) => country?.languages[languageKey]
-      )),
-      Region: country.region,
-      Currency: currencyKeys[0] || null,
-      TimeZone: country.timezones[0],
+  try {
+    const customCountries = [
+      {
+        CountryName: "England",
+        CountryISOCode: "gb-eng",
+        Languages: "",
+        languageOptions: ["English"],
+        Region: "Northern Europe",
+        Currency: "GBP",
+        TimeZone: "UTC+0 / UTC+1",
+      },
+      {
+        CountryName: "Scotland",
+        CountryISOCode: "gb-sct",
+        Languages: "",
+        languageOptions: ["English", "Scots", "Scottish Gaelic"],
+        Region: "Northern Europe",
+        Currency: "GBP",
+        TimeZone: "UTC+0 / UTC+1",
+      },
+      {
+        CountryName: "Wales",
+        CountryISOCode: "gb-wls",
+        Languages: "",
+        languageOptions: ["English", "Welsh"],
+        Region: "Northern Europe",
+        Currency: "GBP",
+        TimeZone: "UTC+0 / UTC+1",
+      },
+      {
+        CountryName: "Northern Ireland",
+        CountryISOCode: "gb-nir",
+        Languages: "",
+        languageOptions: ["English", "Irish", "Ulster Scots"],
+        Region: "Northern Europe",
+        Currency: "GBP",
+        TimeZone: "UTC+0 / UTC+1",
+      },
+    ];
+
+    const response = await fetch("https://restcountries.com/v3.1/all");
+    const data = await response.json();
+    let tempCountryData: any[] = [];
+
+    data.forEach((country: any) => {
+      const currencyKeys = Object.keys(country.currencies || {});
+      tempCountryData.push({
+        CountryName: country.name.common,
+        CountryISOCode: country.cca2,
+        Languages: "",
+        languageOptions: Object.keys(country?.languages || {}).map(
+          (languageKey) => country?.languages[languageKey]
+        ),
+        Region: country.region,
+        Currency: currencyKeys[0] || null,
+        TimeZone: country.timezones[0],
+      });
     });
-  });
-  console.log(tempCountryData);
-  setAllCountries([...customCountries,...tempCountryData]);
-  await SpServices.SPReadItems({
-    Listname: SPLists.Countrieslist,
-    Select: "*,Manager/ID,Manager/Title,Manager/EMail",
-    Expand: "Manager",
-  })
-    .then((items) => {
-      const tempsetCountries: any[] = [];
-      const sortedItems = items.sort(
-        (a: any, b: any) => new Date(b.Created).getTime() - new Date(a.Created).getTime()
-      );
+
+    console.log(tempCountryData);
+    setAllCountries([...customCountries, ...tempCountryData]);
+
+    await SpServices.SPReadItems({
+      Listname: SPLists.Countrieslist,
+      Select: "*,Manager/ID,Manager/Title,Manager/EMail",
+      Expand: "Manager",
+    })
+      .then((items) => {
+        const tempsetCountries: any[] = [];
+
+        const sortedItems = items.sort(
+          (a: any, b: any) =>
+            new Date(b.Created).getTime() - new Date(a.Created).getTime()
+        );
+
         sortedItems.map((country) =>
           tempsetCountries.push({
             countryName: country.Title,
@@ -107,10 +115,15 @@ export const getCountriesList = async (
             Notes: country?.Notes,
           })
         );
-      setCountries(tempsetCountries);
-    })
-    .catch((err) => console.log("error while read item", err));
+
+        setCountries(tempsetCountries);
+      })
+      .catch((err) => console.log("Error reading SharePoint items:", err));
+  } catch (err: any) {
+    console.log("Error in getCountriesList:", err);
+  }
 };
+
 export const addCountriesList = async (countryData: any, setCountries: any) => {
   const managerData = countryData?.selectedPeople?.value.map(
     (manager: any) => ({
@@ -154,3 +167,11 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
     })
     .catch((err) => console.error(err));
 };
+export const filterCountryUnselected= (countries:any,allCountries:any,setAllCountries:any)=>{
+  const existing = countries.map((country:any) => country.countryName?.toLowerCase().trim());
+  const filtered = allCountries.filter(
+    (country:any) => !existing.includes(country.CountryName?.toLowerCase().trim())
+  );
+  console.log(existing)
+  setAllCountries(filtered);
+}

@@ -10,11 +10,12 @@ import styles from "./Countries.module.scss";
 import { useState, useEffect } from "react";
 import {
   addCountriesList,
+  filterCountryUnselected,
   getCountriesList,
 } from "../../../../../Services/Countries/CountriesServices";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { OnCountryRender } from "../../../../../Utils/dataTable";
+import { OnCountryActionsRender, OnCountryRender, OnCountryStatusRender, OnManagerRender, OnProjectCountRender } from "../../../../../Utils/dataTable";
 import CustomDataTable from "../../Common/DataTable/DataTable";
 import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
 import CustomSearchInput from "../../Common/CustomInputFields/CustomSearchInput/CustomSearchInput";
@@ -243,7 +244,6 @@ const handleSubmitFuction = async (): Promise<void> => {
   const isFormValid = validateForm(
     formDetails,
     setFormDetails,
-    "manageAccessList"
   );
   console.log("isFormValid", isFormValid);
 
@@ -285,16 +285,20 @@ const handleSubmitFuction = async (): Promise<void> => {
       <DataTable
         value={countries}
         scrollable
-        scrollHeight="400px"
+        scrollHeight="60vh"
         style={{ minWidth: "100%" }}
         key={0}
+        paginator
+        rows={10}
+        paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
       >
         <Column
           field="countryName"
           header="Country name"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnCountryRender rowData={rowData} header={"name"} />
+            <OnCountryRender rowData={rowData} />
           )}
           sortable
         />
@@ -303,7 +307,7 @@ const handleSubmitFuction = async (): Promise<void> => {
           header="No of projects"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnCountryRender rowData={rowData} header={"projectCount"} />
+            <OnProjectCountRender rowData={rowData}/>
           )}
         />
         <Column
@@ -311,7 +315,7 @@ const handleSubmitFuction = async (): Promise<void> => {
           header="Manager Access"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnCountryRender rowData={rowData} header={"ManagerAccess"} />
+            <OnManagerRender rowData={rowData} />
           )}
         />
         <Column
@@ -319,10 +323,14 @@ const handleSubmitFuction = async (): Promise<void> => {
           header="Status"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnCountryRender rowData={rowData} header={"Status"} />
+           <OnCountryStatusRender rowData={rowData}/>
           )}
         />{" "}
-        <Column field="" header="Action" style={{ minWidth: "20%" }} />
+        <Column field="" header="Action" style={{ minWidth: "20%" }} 
+        body={(rowData) => (
+           <OnCountryActionsRender />
+          )}
+        />
       </DataTable>,
     ],
   ];
@@ -341,6 +349,7 @@ const handleSubmitFuction = async (): Promise<void> => {
             text="Add new country"
             startIcon={<AddIcon />}
             onClick={() => {
+               filterCountryUnselected(countries,allCountries,setAllCountries)
               togglePopupVisibility(
                 setPopupController,
                 0,
@@ -348,7 +357,6 @@ const handleSubmitFuction = async (): Promise<void> => {
                 `Add New Country`
               );
               setFormDetails(deepClone(cloneFormDetails));
-              // ApproveDefinition(definitionsData, setPopupLoaders);
             }}
           />
         </div>
