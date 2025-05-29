@@ -224,12 +224,11 @@ export const OnCountryStatusRender = (rowData: any) => {
     </>
   );
 };
-export const OnCountryActionsRender: React.FC<IActionsProps> = () => {
+export const OnCountryActionsRender: React.FC = () => {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <LaunchIcon
         style={{ width: "20px", height: "20px", cursor: "pointer" }}
-        onClick={() => {}}
       />
       <GroupAddIcon
         style={{
