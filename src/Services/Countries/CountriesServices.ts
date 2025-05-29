@@ -25,7 +25,7 @@ const peopleHandler = (Manager: any[]) => {
 
 export const getCountriesList = async (
   setCountries: any,
-  setAllCountries: any,
+  setAllCountries: any
 ) => {
   try {
     const customCountries = [
@@ -69,7 +69,7 @@ export const getCountriesList = async (
 
     const response = await fetch("https://restcountries.com/v3.1/all");
     const data = await response.json();
-    let tempCountryData: any[] = [];
+    const tempCountryData: any[] = [];
 
     data.forEach((country: any) => {
       const currencyKeys = Object.keys(country.currencies || {});
@@ -152,7 +152,7 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
     RequestJSON: requestPayload,
   })
     .then((newValue: any) => {
-      let newValueObj = {
+      const newValueObj = {
         countryName: newValue.data.Title,
         ISOCode: newValue.data.ISOCode,
         Manager: peopleHandler(managerData),
@@ -167,11 +167,18 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
     })
     .catch((err) => console.error(err));
 };
-export const filterCountryUnselected= (countries:any,allCountries:any,setAllCountries:any)=>{
-  const existing = countries.map((country:any) => country.countryName?.toLowerCase().trim());
-  const filtered = allCountries.filter(
-    (country:any) => !existing.includes(country.CountryName?.toLowerCase().trim())
+export const filterCountryUnselected = (
+  countries: any,
+  allCountries: any,
+  setAllCountries: any
+) => {
+  const existing = countries.map((country: any) =>
+    country.countryName?.toLowerCase().trim()
   );
-  console.log(existing)
+  const filtered = allCountries.filter(
+    (country: any) =>
+      !existing.includes(country.CountryName?.toLowerCase().trim())
+  );
+  console.log(existing);
   setAllCountries(filtered);
-}
+};
