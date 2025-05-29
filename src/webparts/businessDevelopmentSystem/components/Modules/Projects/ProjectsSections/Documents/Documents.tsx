@@ -53,6 +53,14 @@ const Documents: React.FC = () => {
     },
   ];
 
+  const openDocumentAction = (project: any) => {
+    console.log("project", project);
+    setIsDocumentOpen(true);
+  };
+  const documentManageAccessAction = (project: any) => {
+    console.log("project", project);
+  };
+
   const tableColumns = [
     [
       <DataTable
@@ -92,7 +100,11 @@ const Documents: React.FC = () => {
           header="Actions"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnActionsRender setDocumentOpen={setIsDocumentOpen} />
+            <OnActionsRender
+              openProjectAction={openDocumentAction}
+              userAccessAction={documentManageAccessAction}
+              rowData={rowData}
+            />
           )}
         />
       </DataTable>,

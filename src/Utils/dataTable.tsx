@@ -9,10 +9,12 @@ import Profiles from "../webparts/businessDevelopmentSystem/components/Common/Pr
 import LaunchIcon from "@mui/icons-material/Launch";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import * as React from "react";
+import * as dayjs from "dayjs";
 
 interface IActionsProps {
-  setActiveProjectTab?: React.Dispatch<React.SetStateAction<string>>;
-  setDocumentOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  openProjectAction?: React.Dispatch<React.SetStateAction<any>>;
+  userAccessAction?: React.Dispatch<React.SetStateAction<any>>;
+  rowData: any;
 }
 interface IStatusRenderProps {
   status: string;
@@ -27,8 +29,8 @@ export const OnTextRender = (text: any) => {
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        color: "#0078d4",
-        fontSize: "14px",
+        color: "var(--basic-font-color)",
+        fontSize: "13px",
         fontWeight: "400",
       }}
     >
@@ -38,16 +40,16 @@ export const OnTextRender = (text: any) => {
 };
 
 export const OnActionsRender: React.FC<IActionsProps> = ({
-  setActiveProjectTab,
-  setDocumentOpen,
+  openProjectAction,
+  userAccessAction,
+  rowData,
 }) => {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <LaunchIcon
         style={{ width: "20px", height: "20px", cursor: "pointer" }}
         onClick={() => {
-          setActiveProjectTab?.("Obligations");
-          setDocumentOpen?.(true);
+          openProjectAction?.(rowData);
         }}
       />
       <GroupAddIcon
@@ -56,6 +58,9 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
           width: "20px",
           height: "20px",
           cursor: "pointer",
+        }}
+        onClick={() => {
+          userAccessAction?.(rowData);
         }}
       />
     </div>
@@ -74,6 +79,7 @@ export const OnStatusRender: React.FC<IStatusRenderProps> = ({ status }) => {
           padding: "5px 10px",
           borderRadius: "5px",
           fontSize: "14px",
+          fontWeight: 600,
           backgroundColor:
             status === "Completed"
               ? "#9ef5a1"
@@ -107,6 +113,7 @@ export const OnTaskStatusRender: React.FC<IStatusRenderProps> = ({
           padding: "5px 10px",
           borderRadius: "5px",
           fontSize: "14px",
+          fontWeight: 600,
           border: `1px solid ${
             status === "Completed"
               ? "#e4efe5"
@@ -122,20 +129,40 @@ export const OnTaskStatusRender: React.FC<IStatusRenderProps> = ({
               : status === "Pending"
               ? "#fef7e6"
               : status === "Overdue"
-              ? "#fee9e6"
+              ? "#f1cec9"
               : "#d9edf7",
+
           color:
             status === "Completed"
-              ? "#006f04"
+              ? "#79b57b"
               : status === "Pending"
               ? "#6f4f00"
               : status === "Overdue"
-              ? "#6f1600"
+              ? "#392c29"
               : "#d9edf7",
         }}
       >
         {status}
       </span>
+    </div>
+  );
+};
+
+export const OnDateRender = (date: any) => {
+  console.log("date", date);
+
+  return (
+    <div
+      style={{
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        color: "var(--basic-font-color)",
+        fontSize: "13px",
+        fontWeight: "400",
+      }}
+    >
+      {dayjs(date?.date).format("D MMM YYYY")}
     </div>
   );
 };
@@ -146,39 +173,72 @@ export const OnCountryRender = (rowData: any) => {
 
   return (
     <>
-      {rowData.header === "name" ? (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img
-            style={{ borderRadius: "50%", marginRight: "15px" }}
-            src={flagImg}
-            height="28px"
-            width="28px"
-          />
-          <span>{code.countryName}</span>
-        </div>
-      ) : rowData.header === "projectCount" ? (
-        <div className={styles.projectCount}>
-          <span className={styles.projectnumber}>05</span>
-          <span>Projects</span>
-        </div>
-      ) : rowData.header === "ManagerAccess" ? (
-        <div>
-          {code.Manager && (
-            <Profiles
-              value={code.Manager}
-              maxVisible={code.Manager.length === 1 ? 1 : 3}
-            />
-          )}
-        </div>
-      ) : rowData.header === "Status" ? (
-        <div className={styles.cardStatus}>
-          <i
-            className="pi pi-circle-fill"
-            style={{ fontSize: "6px", placeSelf: "center" }}
-          />
-          <span> Active</span>
-        </div>
-      ) : null}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img
+          style={{ borderRadius: "50%", marginRight: "15px" }}
+          src={flagImg}
+          height="28px"
+          width="28px"
+        />
+        <span>{code.countryName}</span>
+      </div>
     </>
+  );
+};
+export const OnProjectCountRender = (rowData: any) => {
+  return (
+    <>
+      <div className={styles.projectCount}>
+        <span className={styles.projectnumber}>05</span>
+        <span>Projects</span>
+      </div>
+    </>
+  );
+};
+export const OnManagerRender = (rowData: any) => {
+  const code = rowData?.rowData;
+  return (
+    <>
+      <div>
+        {code.Manager && (
+          <Profiles
+            value={code.Manager}
+            maxVisible={code.Manager.length === 1 ? 1 : 3}
+          />
+        )}
+      </div>
+    </>
+  );
+};
+export const OnCountryStatusRender = (rowData: any) => {
+  const code = rowData?.rowData;
+  return (
+    <>
+      <div className={styles.cardStatus}>
+        <i
+          className="pi pi-circle-fill"
+          style={{ fontSize: "6px", placeSelf: "center" }}
+        />
+        <span>{code.Status}</span>
+      </div>
+    </>
+  );
+};
+export const OnCountryActionsRender: React.FC<IActionsProps> = () => {
+  return (
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <LaunchIcon
+        style={{ width: "20px", height: "20px", cursor: "pointer" }}
+        onClick={() => {}}
+      />
+      <GroupAddIcon
+        style={{
+          marginLeft: "10px",
+          width: "20px",
+          height: "20px",
+          cursor: "pointer",
+        }}
+      />
+    </div>
   );
 };

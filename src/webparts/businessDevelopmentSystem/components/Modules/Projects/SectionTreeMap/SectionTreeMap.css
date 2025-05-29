@@ -30,7 +30,7 @@
     color: var(--section-header-font-color);
 }
 .section_tree_map_wrapper .tree_map_country_text span{
-    min-width: 20vh;
+    min-width: 1vh;
     max-width: 20vh;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -38,7 +38,7 @@
     display: inline-block;
 }
 .section_tree_map_wrapper .tree_map_project_text span{
-    min-width: 30vh;
+    min-width: 1vh;
     max-width: 120vh;
     overflow: hidden;
     text-overflow: ellipsis;

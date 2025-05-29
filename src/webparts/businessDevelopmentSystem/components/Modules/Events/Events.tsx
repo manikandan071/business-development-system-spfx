@@ -190,11 +190,7 @@ const Events: React.FC = () => {
   ];
 
   const handleSubmitFuction = (): void => {
-    const isFormValid = validateForm(
-      formDetails,
-      setFormDetails,
-      "manageAccessList"
-    );
+    const isFormValid = validateForm(formDetails, setFormDetails);
     console.log("isFormValid", isFormValid);
 
     if (isFormValid) {

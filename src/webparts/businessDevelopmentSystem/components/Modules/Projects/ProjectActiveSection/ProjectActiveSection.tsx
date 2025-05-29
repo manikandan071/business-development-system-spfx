@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProjectNavBar from "../ProjectNavBar/ProjectNavBar";
 import Obligations from "../ProjectsSections/Obligations/Obligations";
 import Calender from "../ProjectsSections/Calender/Calender";
@@ -14,15 +14,55 @@ import styles from "./ProjectActiveSection.module.scss";
 import SectionTreeMap from "../SectionTreeMap/SectionTreeMap";
 import CountryDetails from "../Cards/CountryDetails/CountryDetails";
 import ProjectDetails from "../Cards/ProjectDetails/ProjectDetails";
+import { useSelector } from "react-redux";
+import { IProjectDetails } from "../../../../../../Interface/ModulesInterface";
+import * as dayjs from "dayjs";
+import * as duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
+interface IProjectActiveSectionPros {
+  countryId: number | any;
+  projectId: number | any;
+}
 
-const ProjectActiveSection: React.FC = () => {
+const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
+  countryId,
+  projectId,
+}) => {
+  console.log(countryId, projectId);
+
+  const projectDataState: any = useSelector(
+    (state: any) => state.ProjectContextSlice.projectsData
+  );
+
   const [activeTab, setActiveTab] = useState<any>({});
+  const [projectDetails, setProjectDetails] = useState<IProjectDetails>({
+    Id: 0,
+    ProjectName: "",
+    ProjectType: "",
+    CountryId: 0,
+    CountryName: "",
+    City: "",
+    Description: "",
+    StartDate: "",
+    EndDate: "",
+    ManageAccess: [],
+  });
+  console.log("projectDetails", projectDetails);
+
+  useEffect(() => {
+    console.log("projectDataState", projectDataState);
+    projectDataState?.forEach((state: IProjectDetails) => {
+      if (state?.Id === projectId) {
+        setProjectDetails(state);
+      }
+    });
+  }, []);
   return (
     <>
       <div style={{ width: "82%" }}>
         <SectionTreeMap
-          CountryName="Sample Sample Sample Sample Sample Sample"
-          ProjectName="sample Sample Sample Sample Sample Sample Sample"
+          CountryName="UAE"
+          ProjectName="Project one"
           SectionName={activeTab?.displayName}
         />
         <div className={styles.project_Active_Section_wrapper}>
@@ -55,9 +95,13 @@ const ProjectActiveSection: React.FC = () => {
         />
         <ProjectDetails
           projectDetails={{
-            Id: "P001",
-            Name: "Sample Project",
-            days: 30,
+            Id: `P000${projectDetails?.Id}`,
+            Name: projectDetails?.ProjectName,
+            days:
+              dayjs(projectDetails?.EndDate).diff(
+                dayjs(projectDetails?.StartDate),
+                "day"
+              ) + 1,
           }}
         />
       </div>

@@ -5,7 +5,7 @@
     justify-content: start;
 }
 .fc-header-toolbar{
-    margin-bottom: 15px !important;
+    margin-bottom: 10px !important;
 }
 .fc-col-header-cell{
     text-align: left !important;
@@ -62,7 +62,8 @@
     text-transform: capitalize !important;
     color: var(--section-header-font-color) !important;
     background-color: #fff !important;
-    border: none !important;
+    /* border: none !important; */
+    border: 1px solid #ddd1d1 !important;
 }
 .fc-button-primary:focus{
     box-shadow: none !important;

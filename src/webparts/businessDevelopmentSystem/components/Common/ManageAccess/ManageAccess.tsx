@@ -69,10 +69,12 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
       User: {
         value: [],
         isValid: true,
+        isMandatory: true,
       },
       Permission: {
         value: "",
         isValid: true,
+        isMandatory: true,
       },
     };
     setManageAccessList((prevRows) => [...prevRows, newRow]);
@@ -103,7 +105,7 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
           <div className="manage-access-table-header">Action</div>
         </div>
         <div className={`manage-access-table-body-container-${showList}`}>
-          {manageAccessList.map((item: any, index: number) => (
+          {manageAccessList?.map((item: any, index: number) => (
             <div
               key={index}
               className="section-wrapper padding-buttom-10"
