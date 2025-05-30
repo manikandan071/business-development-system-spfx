@@ -63,6 +63,7 @@ const fetchProjectData = async (
       ProjectType: project?.ProjectType,
       StartDate: project?.StartDate,
       EndDate: project?.EndDate,
+      Status: project?.Status,
       ManageAccess: manageAccessUsersDeserialized(project?.ManageAccess),
       ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
         project?.ManageAccess
@@ -90,6 +91,7 @@ const submitAddProjectForm = (
     City: formDetails?.City?.value,
     StartDate: formDetails?.StartDate?.value,
     EndDate: formDetails?.EndDate?.value,
+    Status: "Not Started",
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
   };
   debugger;
@@ -109,6 +111,7 @@ const submitAddProjectForm = (
         ProjectType: payloadDetails?.ProjectType,
         StartDate: payloadDetails?.StartDate,
         EndDate: payloadDetails?.EndDate,
+        Status: "Not Started",
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -156,12 +159,17 @@ const submitManageAccessForm = (
           payloadDetails?.ManageAccess
         ),
       };
-      setMasterState((prev: any) => {
-        return [...prev, projectDetails];
-      });
-      setLocalState((prev: any) => {
-        return [...prev, projectDetails];
-      });
+
+      setMasterState((prev: any) =>
+        prev.map((item: any) =>
+          item.Id === recId ? { ...item, ...projectDetails } : item
+        )
+      );
+      setLocalState((prev: any) =>
+        prev.map((item: any) =>
+          item.Id === recId ? { ...item, ...projectDetails } : item
+        )
+      );
       togglePopupVisibility(setPopupController, index, "close");
     })
     .catch((err: any) => {

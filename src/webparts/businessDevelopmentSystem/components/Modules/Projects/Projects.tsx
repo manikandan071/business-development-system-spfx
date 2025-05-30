@@ -11,6 +11,7 @@ import { DataTable } from "primereact/datatable";
 import {
   OnActionsRender,
   OnDateRender,
+  OnStatusRender,
   OnTextRender,
 } from "../../../../../Utils/dataTable";
 import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
@@ -85,8 +86,9 @@ const Projects: React.FC = () => {
     City: "",
     Description: "",
     StartDate: "",
-    ManageAccess: [],
     EndDate: "",
+    Status: "",
+    ManageAccess: [],
   });
   console.log(
     "activeProjectTab",
@@ -313,6 +315,7 @@ const Projects: React.FC = () => {
     setActiveProjectTab("Obligations");
     setSelectedProject(project);
   };
+
   const projectManageAccessAction = (project: any) => {
     setSelectedProject(project);
     console.log("project", project);
@@ -337,7 +340,7 @@ const Projects: React.FC = () => {
         value={projectData}
         scrollable
         scrollHeight="60vh"
-        style={{ minWidth: "100%" }}
+        style={{ width: "100%" }}
         key={0}
         paginator
         rows={10}
@@ -347,42 +350,49 @@ const Projects: React.FC = () => {
         <Column
           field="ProjectName"
           header="Project Name"
-          style={{ minWidth: "20%" }}
+          style={{ width: "20%" }}
           body={(rowData) => <OnTextRender text={rowData?.ProjectName} />}
           sortable
         />
         <Column
           field="ProjectType"
           header="Project Type"
-          style={{ minWidth: "20%" }}
+          style={{ width: "15%" }}
           body={(rowData) => <OnTextRender text={rowData?.ProjectType} />}
           sortable
         />
         <Column
           field="CountryName"
           header="Country"
-          style={{ minWidth: "20%" }}
+          style={{ width: "10%" }}
           body={(rowData) => <OnTextRender text={rowData?.CountryName} />}
           sortable
         />
         <Column
           field="StartDate"
           header="Start Date"
-          style={{ minWidth: "20%" }}
+          style={{ width: "15%" }}
           body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
           sortable
         />
         <Column
           field="EndDate"
           header="End Date"
-          style={{ minWidth: "20%" }}
+          style={{ width: "15%" }}
           body={(rowData) => <OnDateRender date={rowData?.EndDate} />}
+          sortable
+        />
+        <Column
+          field="Status"
+          header="Status"
+          style={{ width: "15%" }}
+          body={(rowData) => <OnStatusRender status={rowData?.Status} />}
           sortable
         />
         <Column
           field=""
           header="Actions"
-          style={{ minWidth: "20%" }}
+          style={{ width: "10%" }}
           body={(rowData) => (
             <OnActionsRender
               openProjectAction={openProjectAction}

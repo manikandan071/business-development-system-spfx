@@ -12,8 +12,32 @@
   font-weight: 500;
 }
 .projectnumber{
-     padding: 2px;
+  padding: 2px;
   background-color: #fbede8;
   border-radius: 2px;
   margin-right: 5px;
+}
+/* status fill styles */
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+.in-progress, .pending{
+  background-color: #ffff0069;
+  color: #5e553a;
+  border: 1px solid #ead595;
+}
+.completed {
+  background-color: #9ef5a1;
+  color: #298a3f;
+  border: 1px solid #40cc6038;
+}
+.overdue, .missed, .not-started {
+  background-color: #ff9393;
+  color: #2e2929;
+  border: 1px solid #ff9393;
 }
