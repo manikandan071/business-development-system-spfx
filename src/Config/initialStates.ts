@@ -48,49 +48,60 @@ const countryFormDetails = {
   CountryName: {
     value: "",
     isValid: true,
+    isMandatory: true,
   },
   CountryISOCode: {
     value: "",
     isValid: true,
+    isMandatory: true
   },
   Languages: {
     value: "",
     isValid: true,
+    isMandatory: true
   },
   Region: {
     value: "",
     isValid: true,
+    isMandatory: true
   },
   Currency: {
     value: "",
     isValid: true,
+    isMandatory: true
   },
   TimeZone: {
     value: "",
     isValid: true,
+    isMandatory: true
   },
   Status: {
     value: "Active",
     isValid: true,
+    isMandatory: true
   },
   Notes: {
     value: "",
     isValid: true,
+    isMandatory: false
   },
   selectedPeople: {
     value: [],
     isValid: true,
+    isMandatory: true
   },
-  manageAccess: {
+  ManageAccess: {
     value: [
       {
         User: {
           value: [],
           isValid: true,
+          isMandatory: true
         },
         Permission: {
           value: "",
           isValid: true,
+          isMandatory: true
         },
       },
     ],

@@ -12,10 +12,11 @@ import {
   addCountriesList,
   filterCountryUnselected,
   getCountriesList,
+  submitManageAccessForm,
 } from "../../../../../Services/Countries/CountriesServices";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { OnCountryActionsRender, OnCountryRender, OnCountryStatusRender, OnManagerRender, OnProjectCountRender } from "../../../../../Utils/dataTable";
+import { OnActionsRender, OnCountryRender, OnCountryStatusRender, OnManagerRender, OnProjectCountRender } from "../../../../../Utils/dataTable";
 import CustomDataTable from "../../Common/DataTable/DataTable";
 import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
 import CustomSearchInput from "../../Common/CustomInputFields/CustomSearchInput/CustomSearchInput";
@@ -34,10 +35,14 @@ import CustomInput from "../../Common/CustomInputFields/CustomInput/CustomInput"
 import CustomPeoplePicker from "../../Common/CustomInputFields/CustomPeoplePicker/CustomPeoplePicker";
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { validateForm } from "../../../../../Utils/validations";
+import { useDispatch } from "react-redux";
+import { IallCountriesType, IcountriesType } from "../../../../../Interface/ModulesInterface";
+
 // import Profiles from "../../Common/Profile/Profiles";
 // import DefaultButton from "../../Common/Buttons/DefaultButton/DefaultButton";
 
 const Countries: React.FC = () => {
+  const dispatch=useDispatch();
   const cloneFormDetails = deepClone(countryFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -51,14 +56,39 @@ const Countries: React.FC = () => {
       defaultCloseBtn: false,
       popupData: "",
     },
+    {
+      open: false,
+      popupTitle: "",
+      popupWidth: "900px",
+      popupType: "custom",
+      defaultCloseBtn: false,
+      popupData: "",
+    },
   ];
-  const [countries, setCountries] = useState([]);
-  const [allCountries, setAllCountries] = useState([]);
+  const [countries, setCountries] = useState<IcountriesType[]>([]);
+  const [allCountries, setAllCountries] = useState<IallCountriesType[]>([]);
+  const [selectedCountry,setSelectedCountry]=useState({
+    ID:0,
+    countryName:"",
+    ISOCode:"",
+    Manager:[],
+    Languages:"",
+    Region:"",
+    Currency:"",
+    TimeZone:"",
+    Status:"",
+    Notes:""
+  });
+
+  const [masterCountryData, setMasterCountryData] = useState<IcountriesType[]>();
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
   const [languagesOptions, setLanguagesOptions] = useState<any[]>([]);
+ console.log("Master",masterCountryData)
+ console.log("Country",countries)
+
 
   console.log("formDetails",formDetails);
   
@@ -98,81 +128,81 @@ const Countries: React.FC = () => {
 
 
             }}
-            placeholder="Country Name"
+            placeholder="Enter Country Name"
             sectionType="two"
-            isValid={formDetails.CountryName.isValid}
+            isValid={formDetails?.CountryName?.isValid}
             withLabel={true}
-            mandatory={true}
-            labelText="Label Text"
+            mandatory={formDetails?.CountryName?.isMandatory}
+            labelText="Country Name"
           />
           <CustomInput
-            value={formDetails.CountryISOCode.value}
+            value={formDetails?.CountryISOCode?.value}
             type="text"
-            placeholder="Country ISO Code"
+            placeholder="Enter Country ISO Code"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("CountryISOCode", value, setFormDetails);
             }}
-            isValid={formDetails.CountryISOCode.isValid}
+            isValid={formDetails?.CountryISOCode?.isValid}
             withLabel={true}
-            mandatory={true}
+            mandatory={formDetails?.CountryISOCode?.isMandatory}
             labelText="Country ISO Code"
             readOnly={true}
             disabled={true}
           />
           <CustomDropDown
             options={languagesOptions}
-            value={formDetails.Languages?.value}
-            placeholder="Languages"
+            value={formDetails?.Languages?.value}
+            placeholder="Select Languages"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Languages", value, setFormDetails);
             }}
-            isValid={formDetails.Languages.isValid}
+            isValid={formDetails?.Languages?.isValid}
             withLabel={true}
-            mandatory={true}
-            labelText="Languages"
+            mandatory={formDetails?.Languages?.isMandatory}
+            labelText="Language"
             disabled={false}
             readOnly={false}
           />
           <CustomInput
-            value={formDetails.Region.value}
+            value={formDetails?.Region?.value}
             type="text"
-            placeholder="Region"
+            placeholder="Enter Region"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Region", value, setFormDetails);
             }}
-            isValid={formDetails.Region.isValid}
+            isValid={formDetails?.Region?.isValid}
             withLabel={true}
-            mandatory={true}
+            mandatory={formDetails?.Region?.isMandatory}
             labelText="Region"
             disabled={true}
           />
           <CustomInput
-            value={formDetails.Currency.value}
-            placeholder="Currency"
+            value={formDetails?.Currency?.value}
+            placeholder="Enter Currency"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Currency", value, setFormDetails);
             }}
-            isValid={formDetails.Currency.isValid}
+            isValid={formDetails?.Currency?.isValid}
             withLabel={true}
-            mandatory={true}
+            mandatory={formDetails?.Currency?.isMandatory}
             labelText="Currency"
             disabled={true}
             readOnly={true}
           />
           <CustomInput
-            value={formDetails.TimeZone.value}
-            placeholder="TimeZone"
+            value={formDetails?.TimeZone?.value}
+            placeholder="Enter TimeZone"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("TimeZone", value, setFormDetails);
             }}
-            isValid={formDetails.TimeZone.isValid}
+            isValid={formDetails?.TimeZone?.isValid}
             withLabel={true}
-            mandatory={true}
+            mandatory={formDetails?.TimeZone?.isMandatory}
             labelText="TimeZone"
             disabled={true}
             readOnly={true}
@@ -182,7 +212,7 @@ const Countries: React.FC = () => {
           <PopupSectionHeader Title="PEOPLE & OTHERS" />
           <div className="section-wrapper">
             <CustomPeoplePicker
-              selectedItem={formDetails.selectedPeople.value}
+              selectedItem={formDetails?.selectedPeople?.value}
               sectionType="two"
               personSelectionLimit={1}
               minHeight="38px"
@@ -190,22 +220,22 @@ const Countries: React.FC = () => {
               onChange={(value: any[]) => {
                 onChangeFunction("selectedPeople", value, setFormDetails);
               }}
-              isValid={formDetails.selectedPeople.isValid}
+              isValid={formDetails?.selectedPeople?.isValid}
               withLabel={true}
-              mandatory={true}
+              mandatory={formDetails?.selectedPeople?.isMandatory}
               labelText="Manager"
             />
             <CustomDropDown
               options={["Active", "inActive"]}
-              value={formDetails.Status.value}
-              placeholder="Status"
+              value={formDetails?.Status?.value}
+              placeholder="Select Status"
               sectionType="two"
               onChange={(value: string) => {
                 onChangeFunction("Status", value, setFormDetails);
               }}
-              isValid={formDetails.Status.isValid}
+              isValid={formDetails?.Status?.isValid}
               withLabel={true}
-              mandatory={true}
+              mandatory={formDetails?.Status?.isMandatory}
               labelText="Status"
               disabled={true}
             />
@@ -213,29 +243,42 @@ const Countries: React.FC = () => {
           <div>
             <PopupSectionHeader Title="NOTES" />
             <CustomInput
-              value={formDetails.Notes.value}
+              value={formDetails?.Notes?.value}
               type="text"
-              placeholder="Enter Some Notes....."
+              placeholder="Enter Notes"
               rows={3}
               sectionType="one"
               onChange={(value: string) => {
                 onChangeFunction("Notes", value, setFormDetails);
               }}
-              isValid={formDetails.Notes.isValid}
+              isValid={formDetails?.Notes?.isValid}
               withLabel={true}
-              // mandatory={true}
+              mandatory={formDetails?.Notes?.isMandatory}
               disabled={false}
             />
           </div>
         </div>
         <ManageAccess
-          ManageAccess={formDetails?.manageAccess?.value}
+          ManageAccess={formDetails?.ManageAccess?.value}
           onChange={(value: any) => {
             // console.log("value", value);
-            onChangeFunction("manageAccess", value, setFormDetails);
+            onChangeFunction("ManageAccess", value, setFormDetails);
           }}
           showList="3"
           showSectionTitle={true}
+        />
+      </div>,
+    ],
+      [
+      <div key={1} style={{ width: "100%" }}>
+        <ManageAccess
+          ManageAccess={formDetails?.ManageAccess?.value}
+          onChange={(value: any) => {
+            // console.log("value", value);
+            onChangeFunction("ManageAccess", value, setFormDetails);
+          }}
+          showList="10"
+          showSectionTitle={false}
         />
       </div>,
     ],
@@ -254,6 +297,22 @@ const handleSubmitFuction = async (): Promise<void> => {
     togglePopupVisibility(setPopupController, 0, "close");
   }
 };
+const handleManageAccessSubmitFuction = () => {
+    const isFormValid = validateForm(formDetails, setFormDetails);
+    console.log("isFormValid", isFormValid);
+    console.log("Countries",countries)
+    if (isFormValid) {
+      console.log("Form is valid");
+      submitManageAccessForm(
+        formDetails,
+        selectedCountry?.ID,
+        setMasterCountryData,
+        setCountries,
+        setPopupController,
+        1
+      );
+    }
+  };
   const popupActions: any[] = [
     [
       {
@@ -278,8 +337,47 @@ const handleSubmitFuction = async (): Promise<void> => {
         },
       },
     ],
+     [          {
+            text: "Cancel",
+            btnType: "closeBtn",
+            disabled: false,
+            endIcon: false,
+            startIcon: false,
+            onClick: () => {
+              setFormDetails(deepClone(cloneFormDetails));
+              handleClosePopup(1);
+            },
+          },
+          {
+            text: "Submit",
+            btnType: "primaryBtn",
+            disabled: false,
+            endIcon: false,
+            startIcon: false,
+            onClick: () => {
+              handleManageAccessSubmitFuction();
+            },
+          },
+        ]
   ];
-
+const countryManageAccessAction = (country: any) => {
+  debugger;
+    setSelectedCountry(country);
+    console.log("country", country);
+    setFormDetails({
+      ManageAccess: {
+        value: country?.ManageAccessFormFormat,
+        isValid: true,
+        isMandatory: true,
+      },
+    });
+   togglePopupVisibility(
+                setPopupController,
+                1,
+                "open",
+                `Country Manage Access`
+              );
+  };
   const tableColumns = [
     [
       <DataTable
@@ -328,14 +426,18 @@ const handleSubmitFuction = async (): Promise<void> => {
         />{" "}
         <Column field="" header="Action" style={{ minWidth: "20%" }} 
         body={(rowData) => (
-           <OnCountryActionsRender />
+           <OnActionsRender 
+           openProjectAction={()=>console.log("Working Properly")}
+            userAccessAction={countryManageAccessAction}
+             rowData={rowData}
+            />
           )}
         />
       </DataTable>,
     ],
   ];
   useEffect(() => {
-    getCountriesList(setCountries, setAllCountries);
+    getCountriesList(setCountries, setAllCountries,setMasterCountryData,dispatch);
   }, []);
   // console.log("Countries", countries);
   return (
