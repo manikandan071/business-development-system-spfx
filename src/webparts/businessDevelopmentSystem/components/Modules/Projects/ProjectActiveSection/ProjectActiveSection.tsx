@@ -45,6 +45,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
     Description: "",
     StartDate: "",
     EndDate: "",
+    Status: "",
     ManageAccess: [],
   });
   console.log("projectDetails", projectDetails);
@@ -62,7 +63,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
       <div style={{ width: "82%" }}>
         <SectionTreeMap
           CountryName="UAE"
-          ProjectName="Project one"
+          ProjectName={projectDetails?.ProjectName}
           SectionName={activeTab?.displayName}
         />
         <div className={styles.project_Active_Section_wrapper}>
@@ -97,11 +98,12 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
           projectDetails={{
             Id: `P000${projectDetails?.Id}`,
             Name: projectDetails?.ProjectName,
-            days:
+            Days:
               dayjs(projectDetails?.EndDate).diff(
                 dayjs(projectDetails?.StartDate),
                 "day"
               ) + 1,
+            Status: projectDetails?.Status,
           }}
         />
       </div>

@@ -11,7 +11,7 @@ import CustomDataTable from "../../../../Common/DataTable/DataTable";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
-  OnTaskStatusRender,
+  OnStatusRender,
   OnTextRender,
 } from "../../../../../../../Utils/dataTable";
 
@@ -92,7 +92,7 @@ const ToDoList: React.FC = () => {
           field="status"
           header="Status"
           style={{ minWidth: "25%" }}
-          body={(rowData) => <OnTaskStatusRender status={rowData?.status} />}
+          body={(rowData) => <OnStatusRender status={rowData?.status} />}
           sortable
         />
         {/* <Column

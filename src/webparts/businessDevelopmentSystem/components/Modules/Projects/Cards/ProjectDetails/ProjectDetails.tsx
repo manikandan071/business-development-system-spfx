@@ -27,7 +27,7 @@ const ProjectDetails: React.FC<IProjectDetailsProps> = ({ projectDetails }) => {
         </div>
         <div className="project-details-item">
           <span>Total working days</span>
-          <p>{projectDetails?.days} days</p>
+          <p>{projectDetails?.Days} days</p>
         </div>
         <div className="project-details-item">
           <span>Contributors</span>
@@ -35,7 +35,19 @@ const ProjectDetails: React.FC<IProjectDetailsProps> = ({ projectDetails }) => {
         </div>
         <div className="project-details-item">
           <span>Status</span>
-          <p>Custom component</p>
+          <p
+            style={{
+              color: `${
+                projectDetails?.Status?.toLowerCase() === "not started"
+                  ? "#d93025"
+                  : projectDetails?.Status?.toLowerCase() === "in progress"
+                  ? "#ff9900"
+                  : "#28a745"
+              }`,
+            }}
+          >
+            {projectDetails?.Status}
+          </p>
         </div>
       </div>
     </div>

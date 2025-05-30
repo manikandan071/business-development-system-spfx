@@ -10,6 +10,7 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import * as React from "react";
 import * as dayjs from "dayjs";
+import "./dataTable.css";
 
 interface IActionsProps {
   openProjectAction?: React.Dispatch<React.SetStateAction<any>>;
@@ -45,19 +46,24 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
   rowData,
 }) => {
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <LaunchIcon
-        style={{ width: "20px", height: "20px", cursor: "pointer" }}
+        style={{
+          width: "20px",
+          height: "20px",
+          cursor: "pointer",
+          color: "#60553b",
+        }}
         onClick={() => {
           openProjectAction?.(rowData);
         }}
       />
       <GroupAddIcon
         style={{
-          marginLeft: "10px",
           width: "20px",
           height: "20px",
           cursor: "pointer",
+          color: "#60553b",
         }}
         onClick={() => {
           userAccessAction?.(rowData);
@@ -71,76 +77,7 @@ export const OnStatusRender: React.FC<IStatusRenderProps> = ({ status }) => {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <span
-        style={{
-          width: "15vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "5px 10px",
-          borderRadius: "5px",
-          fontSize: "14px",
-          fontWeight: 600,
-          backgroundColor:
-            status === "Completed"
-              ? "#9ef5a1"
-              : status === "Missed"
-              ? "#ff9393"
-              : "#d9edf7",
-          color:
-            status === "Completed"
-              ? "#2b2b2b"
-              : status === "Missed"
-              ? "#2b2b2b"
-              : "#31708f",
-        }}
-      >
-        {status}
-      </span>
-    </div>
-  );
-};
-export const OnTaskStatusRender: React.FC<IStatusRenderProps> = ({
-  status,
-}) => {
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <span
-        style={{
-          width: "15vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "5px 10px",
-          borderRadius: "5px",
-          fontSize: "14px",
-          fontWeight: 600,
-          border: `1px solid ${
-            status === "Completed"
-              ? "#e4efe5"
-              : status === "Pending"
-              ? "#efe9d8"
-              : status === "Overdue"
-              ? "#efdbd8"
-              : "#d9edf7"
-          }`,
-          backgroundColor:
-            status === "Completed"
-              ? "#f2fef4"
-              : status === "Pending"
-              ? "#fef7e6"
-              : status === "Overdue"
-              ? "#f1cec9"
-              : "#d9edf7",
-
-          color:
-            status === "Completed"
-              ? "#79b57b"
-              : status === "Pending"
-              ? "#6f4f00"
-              : status === "Overdue"
-              ? "#392c29"
-              : "#d9edf7",
-        }}
+        className={`status-badge ${status?.toLowerCase().replace(/\s/g, "-")}`}
       >
         {status}
       </span>
