@@ -430,7 +430,6 @@ const Projects: React.FC = () => {
                     `Add New Project`
                   );
                   setFormDetails(deepClone(cloneFormDetails));
-                  // ApproveDefinition(definitionsData, setPopupLoaders);
                 }}
               />
             </div>

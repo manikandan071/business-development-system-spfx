@@ -2,6 +2,9 @@ const SPLists = {
   SampleList: "SampleList",
   Countrieslist: "Countries",
   Projectslist: "Projects",
+  Obligationlist: "Obligations",
+  Calenderlist: "Calenders",
+  TasksList: "AllTasks",
 };
 
 const SPLibraries = {

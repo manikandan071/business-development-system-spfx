@@ -2,35 +2,20 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import SpServices from "../SPServices/SpServices";
 import { SPLists } from "../../Config/config";
-import { manageAccessUsersDeserialized, manageAccessUsersDeserializedForForm, manageAccessUsersSerialized } from "../CommonService/CommonService";
+import {
+  manageAccessUsersDeserialized,
+  manageAccessUsersDeserializedForForm,
+  manageAccessUsersSerialized,
+  peopleHandler,
+} from "../CommonService/CommonService";
 import { togglePopupVisibility } from "../../Utils/togglePopup";
 import { setCountriesData } from "../../Redux/Features/CountryContextSlice";
-const peopleHandler = (Manager: any[]) => {
-  const tempperson: any[] = [];
-  try {
-    Manager?.forEach((personVal: any) => {
-      tempperson.push({
-        key: 1,
-        imgUrl:
-          `/_layouts/15/userphoto.aspx?size=S&accountname=` +
-          `${personVal.EMail}`,
-        text: personVal.Title,
-        ID: personVal.ID,
-        secondaryText: personVal.EMail,
-        isValid: true,
-      });
-    });
-  } catch (err) {
-    console.log("Error from people Handler", err);
-  }
-  return tempperson;
-};
 
 export const getCountriesList = async (
   setCountries: any,
   setAllCountries: any,
-  setMasterProjectData:any,
-  dispatch:any
+  setMasterProjectData: any,
+  dispatch: any
 ) => {
   try {
     const customCountries = [
@@ -109,7 +94,7 @@ export const getCountriesList = async (
 
         sortedItems.map((country) =>
           tempsetCountries.push({
-            ID:country.ID,
+            ID: country.ID,
             countryName: country.Title,
             ISOCode: country.ISOCode,
             Manager: peopleHandler(country?.Manager),
@@ -121,14 +106,14 @@ export const getCountriesList = async (
             Notes: country?.Notes,
             ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
             ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-                 country?.ManageAccess
-                )
+              country?.ManageAccess
+            ),
           })
         );
 
         setCountries(tempsetCountries);
         setMasterProjectData(tempsetCountries);
-        dispatch(setCountriesData([...tempsetCountries]))
+        dispatch(setCountriesData([...tempsetCountries]));
       })
       .catch((err) => console.log("Error reading SharePoint items:", err));
   } catch (err: any) {
@@ -158,17 +143,17 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
     },
     Status: countryData.Status.value,
     Notes: countryData.Notes.value,
-    ManageAccess:manageAccessUsersSerialized(countryData?.ManageAccess.value)
+    ManageAccess: manageAccessUsersSerialized(countryData?.ManageAccess.value),
   };
-  console.log(requestPayload)
+  console.log(requestPayload);
   await SpServices.SPAddItem({
     Listname: SPLists.Countrieslist,
     RequestJSON: requestPayload,
   })
     .then((newValue: any) => {
-      console.log(newValue)
+      console.log(newValue);
       const newValueObj = {
-        ID:newValue.data?.ID,
+        ID: newValue.data?.ID,
         countryName: newValue.data.Title,
         ISOCode: newValue.data.ISOCode,
         Manager: peopleHandler(managerData),
@@ -178,10 +163,12 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
         TimeZone: newValue?.data.TimeZone,
         Status: newValue?.data.Status,
         Notes: newValue?.data.Notes,
-        ManageAccess: manageAccessUsersDeserialized(newValue?.data?.ManageAccess),
+        ManageAccess: manageAccessUsersDeserialized(
+          newValue?.data?.ManageAccess
+        ),
         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-                 newValue?.data?.ManageAccess
-                ),
+          newValue?.data?.ManageAccess
+        ),
       };
       setCountries((prev: any[]) => [newValueObj, ...prev]);
     })
@@ -230,7 +217,7 @@ export const submitManageAccessForm = (
           payloadDetails?.ManageAccess
         ),
       };
-        setMasterState((prev: any) =>
+      setMasterState((prev: any) =>
         prev.map((item: any) =>
           item.ID === recId ? { ...item, ...countryDetails } : item
         )
