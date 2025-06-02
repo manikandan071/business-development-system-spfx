@@ -53,42 +53,42 @@ const countryFormDetails = {
   CountryISOCode: {
     value: "",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   Languages: {
     value: "",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   Region: {
     value: "",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   Currency: {
     value: "",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   TimeZone: {
     value: "",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   Status: {
     value: "Active",
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   Notes: {
     value: "",
     isValid: true,
-    isMandatory: false
+    isMandatory: false,
   },
   selectedPeople: {
     value: [],
     isValid: true,
-    isMandatory: true
+    isMandatory: true,
   },
   ManageAccess: {
     value: [
@@ -96,12 +96,12 @@ const countryFormDetails = {
         User: {
           value: [],
           isValid: true,
-          isMandatory: true
+          isMandatory: true,
         },
         Permission: {
           value: "",
           isValid: true,
-          isMandatory: true
+          isMandatory: true,
         },
       },
     ],
@@ -168,5 +168,181 @@ const ProjectFormDetails = {
     isValid: true,
   },
 };
+const ObligationFormDetails = {
+  Title: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Description: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
+  },
+  ObligationType: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Priority: {
+    value: "Normal",
+    isValid: true,
+    isMandatory: true,
+  },
+  Status: {
+    value: "Not Started",
+    isValid: true,
+    isMandatory: true,
+  },
+  Party: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Clause: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  StartDate: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  DueDate: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Remarks: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
+  },
+};
 
-export { tempFormDetails, countryFormDetails, ProjectFormDetails };
+const CalenderFormDetails = {
+  EventTitle: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Description: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
+  },
+  EventType: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Category: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Status: {
+    value: "Not Started",
+    isValid: true,
+    isMandatory: true,
+  },
+  EventDateTime: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Location: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  AssignedTo: {
+    value: [],
+    isValid: true,
+    isMandatory: true,
+  },
+};
+
+const taskFormDetails = {
+  TaskTitle: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Description: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
+  },
+  Priority: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  selectedPeople: {
+    value: [],
+    isValid: true,
+    isMandatory: true,
+  },
+  Status: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  StartDate: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  DueDate: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+};
+
+const DocumentsFormDetails = {
+  Category: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Attachments: {
+    value: [],
+    isValid: true,
+    isMandatory: true,
+  },
+  AttachmentsDeletion: {
+    value: [],
+    isValid: true,
+    isMandatory: false,
+  },
+  ManageAccess: {
+    value: [
+      {
+        User: {
+          value: [],
+          isValid: true,
+          isMandatory: true,
+        },
+        Permission: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+      },
+    ],
+    isValid: true,
+  },
+};
+
+export {
+  tempFormDetails,
+  countryFormDetails,
+  ProjectFormDetails,
+  ObligationFormDetails,
+  CalenderFormDetails,
+  taskFormDetails,
+  DocumentsFormDetails,
+};

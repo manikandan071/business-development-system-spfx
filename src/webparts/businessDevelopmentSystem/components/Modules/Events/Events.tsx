@@ -20,7 +20,7 @@ import { validateForm } from "../../../../../Utils/validations";
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { tempFormDetails } from "../../../../../Config/initialStates";
 import { deepClone } from "../../../../../Utils/deepClone";
-import CustomFileUpload from "../../Common/CustomInputFields/CustomFileUpload/CustomFileUpload";
+// import CustomFileUpload from "../../Common/CustomInputFields/CustomFileUpload/CustomFileUpload";
 import CustomAutoSelect from "../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
 
 const initialPopupController = [
@@ -172,9 +172,7 @@ const Events: React.FC = () => {
           />
         </div>
         <PopupSectionHeader Title="Attachments" />
-        <div className="section-wrapper">
-          <CustomFileUpload />
-        </div>
+        <div className="section-wrapper">{/* <CustomFileUpload /> */}</div>
         <ManageAccess
           ManageAccess={formDetails?.manageAccess?.value}
           onChange={(value: any) => {
@@ -309,7 +307,7 @@ const Events: React.FC = () => {
           minHeight="85px"
           maxHeight="85px"
         />
-        <CustomFileUpload />
+        {/* <CustomFileUpload /> */}
       </div>
 
       {popupController?.map((popupData: any, index: number) => (

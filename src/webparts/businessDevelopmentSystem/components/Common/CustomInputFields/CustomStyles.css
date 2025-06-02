@@ -150,6 +150,13 @@
     width: 100%!important;
 }
 
+.customDateAndTimeWrapper .MuiDateCalendar-root{
+    max-height: 300px !important;
+    overflow: auto !important;
+}
+.customDateAndTimeWrapper .MuiMultiSectionDigitalClock-root{
+    max-height: 300px !important;
+}
 
 /* people picker style */
 .ms-PickerItem-removeButton{

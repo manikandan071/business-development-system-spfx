@@ -4,6 +4,27 @@
 
 import { IUserDetails } from "../../Interface/CommonInterface";
 
+const peopleHandler = (Manager: any[]) => {
+  const tempperson: any[] = [];
+  try {
+    Manager?.forEach((personVal: any) => {
+      tempperson.push({
+        key: 1,
+        imgUrl:
+          `/_layouts/15/userphoto.aspx?size=S&accountname=` +
+          `${personVal.EMail}`,
+        text: personVal.Title,
+        ID: personVal.ID,
+        secondaryText: personVal.EMail,
+        isValid: true,
+      });
+    });
+  } catch (err) {
+    console.log("Error from people Handler", err);
+  }
+  return tempperson;
+};
+
 const manageAccessUsersSerialized = (userList: any[]) => {
   const serialized = userList
     .map((item) => {
@@ -49,6 +70,7 @@ const manageAccessUsersDeserializedForForm = (storedText: string) => {
 };
 
 export {
+  peopleHandler,
   manageAccessUsersSerialized,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,

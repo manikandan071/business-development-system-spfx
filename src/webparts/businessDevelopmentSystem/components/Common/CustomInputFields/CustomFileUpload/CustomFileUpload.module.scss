@@ -10,7 +10,7 @@
     // max-width: 600px;
     border: 2px dotted var(--input-fields-border-color);
     border-radius: 1rem;
-    background-color: #fff;
+    background: #fff;
     padding: 20px;
     text-align: center;
     cursor: pointer;
@@ -25,7 +25,6 @@
         background-color: #eef3ff;
         border-color: #3f51b5;
     }
-
     .upload_icon {
         width: 100%;
         display: flex;
@@ -33,22 +32,52 @@
         align-items: center;
         margin-bottom: 10px;
     }
-
     .upload_text {
         font-size: 14px;
         color: #666;
         margin: 0px;
     }
-    // .upload_button {
-    //     display: inline-block;
-    //     background-color: #3f51b5;
-    //     color: #fff;
-    //     padding: 0.5rem 1.5rem;
-    //     border-radius: 6px;
-    //     font-weight: 500;
-    //     margin-top: 0.5rem;
-    // }
     .file_input {
         display: none;
+    }
+}
+.sectionError{
+    .file_upload_box{
+        border: 2px dotted #ff000038 !important;
+        background: #e4c5c52e !important;
+    }
+}
+
+.attchments_card_wrapper{
+    display: "flex";
+    flex-wrap: wrap;
+    min-height: 1px;
+    max-height: 151px;
+    overflow-y: "auto";
+    gap: 10px;
+    margin-top: 10px;
+    .card_wrapper{
+        display: "flex";
+        width: 49%;
+        align-items: "center";
+        justify-content: "space-between";
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 8px;
+        background: #f9f9f9;
+        overflow: "hidden";
+        white-space: "nowrap";
+        text-overflow: "ellipsis";
+        .file_container{
+            display: "flex";
+            align-items: "center";
+            gap: 8px;
+            overflow: "hidden";
+            .file_name{
+                overflow: "hidden";
+                text-overflow: "ellipsis";
+                font-size: 13px;
+            }
+        }
     }
 }

@@ -120,10 +120,10 @@ const submitAddProjectForm = (
         ),
       };
       setMasterProjectDatas((prev: any) => {
-        return [...prev, projectDetails];
+        return [projectDetails, ...prev];
       });
       setProjectDatas((prev: any) => {
-        return [...prev, projectDetails];
+        return [projectDetails, ...prev];
       });
       togglePopupVisibility(setPopupController, index, "close");
     })
