@@ -133,16 +133,15 @@ export const OnProjectCountRender = (rowData: any) => {
   );
 };
 export const OnManagerRender = (rowData: any) => {
-  const code = rowData?.rowData;
+  const code = rowData?.rowData ;
+  console.log("RowData",code);
   return (
     <>
       <div>
-        {code.Manager && (
           <Profiles
-            value={code.Manager}
-            maxVisible={code.Manager.length === 1 ? 1 : 3}
+            value={code}
+            maxVisible={code.length === 1 ? 1 : 3}
           />
-        )}
       </div>
     </>
   );

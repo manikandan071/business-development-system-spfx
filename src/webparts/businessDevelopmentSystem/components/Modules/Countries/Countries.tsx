@@ -413,7 +413,7 @@ const countryManageAccessAction = (country: any) => {
           header="Manager Access"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <OnManagerRender rowData={rowData} />
+            <OnManagerRender rowData={rowData?.Manager} />
           )}
         />
         <Column
