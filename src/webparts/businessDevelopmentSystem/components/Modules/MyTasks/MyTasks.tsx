@@ -10,7 +10,7 @@ const MyTasks: React.FC = () => {
         </div>
   <div className={styles.mytasks_container}>
      <div style={{ width: "82%" }}>
-        <ToDoList/>
+        <ToDoList ProjectTitle="" Taskdisabled={false}/>
       </div>
       <div
         style={{
