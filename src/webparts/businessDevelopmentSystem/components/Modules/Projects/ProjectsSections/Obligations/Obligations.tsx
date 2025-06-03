@@ -17,8 +17,15 @@ import {
   OnTextRender,
 } from "../../../../../../../Utils/dataTable";
 import { useEffect, useState } from "react";
-import { IObligationDetails } from "../../../../../../../Interface/ModulesInterface";
-import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
+import {
+  IcountriesType,
+  IObligationDetails,
+  IProjectDetails,
+} from "../../../../../../../Interface/ModulesInterface";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../../../Utils/togglePopup";
 import Popup from "../../../../Common/Popup/Popup";
 import PopupSectionHeader from "../../../../Common/Headers/PopupSectionHeader/PopupSectionHeader";
 import CustomInput from "../../../../Common/CustomInputFields/CustomInput/CustomInput";
@@ -34,11 +41,19 @@ import {
 import CustomDatePicker from "../../../../Common/CustomInputFields/CustomDatePicker/CustomDatePicket";
 import { validateForm } from "../../../../../../../Utils/validations";
 import {
-  detchOblicationData,
+  fetchOblicationData,
   submitObligationForm,
 } from "../../../../../../../Services/Obligation/ObligationService";
 
-const Obligations: React.FC = () => {
+interface IObligationsProps {
+  countryDetails: IcountriesType;
+  projectDetails: IProjectDetails;
+}
+
+const Obligations: React.FC<IObligationsProps> = ({
+  countryDetails,
+  projectDetails,
+}) => {
   const cloneFormDetails = deepClone(ObligationFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -53,9 +68,17 @@ const Obligations: React.FC = () => {
       popupData: "",
     },
   ];
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+  ];
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [masterOblicationData, setMasterOblicationData] = useState<
     IObligationDetails[]
   >([]);
@@ -198,11 +221,14 @@ const Obligations: React.FC = () => {
     console.log("isFormValid", isFormValid);
     if (isFormValid) {
       console.log("Form is valid");
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
       submitObligationForm(
         formDetails,
         setMasterOblicationData,
         setOblicationData,
-        setPopupController,
+        countryDetails,
+        projectDetails,
+        setPopupResponse,
         0
       );
     }
@@ -246,6 +272,7 @@ const Obligations: React.FC = () => {
         rows={10}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        emptyMessage="No data found."
       >
         <Column
           field="Title"
@@ -309,7 +336,11 @@ const Obligations: React.FC = () => {
   ];
 
   useEffect(() => {
-    detchOblicationData(setMasterOblicationData, setOblicationData);
+    fetchOblicationData(
+      setMasterOblicationData,
+      setOblicationData,
+      projectDetails?.Id
+    );
   }, []);
 
   return (
@@ -340,15 +371,17 @@ const Obligations: React.FC = () => {
             key={index}
             isLoading={false}
             PopupType={popupData.popupType}
-            onHide={() =>
-              togglePopupVisibility(setPopupController, index, "close")
-            }
+            onHide={() => {
+              togglePopupVisibility(setPopupController, index, "close");
+              setPopupResponseFun(setPopupResponse, index, false, "", "");
+            }}
             popupTitle={
               popupData.popupType !== "confimation" && popupData.popupTitle
             }
             popupActions={popupActions[index]}
             visibility={popupData.open}
             content={popupInputs[index]}
+            response={popupResponse[index]}
             popupWidth={popupData.popupWidth}
             defaultCloseBtn={popupData.defaultCloseBtn || false}
             confirmationTitle={

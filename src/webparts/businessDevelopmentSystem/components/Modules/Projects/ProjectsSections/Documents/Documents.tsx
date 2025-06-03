@@ -15,7 +15,7 @@ import {
   OnActionsRender,
   OnTextRender,
 } from "../../../../../../../Utils/dataTable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deepClone } from "../../../../../../../Utils/deepClone";
 import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
 import Popup from "../../../../Common/Popup/Popup";
@@ -27,8 +27,28 @@ import ManageAccess from "../../../../Common/ManageAccess/ManageAccess";
 import { DocumentsFormDetails } from "../../../../../../../Config/initialStates";
 import CustomDropDown from "../../../../Common/CustomInputFields/CustomDropDown/CustomDropDown";
 import { DocumentsCategories } from "../../../../../../../Config/dropDownOptions";
+import {
+  IcountriesType,
+  IDocumentsDetails,
+  IProjectDetails,
+} from "../../../../../../../Interface/ModulesInterface";
+import {
+  fetchDocumentsData,
+  getLibraryAttachments,
+  submitDocumentForm,
+  updateDocumentForm,
+} from "../../../../../../../Services/Document/DocumentService";
+import { FileItem } from "../../../../../../../Interface/CommonInterface";
 
-const Documents: React.FC = () => {
+interface IDocumentsProps {
+  countryDetails: IcountriesType;
+  projectDetails: IProjectDetails;
+}
+
+const Documents: React.FC<IDocumentsProps> = ({
+  countryDetails,
+  projectDetails,
+}) => {
   const cloneFormDetails = deepClone(DocumentsFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -46,46 +66,52 @@ const Documents: React.FC = () => {
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [masterDocumentsData, setMasterDocumentsData] = useState<
+    IDocumentsDetails[]
+  >([]);
+  const [documentsData, setDocumentsData] = useState<IDocumentsDetails[]>([]);
+  const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
+    Id: null,
+    Type: "New",
+  });
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
-  const [isDocumentOpen, setIsDocumentOpen] = useState<boolean>(false);
-  console.log("formDetails", formDetails, isDocumentOpen);
 
-  const documentsData = [
-    {
-      id: 1,
-      documentName: "Project Plan",
-      manageAccess: "View, Edit",
-      party: "Client A",
-    },
-    {
-      id: 2,
-      documentName: "Budget Report",
-      manageAccess: "View Only",
-      party: "Client B",
-    },
-    {
-      id: 3,
-      documentName: "Contract Agreement",
-      manageAccess: "View, Edit, Delete",
-      party: "Client C",
-    },
-    {
-      id: 4,
-      documentName: "Risk Assessment",
-      manageAccess: "View Only",
-      party: "Client D",
-    },
-    {
-      id: 5,
-      documentName: "Meeting Minutes",
-      manageAccess: "View, Edit",
-      party: "Client E",
-    },
-  ];
+  console.log("formDetails", formDetails, masterDocumentsData);
 
-  const openDocumentAction = (project: any) => {
+  const openDocumentAction = async (project: any) => {
     console.log("project", project);
-    setIsDocumentOpen(true);
+    const tempAttachments: FileItem[] = await getLibraryAttachments(
+      countryDetails?.countryName,
+      projectDetails?.ProjectName,
+      project?.Category
+    );
+    console.log("tempAttachments", tempAttachments);
+    setFormDetails({
+      Category: {
+        value: project?.Category,
+        isValid: true,
+        isMandatory: true,
+      },
+      Attachments: {
+        value: [...tempAttachments],
+        isValid: true,
+        isMandatory: true,
+      },
+      AttachmentsDeletion: {
+        value: [],
+        isValid: true,
+        isMandatory: false,
+      },
+      ManageAccess: {
+        value: project?.ManageAccessFormFormat,
+        isValid: true,
+      },
+    });
+    setIsUpdateDetails({
+      Id: project?.Id,
+      Type: "Update",
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Document`);
   };
   const documentManageAccessAction = (project: any) => {
     console.log("project", project);
@@ -114,6 +140,7 @@ const Documents: React.FC = () => {
         <CustomFileUpload
           value={formDetails?.Attachments?.value}
           DeletedValue={formDetails?.AttachmentsDeletion?.value}
+          categoryValue={formDetails?.Category?.value}
           onChange={(value: any[], isDeletion: boolean) => {
             if (isDeletion) {
               onChangeFunction("AttachmentsDeletion", value, setFormDetails);
@@ -141,13 +168,26 @@ const Documents: React.FC = () => {
     console.log("isFormValid", isFormValid);
     if (isFormValid) {
       console.log("Form is valid");
-      // submitObligationForm(
-      //   formDetails,
-      //   setMasterOblicationData,
-      //   setOblicationData,
-      //   setPopupController,
-      //   0
-      // );
+      isUpdateDetails?.Type === "New"
+        ? submitDocumentForm(
+            formDetails,
+            setMasterDocumentsData,
+            setDocumentsData,
+            countryDetails,
+            projectDetails,
+            setPopupController,
+            0
+          )
+        : updateDocumentForm(
+            formDetails,
+            isUpdateDetails,
+            setMasterDocumentsData,
+            setDocumentsData,
+            countryDetails,
+            projectDetails,
+            setPopupController,
+            0
+          );
     }
   };
 
@@ -191,24 +231,19 @@ const Documents: React.FC = () => {
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
       >
         <Column
-          field="documentName"
-          header="Document Name"
+          field="Category"
+          header="Document Category"
           style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnTextRender text={rowData?.documentName} />}
+          body={(rowData) => <OnTextRender text={rowData?.Category} />}
           sortable
         />
         <Column
-          field="manageAccess"
+          field="ManageAccess"
           header="Manage Access"
           style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnTextRender text={rowData?.manageAccess} />}
-          sortable
-        />
-        <Column
-          field="party"
-          header="Party"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnTextRender text={rowData?.party} />}
+          body={(rowData) => (
+            <OnTextRender text={rowData?.ManageAccess?.length} />
+          )}
           sortable
         />
         <Column
@@ -227,6 +262,14 @@ const Documents: React.FC = () => {
     ],
   ];
 
+  useEffect(() => {
+    fetchDocumentsData(
+      setMasterDocumentsData,
+      setDocumentsData,
+      projectDetails?.Id
+    );
+  }, []);
+
   return (
     <div className={styles.Documents_wrapper}>
       <div className="justify-end gap-10">
@@ -236,6 +279,10 @@ const Documents: React.FC = () => {
           text="Add new documents"
           startIcon={<AddIcon />}
           onClick={() => {
+            setIsUpdateDetails({
+              Id: null,
+              Type: "New",
+            });
             togglePopupVisibility(
               setPopupController,
               0,

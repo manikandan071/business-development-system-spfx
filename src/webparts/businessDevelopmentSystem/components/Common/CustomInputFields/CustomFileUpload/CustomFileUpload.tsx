@@ -14,10 +14,12 @@ import ImageIcon from "@mui/icons-material/Image";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 import styles from "./CustomFileUpload.module.scss";
+import { removeCategoryFromFileName } from "../../../../../../Services/CommonService/CommonService";
 const uploadImage = require("../../../../assets/images/png/upload.png");
 interface IDocumentsProps {
   value: any[];
   DeletedValue: any[];
+  categoryValue: string;
   onChange: (value: any[], isDeletion: boolean) => void;
   isValid: boolean;
 }
@@ -25,6 +27,7 @@ interface IDocumentsProps {
 const CustomFileUpload: React.FC<IDocumentsProps> = ({
   value,
   DeletedValue,
+  categoryValue,
   onChange,
   isValid,
 }) => {
@@ -149,7 +152,9 @@ const CustomFileUpload: React.FC<IDocumentsProps> = ({
             <div className={styles.card_wrapper} key={index}>
               <div className={styles.file_container}>
                 {getFileIcon(attchment.name)}
-                <span className={styles.file_name}>{attchment.name}</span>
+                <span className={styles.file_name}>
+                  {removeCategoryFromFileName(attchment.name, categoryValue)}
+                </span>
               </div>
               <IconButton size="small">
                 <CloseIcon

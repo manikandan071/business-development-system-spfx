@@ -50,6 +50,7 @@ interface IObligationDetails {
   Party: string;
   Clause: string;
   Remarks: string;
+  ProjectOfId: number;
 }
 
 interface ICalenderDetails {
@@ -62,6 +63,7 @@ interface ICalenderDetails {
   Location: string;
   AssignedTo: any[];
   Status: string;
+  ProjectOfId: number;
 }
 
 interface IallTasksType {
@@ -73,6 +75,17 @@ interface IallTasksType {
   StartDate: string;
   DueDate: string;
   AssignTo: IUserDetails[];
+  isReminder: boolean;
+  isTaskOverdue: boolean;
+  ProjectOfID: number;
+  ProjectOfTitle: string;
+}
+interface IDocumentsDetails {
+  Id: number;
+  Category: string;
+  ManageAccess: IUserDetails[];
+  ManageAccessFormFormat: any[];
+  ProjectOfId: number;
 }
 
 export {
@@ -82,4 +95,5 @@ export {
   IObligationDetails,
   ICalenderDetails,
   IallTasksType,
+  IDocumentsDetails,
 };

@@ -5,6 +5,7 @@
 
 import * as React from "react";
 import "./CountryDetails.css";
+import { OnCountryStatusRender } from "../../../../../../../Utils/dataTable";
 
 interface ICountryDetailsProps {
   countryDetails: any;
@@ -35,7 +36,7 @@ const CountryDetails: React.FC<ICountryDetailsProps> = ({ countryDetails }) => {
         </div>
         <div className="country-details-item">
           <span>Status</span>
-          <p>Custom component</p>
+          <OnCountryStatusRender status={countryDetails?.status} />
         </div>
       </div>
     </div>

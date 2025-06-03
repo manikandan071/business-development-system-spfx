@@ -15,7 +15,11 @@ import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
 import Popup from "../../../../Common/Popup/Popup";
 import { useEffect, useState } from "react";
 import { deepClone } from "../../../../../../../Utils/deepClone";
-import { ICalenderDetails } from "../../../../../../../Interface/ModulesInterface";
+import {
+  ICalenderDetails,
+  IcountriesType,
+  IProjectDetails,
+} from "../../../../../../../Interface/ModulesInterface";
 import { CalenderFormDetails } from "../../../../../../../Config/initialStates";
 import PopupSectionHeader from "../../../../Common/Headers/PopupSectionHeader/PopupSectionHeader";
 import { onChangeFunction } from "../../../../../../../Utils/onChange";
@@ -32,9 +36,18 @@ import CustomPeoplePicker from "../../../../Common/CustomInputFields/CustomPeopl
 import {
   fetchCalenderData,
   submitCalenderForm,
+  updateCalenderDorm,
 } from "../../../../../../../Services/Calender/CalenderService";
 
-const Calender: React.FC = () => {
+interface ICalendersProps {
+  countryDetails: IcountriesType;
+  projectDetails: IProjectDetails;
+}
+
+const Calender: React.FC<ICalendersProps> = ({
+  countryDetails,
+  projectDetails,
+}) => {
   const cloneFormDetails = deepClone(CalenderFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -57,7 +70,10 @@ const Calender: React.FC = () => {
   >([]);
   const [calenderData, setCalenderData] = useState<ICalenderDetails[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
-
+  const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
+    Id: null,
+    Type: "New",
+  });
   console.log(masterCalenderData, calenderData);
 
   // const events = [
@@ -198,13 +214,26 @@ const Calender: React.FC = () => {
     console.log("isFormValid", isFormValid);
     if (isFormValid) {
       console.log("Form is valid");
-      submitCalenderForm(
-        formDetails,
-        setMasterCalenderData,
-        setCalenderData,
-        setPopupController,
-        0
-      );
+      isUpdateDetails?.Type === "New"
+        ? submitCalenderForm(
+            formDetails,
+            setMasterCalenderData,
+            setCalenderData,
+            countryDetails,
+            projectDetails,
+            setPopupController,
+            0
+          )
+        : updateCalenderDorm(
+            formDetails,
+            isUpdateDetails,
+            setMasterCalenderData,
+            setCalenderData,
+            countryDetails,
+            projectDetails,
+            setPopupController,
+            0
+          );
     }
   };
 
@@ -222,7 +251,7 @@ const Calender: React.FC = () => {
         },
       },
       {
-        text: "Submit",
+        text: isUpdateDetails?.Type === "New" ? "Submit" : "Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -240,10 +269,66 @@ const Calender: React.FC = () => {
     const selectedEvent = info.event;
     // Open your event edit modal/form here
     console.log("Clicked event:", selectedEvent.title);
+    setFormDetails({
+      EventTitle: {
+        value: selectedEvent.title,
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: selectedEvent?.extendedProps?.Description,
+        isValid: true,
+        isMandatory: false,
+      },
+      EventType: {
+        value: selectedEvent?.extendedProps?.EventType,
+        isValid: true,
+        isMandatory: true,
+      },
+      Category: {
+        value: selectedEvent?.extendedProps?.Category,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: selectedEvent?.extendedProps?.Status,
+        isValid: true,
+        isMandatory: true,
+      },
+      EventDateTime: {
+        value: selectedEvent?.start,
+        isValid: true,
+        isMandatory: true,
+      },
+      Location: {
+        value: selectedEvent?.extendedProps?.Location,
+        isValid: true,
+        isMandatory: true,
+      },
+      AssignedTo: {
+        value: selectedEvent?.extendedProps?.AssignedTo,
+        isValid: true,
+        isMandatory: true,
+      },
+    });
+    togglePopupVisibility(
+      setPopupController,
+      0,
+      "open",
+      `Update Critical Date`
+    );
+    setIsUpdateDetails({
+      Id: parseInt(selectedEvent?.id),
+      Type: "Update",
+    });
   };
 
   useEffect(() => {
-    fetchCalenderData(setMasterCalenderData, setCalenderData);
+    fetchCalenderData(
+      setMasterCalenderData,
+      setCalenderData,
+      projectDetails?.Id
+    );
   }, []);
 
   const mappedEvents = calenderData.map((item: any) => ({
@@ -252,10 +337,10 @@ const Calender: React.FC = () => {
     date: item.EventDateTime, // make sure this is a valid ISO string or JS Date
     extendedProps: {
       Description: item.Description,
-      eventType: item.EventType,
-      EventType: item.Category,
-      location: item.Location,
-      Location: item.Status,
+      EventType: item.EventType,
+      Category: item.Category,
+      Location: item.Location,
+      Status: item.Status,
       AssignedTo: item.AssignedTo,
     },
   }));

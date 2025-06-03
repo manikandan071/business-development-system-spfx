@@ -133,21 +133,19 @@ export const OnProjectCountRender = (rowData: any) => {
   );
 };
 export const OnManagerRender = (rowData: any) => {
-  const code = rowData?.rowData ;
-  console.log("RowData",code);
+  const code = rowData?.rowData;
+  console.log("RowData", code);
   return (
     <>
       <div>
-          <Profiles
-            value={code}
-            maxVisible={code.length === 1 ? 1 : 3}
-          />
+        <Profiles value={code} maxVisible={code.length === 1 ? 1 : 3} />
       </div>
     </>
   );
 };
-export const OnCountryStatusRender = (rowData: any) => {
-  const code = rowData?.rowData;
+export const OnCountryStatusRender: React.FC<{ status: string }> = ({
+  status,
+}) => {
   return (
     <>
       <div className={styles.cardStatus}>
@@ -155,7 +153,7 @@ export const OnCountryStatusRender = (rowData: any) => {
           className="pi pi-circle-fill"
           style={{ fontSize: "6px", placeSelf: "center" }}
         />
-        <span>{code.Status}</span>
+        <span>{status}</span>
       </div>
     </>
   );

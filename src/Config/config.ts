@@ -5,10 +5,12 @@ const SPLists = {
   Obligationlist: "Obligations",
   Calenderlist: "Calenders",
   TasksList: "AllTasks",
+  DocumentsList: "ProjectDocuments",
 };
 
 const SPLibraries = {
   AllDocuments: "AllDocuments",
+  ProjectDocuments: "ProjectAttachments",
 };
 
 const SPGroups = {

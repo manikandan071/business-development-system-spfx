@@ -7,7 +7,7 @@ import { Dialog } from "primereact/dialog";
 // styles
 import styles from "./Popup.module.scss";
 import { CircularProgress } from "@mui/material";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import "./popupsStyle.css";
 import DefaultButton from "../Buttons/DefaultButton/DefaultButton";
 const InfoIcon = require("../../../assets/images/png/info.png");
@@ -18,6 +18,7 @@ interface Props {
   popupActions: PopupActionBtn[]; // Ensure type safety for popup actions
   defaultCloseBtn?: boolean;
   content?: React.ReactNode;
+  response?: any;
   popupWidth?: string | number;
   onHide: () => void;
   visibility: boolean;
@@ -43,12 +44,19 @@ const Popup = ({
   onHide,
   visibility,
   content,
+  response = {
+    Loading: false,
+    Title: "",
+    Message: "",
+  },
   popupWidth,
   confirmationTitle,
   isLoading,
   popupHeight,
   ...btnRest
 }: Props): JSX.Element => {
+  console.log("response", response);
+  const [label, setLabel] = useState("3s");
   const headerElement = (
     <div
       className={`${
@@ -103,7 +111,6 @@ const Popup = ({
         >
           <span className={styles.confirmTitleText}>{confirmationTitle}</span>
         </div>
-        {/* {footerContent()} */}
       </div>
     ) : PopupType === "custom" ? (
       <div className={styles.contentWrapper}>
@@ -116,11 +123,46 @@ const Popup = ({
         >
           {content}
         </div>
-        {/* {footerContent()} */}
       </div>
     ) : (
       "some thing is wrong with the properties!, please check."
     );
+
+  const startCountdown = () => {
+    let seconds = 100;
+    setLabel(`${seconds}s`);
+
+    const interval = setInterval(() => {
+      seconds--;
+      if (seconds > 0) {
+        setLabel(`${seconds}s`);
+      } else {
+        clearInterval(interval);
+        onHide();
+        setTimeout(() => {
+          setLabel("0s");
+        }, 1000);
+      }
+    }, 1000);
+  };
+
+  const responseContent = () => {
+    return (
+      <div className="popup_response_wrapper">
+        <div className="popup_response_content">
+          <p>{response?.Title}</p>
+          <span>{response?.Message}</span>
+          <div style={{ marginTop: "15px" }}>
+            <DefaultButton
+              btnType="openBtn"
+              text={`Close ${label}`}
+              onClick={() => onHide()}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -133,6 +175,11 @@ const Popup = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+  useEffect(() => {
+    if (response?.Title !== "") {
+      startCountdown();
+    }
+  }, [response?.Title]);
 
   return (
     <Dialog
@@ -146,9 +193,9 @@ const Popup = ({
       header={PopupType !== "confirmation" && headerElement}
       style={{ width: popupWidth }}
       onHide={onHide}
-      footer={footerContent()}
+      footer={response?.Title === "" && footerContent()}
     >
-      {isLoading ? (
+      {isLoading || response?.Loading ? (
         <div className={styles?.loaderElement}>
           <CircularProgress
             sx={{
@@ -163,8 +210,10 @@ const Popup = ({
             color="inherit"
           />
         </div>
-      ) : (
+      ) : response?.Title === "" ? (
         popupContent
+      ) : (
+        responseContent()
       )}
     </Dialog>
   );

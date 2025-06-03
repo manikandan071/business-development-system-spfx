@@ -69,9 +69,41 @@ const manageAccessUsersDeserializedForForm = (storedText: string) => {
   return deserialized;
 };
 
+const appendCategoryToFileName = (
+  fileName: string,
+  category: string
+): string => {
+  const dotIndex = fileName.lastIndexOf(".");
+  if (dotIndex === -1) return `${fileName}_${category}`; // no extension
+  const baseName = fileName.substring(0, dotIndex);
+  const extension = fileName.substring(dotIndex);
+  return `${baseName}_${category}${extension}`;
+};
+
+const removeCategoryFromFileName = (
+  fileName: string,
+  category: string
+): string => {
+  const suffix = `_${category}`;
+  const dotIndex = fileName.lastIndexOf(".");
+  if (dotIndex === -1) return fileName;
+
+  const baseName = fileName.substring(0, dotIndex);
+  const extension = fileName.substring(dotIndex);
+
+  // Only remove if baseName ends with _Category
+  if (baseName.endsWith(suffix)) {
+    const originalBase = baseName.slice(0, -suffix.length);
+    return `${originalBase}${extension}`;
+  }
+  return fileName;
+};
+
 export {
   peopleHandler,
   manageAccessUsersSerialized,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
+  appendCategoryToFileName,
+  removeCategoryFromFileName,
 };
