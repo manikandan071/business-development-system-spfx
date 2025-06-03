@@ -61,6 +61,7 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
         disablePortal
         options={options}
         getOptionLabel={(option) => option.Text}
+        value={options.find((opt) => opt.Text === value)}
         sx={{ width: 300 }}
         placeholder={placeholder}
         disabled={disabled}
@@ -68,7 +69,7 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            value={value}
+            // value={value}
             placeholder={placeholder}
             variant="outlined"
             InputLabelProps={{ shrink: false }}

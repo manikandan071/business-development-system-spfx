@@ -35,3 +35,24 @@
 .section-wrapper .one {
     flex: 0 0 calc(100% - 1px);
 }
+
+/* response style */
+
+.popup_response_wrapper {
+    height: 80vh;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+.popup_response_wrapper .popup_response_content{
+    width: 100%;
+}
+.popup_response_wrapper .popup_response_content p{
+    color: green;
+    font-size: 18px;
+    font-weight: 600;
+}
+.popup_response_wrapper .popup_response_content span{
+    font-size: 14px;
+}

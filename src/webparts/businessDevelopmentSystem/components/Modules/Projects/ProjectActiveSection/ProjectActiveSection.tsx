@@ -15,7 +15,10 @@ import SectionTreeMap from "../SectionTreeMap/SectionTreeMap";
 import CountryDetails from "../Cards/CountryDetails/CountryDetails";
 import ProjectDetails from "../Cards/ProjectDetails/ProjectDetails";
 import { useSelector } from "react-redux";
-import { IProjectDetails } from "../../../../../../Interface/ModulesInterface";
+import {
+  IcountriesType,
+  IProjectDetails,
+} from "../../../../../../Interface/ModulesInterface";
 import * as dayjs from "dayjs";
 import * as duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
@@ -33,8 +36,25 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
   const projectDataState: any = useSelector(
     (state: any) => state.ProjectContextSlice.projectsData
   );
+  const countryDataState: any = useSelector(
+    (state: any) => state.CountryContextSlice.countryData
+  );
 
   const [activeTab, setActiveTab] = useState<any>({});
+  const [countryDetails, setCountryDetails] = useState<IcountriesType>({
+    ID: 0,
+    countryName: "",
+    Currency: "",
+    ISOCode: "",
+    Languages: "",
+    Manager: [],
+    Notes: "",
+    Region: "",
+    Status: "",
+    ManageAccess: [],
+    ManageAccessFormFormat: [],
+    TimeZone: "",
+  });
   const [projectDetails, setProjectDetails] = useState<IProjectDetails>({
     Id: 0,
     ProjectName: "",
@@ -57,12 +77,17 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
         setProjectDetails(state);
       }
     });
+    countryDataState.forEach((state: IcountriesType) => {
+      if (state?.ID === countryId) {
+        setCountryDetails(state);
+      }
+    });
   }, []);
   return (
     <>
       <div style={{ width: "82%" }}>
         <SectionTreeMap
-          CountryName="UAE"
+          CountryName={countryDetails?.countryName}
           ProjectName={projectDetails?.ProjectName}
           SectionName={activeTab?.displayName}
         />
@@ -72,10 +97,30 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
             <div style={{ width: "100%", display: "flex" }}>
               <div style={{ width: "100%" }}>
                 <div>
-                  {activeTab?.name === "Obligations" && <Obligations />}
-                  {activeTab?.name === "Calender" && <Calender />}
-                  {activeTab?.name === "Todos" && <ToDoList />}
-                  {activeTab?.name === "Documents" && <Documents />}
+                  {activeTab?.name === "Obligations" && (
+                    <Obligations
+                      countryDetails={countryDetails}
+                      projectDetails={projectDetails}
+                    />
+                  )}
+                  {activeTab?.name === "Calender" && (
+                    <Calender
+                      countryDetails={countryDetails}
+                      projectDetails={projectDetails}
+                    />
+                  )}
+                  {activeTab?.name === "Todos" && (
+                    <ToDoList
+                      ProjectTitle={projectDetails?.ProjectName}
+                      Taskdisabled={true}
+                    />
+                  )}
+                  {activeTab?.name === "Documents" && (
+                    <Documents
+                      countryDetails={countryDetails}
+                      projectDetails={projectDetails}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -89,9 +134,10 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
       >
         <CountryDetails
           countryDetails={{
-            Id: "C001",
-            Name: "Sample Country",
+            Id: `C00${countryDetails?.ID}`,
+            Name: countryDetails?.countryName,
             projectsCount: 5,
+            status: countryDetails?.Status,
           }}
         />
         <ProjectDetails

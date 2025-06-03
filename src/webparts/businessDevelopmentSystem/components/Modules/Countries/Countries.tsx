@@ -16,7 +16,13 @@ import {
 } from "../../../../../Services/Countries/CountriesServices";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { OnActionsRender, OnCountryRender, OnCountryStatusRender, OnManagerRender, OnProjectCountRender } from "../../../../../Utils/dataTable";
+import {
+  OnActionsRender,
+  OnCountryRender,
+  OnCountryStatusRender,
+  OnManagerRender,
+  OnProjectCountRender,
+} from "../../../../../Utils/dataTable";
 import CustomDataTable from "../../Common/DataTable/DataTable";
 import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
 import CustomSearchInput from "../../Common/CustomInputFields/CustomSearchInput/CustomSearchInput";
@@ -36,13 +42,16 @@ import CustomPeoplePicker from "../../Common/CustomInputFields/CustomPeoplePicke
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { validateForm } from "../../../../../Utils/validations";
 import { useDispatch } from "react-redux";
-import { IallCountriesType, IcountriesType } from "../../../../../Interface/ModulesInterface";
+import {
+  IallCountriesType,
+  IcountriesType,
+} from "../../../../../Interface/ModulesInterface";
 
 // import Profiles from "../../Common/Profile/Profiles";
 // import DefaultButton from "../../Common/Buttons/DefaultButton/DefaultButton";
 
 const Countries: React.FC = () => {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const cloneFormDetails = deepClone(countryFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -51,7 +60,7 @@ const Countries: React.FC = () => {
     {
       open: false,
       popupTitle: "",
-      popupWidth: "900px",
+      popupWidth: "50%",
       popupType: "custom",
       defaultCloseBtn: false,
       popupData: "",
@@ -59,7 +68,7 @@ const Countries: React.FC = () => {
     {
       open: false,
       popupTitle: "",
-      popupWidth: "900px",
+      popupWidth: "50%",
       popupType: "custom",
       defaultCloseBtn: false,
       popupData: "",
@@ -67,31 +76,31 @@ const Countries: React.FC = () => {
   ];
   const [countries, setCountries] = useState<IcountriesType[]>([]);
   const [allCountries, setAllCountries] = useState<IallCountriesType[]>([]);
-  const [selectedCountry,setSelectedCountry]=useState({
-    ID:0,
-    countryName:"",
-    ISOCode:"",
-    Manager:[],
-    Languages:"",
-    Region:"",
-    Currency:"",
-    TimeZone:"",
-    Status:"",
-    Notes:""
+  const [selectedCountry, setSelectedCountry] = useState({
+    ID: 0,
+    countryName: "",
+    ISOCode: "",
+    Manager: [],
+    Languages: "",
+    Region: "",
+    Currency: "",
+    TimeZone: "",
+    Status: "",
+    Notes: "",
   });
 
-  const [masterCountryData, setMasterCountryData] = useState<IcountriesType[]>();
+  const [masterCountryData, setMasterCountryData] =
+    useState<IcountriesType[]>();
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
   const [languagesOptions, setLanguagesOptions] = useState<any[]>([]);
- console.log("Master",masterCountryData)
- console.log("Country",countries)
+  console.log("Master", masterCountryData);
+  console.log("Country", countries);
 
+  console.log("formDetails", formDetails);
 
-  console.log("formDetails",formDetails);
-  
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
@@ -99,9 +108,9 @@ const Countries: React.FC = () => {
         <div className="section-wrapper">
           <CustomAutoSelect
             value={formDetails?.CountryName?.value}
-            options={allCountries.map((country:any)=>({
-              Text:country.CountryName,
-              ...country
+            options={allCountries.map((country: any) => ({
+              Text: country.CountryName,
+              ...country,
             }))}
             onChange={async (
               option: {
@@ -111,12 +120,16 @@ const Countries: React.FC = () => {
                 Region: string;
                 Currency: string;
                 TimeZone: string;
-                languageOptions:any;
+                languageOptions: any;
               } | null
             ) => {
-              console.log("Optionsss",option)
-              onChangeFunction("CountryName", option?.CountryName, setFormDetails);
-              setLanguagesOptions(option?.languageOptions)
+              console.log("Optionsss", option);
+              onChangeFunction(
+                "CountryName",
+                option?.CountryName,
+                setFormDetails
+              );
+              setLanguagesOptions(option?.languageOptions);
               onChangeFunction(
                 "CountryISOCode",
                 option?.CountryISOCode,
@@ -125,8 +138,6 @@ const Countries: React.FC = () => {
               onChangeFunction("Region", option?.Region, setFormDetails);
               onChangeFunction("Currency", option?.Currency, setFormDetails);
               onChangeFunction("TimeZone", option?.TimeZone, setFormDetails);
-
-
             }}
             placeholder="Enter Country Name"
             sectionType="two"
@@ -269,7 +280,7 @@ const Countries: React.FC = () => {
         />
       </div>,
     ],
-      [
+    [
       <div key={1} style={{ width: "100%" }}>
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
@@ -283,24 +294,21 @@ const Countries: React.FC = () => {
       </div>,
     ],
   ];
-const handleSubmitFuction = async (): Promise<void> => {
-  const isFormValid = validateForm(
-    formDetails,
-    setFormDetails,
-  );
-  console.log("isFormValid", isFormValid);
-
-  if (isFormValid) {
-    console.log("Form is valid");
-    // console.log("Form Details", formDetails);
-    await addCountriesList(formDetails, setCountries);
-    togglePopupVisibility(setPopupController, 0, "close");
-  }
-};
-const handleManageAccessSubmitFuction = () => {
+  const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
     console.log("isFormValid", isFormValid);
-    console.log("Countries",countries)
+
+    if (isFormValid) {
+      console.log("Form is valid");
+      // console.log("Form Details", formDetails);
+      await addCountriesList(formDetails, setCountries);
+      togglePopupVisibility(setPopupController, 0, "close");
+    }
+  };
+  const handleManageAccessSubmitFuction = () => {
+    const isFormValid = validateForm(formDetails, setFormDetails);
+    console.log("isFormValid", isFormValid);
+    console.log("Countries", countries);
     if (isFormValid) {
       console.log("Form is valid");
       submitManageAccessForm(
@@ -337,31 +345,32 @@ const handleManageAccessSubmitFuction = () => {
         },
       },
     ],
-     [          {
-            text: "Cancel",
-            btnType: "closeBtn",
-            disabled: false,
-            endIcon: false,
-            startIcon: false,
-            onClick: () => {
-              setFormDetails(deepClone(cloneFormDetails));
-              handleClosePopup(1);
-            },
-          },
-          {
-            text: "Submit",
-            btnType: "primaryBtn",
-            disabled: false,
-            endIcon: false,
-            startIcon: false,
-            onClick: () => {
-              handleManageAccessSubmitFuction();
-            },
-          },
-        ]
+    [
+      {
+        text: "Cancel",
+        btnType: "closeBtn",
+        disabled: false,
+        endIcon: false,
+        startIcon: false,
+        onClick: () => {
+          setFormDetails(deepClone(cloneFormDetails));
+          handleClosePopup(1);
+        },
+      },
+      {
+        text: "Submit",
+        btnType: "primaryBtn",
+        disabled: false,
+        endIcon: false,
+        startIcon: false,
+        onClick: () => {
+          handleManageAccessSubmitFuction();
+        },
+      },
+    ],
   ];
-const countryManageAccessAction = (country: any) => {
-  debugger;
+  const countryManageAccessAction = (country: any) => {
+    debugger;
     setSelectedCountry(country);
     console.log("country", country);
     setFormDetails({
@@ -371,12 +380,12 @@ const countryManageAccessAction = (country: any) => {
         isMandatory: true,
       },
     });
-   togglePopupVisibility(
-                setPopupController,
-                1,
-                "open",
-                `Country Manage Access`
-              );
+    togglePopupVisibility(
+      setPopupController,
+      1,
+      "open",
+      `Country Manage Access`
+    );
   };
   const tableColumns = [
     [
@@ -395,41 +404,36 @@ const countryManageAccessAction = (country: any) => {
           field="countryName"
           header="Country name"
           style={{ minWidth: "20%" }}
-          body={(rowData) => (
-            <OnCountryRender rowData={rowData} />
-          )}
+          body={(rowData) => <OnCountryRender rowData={rowData} />}
           sortable
         />
         <Column
           field=""
           header="No of projects"
           style={{ minWidth: "20%" }}
-          body={(rowData) => (
-            <OnProjectCountRender rowData={rowData}/>
-          )}
+          body={(rowData) => <OnProjectCountRender rowData={rowData} />}
         />
         <Column
           field=""
           header="Manager Access"
           style={{ minWidth: "20%" }}
-          body={(rowData) => (
-            <OnManagerRender rowData={rowData?.Manager} />
-          )}
+          body={(rowData) => <OnManagerRender rowData={rowData?.Manager} />}
+        />
+        <Column
+          field="Status"
+          header="Status"
+          style={{ minWidth: "20%" }}
+          body={(rowData) => <OnCountryStatusRender status={rowData?.Status} />}
         />
         <Column
           field=""
-          header="Status"
+          header="Action"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
-           <OnCountryStatusRender rowData={rowData}/>
-          )}
-        />{" "}
-        <Column field="" header="Action" style={{ minWidth: "20%" }} 
-        body={(rowData) => (
-           <OnActionsRender 
-           openProjectAction={()=>console.log("Working Properly")}
-            userAccessAction={countryManageAccessAction}
-             rowData={rowData}
+            <OnActionsRender
+              openProjectAction={() => console.log("Working Properly")}
+              userAccessAction={countryManageAccessAction}
+              rowData={rowData}
             />
           )}
         />
@@ -437,7 +441,12 @@ const countryManageAccessAction = (country: any) => {
     ],
   ];
   useEffect(() => {
-    getCountriesList(setCountries, setAllCountries,setMasterCountryData,dispatch);
+    getCountriesList(
+      setCountries,
+      setAllCountries,
+      setMasterCountryData,
+      dispatch
+    );
   }, []);
   // console.log("Countries", countries);
   return (
@@ -451,7 +460,7 @@ const countryManageAccessAction = (country: any) => {
             text="Add new country"
             startIcon={<AddIcon />}
             onClick={() => {
-               filterCountryUnselected(countries,allCountries,setAllCountries)
+              filterCountryUnselected(countries, allCountries, setAllCountries);
               togglePopupVisibility(
                 setPopupController,
                 0,

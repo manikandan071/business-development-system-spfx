@@ -94,6 +94,7 @@
 .customAutoSelectWrapper .MuiInputBase-root {
     padding: 0px !important;
     height: 38px !important;
+    font-size: 14px !important;
 }
 .customAutoSelectWrapper .MuiAutocomplete-root{
     width: 100%;

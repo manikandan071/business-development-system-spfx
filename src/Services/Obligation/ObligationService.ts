@@ -3,14 +3,31 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
 import { SPLists } from "../../Config/config";
-import { IObligationDetails } from "../../Interface/ModulesInterface";
-import { togglePopupVisibility } from "../../Utils/togglePopup";
+import {
+  IcountriesType,
+  IObligationDetails,
+  IProjectDetails,
+} from "../../Interface/ModulesInterface";
+import { setPopupResponseFun } from "../../Utils/togglePopup";
 import SpServices from "../SPServices/SpServices";
 
-const detchOblicationData = async (setMasterState: any, setLocalState: any) => {
+const fetchOblicationData = async (
+  setMasterState: any,
+  setLocalState: any,
+  projectId: number
+) => {
   try {
     const tempObligations = await SpServices.SPReadItems({
       Listname: SPLists.Obligationlist,
+      Select: "*,ProjectOf/Id,ProjectOf/Title",
+      Expand: "ProjectOf",
+      Filter: [
+        {
+          FilterKey: "ProjectOfId",
+          Operator: "eq",
+          FilterValue: projectId,
+        },
+      ],
     }).then();
 
     const tempArray: IObligationDetails[] = [];
@@ -28,6 +45,7 @@ const detchOblicationData = async (setMasterState: any, setLocalState: any) => {
         StartDate: obligation?.StartDate,
         DueDate: obligation?.DueDate,
         Remarks: obligation?.Remarks,
+        ProjectOfId: obligation?.ProjectOfId,
       };
       tempArray.push(obligationDetails);
     });
@@ -42,7 +60,9 @@ const submitObligationForm = (
   formDetails: any,
   setMasterProjectDatas: any,
   setProjectDatas: any,
-  setPopupController: any,
+  countryDetails: IcountriesType,
+  projectDetails: IProjectDetails,
+  setPopupResponse: any,
   index: number
 ) => {
   console.log("formDetails", formDetails);
@@ -57,6 +77,7 @@ const submitObligationForm = (
     StartDate: formDetails?.StartDate?.value,
     DueDate: formDetails?.DueDate?.value,
     Remarks: formDetails?.Remarks?.value,
+    ProjectOfId: projectDetails?.Id,
   };
   debugger;
   SpServices.SPAddItem({
@@ -77,6 +98,7 @@ const submitObligationForm = (
         StartDate: payloadDetails?.StartDate,
         DueDate: payloadDetails?.DueDate,
         Remarks: payloadDetails?.Remarks,
+        ProjectOfId: projectDetails?.Id,
       };
       setMasterProjectDatas((prev: any) => {
         return [obligationDetails, ...prev];
@@ -84,11 +106,17 @@ const submitObligationForm = (
       setProjectDatas((prev: any) => {
         return [obligationDetails, ...prev];
       });
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Form Submission!",
+        "Contractual obligation form have been added successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);
     });
 };
 
-export { detchOblicationData, submitObligationForm };
+export { fetchOblicationData, submitObligationForm };

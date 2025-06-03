@@ -73,3 +73,75 @@ tbody .fc-scroller{
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
+
+
+
+/* weekday based colors */
+
+tbody .fc-day-mon{
+    background-color: #e3f2fd96;
+}
+
+tbody .fc-day-tue{
+    background-color: #f1f8e99e;
+}
+
+tbody .fc-day-wed{
+    background-color: #fbd9a152;
+}
+
+tbody .fc-day-thu{
+    background-color: #fce4ec59;
+}
+
+tbody .fc-day-fri{
+    background-color: #e8f5e9ba;
+}
+
+tbody .fc-day-sat{
+    background-color: #ede7f685;
+}
+
+tbody .fc-day-sun{
+    background-color: #c2c6bf75;
+}
+tbody .fc-day-today{
+    background-color: #3c374dc2!important;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.fc-day-mon .fc-event{
+    background-color: #309aec36;
+    color: #0d47a1;
+}
+
+.fc-day-tue .fc-event{
+    background-color: #daf7ba;
+    color: #33691e;
+}
+
+.fc-day-wed .fc-event{
+    background-color: #f7e0bd;
+    color: #e65100;
+}
+
+.fc-day-thu .fc-event{
+    background-color: #fce4ec;
+    color: #880e4f;
+}
+
+.fc-day-fri .fc-event{
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+.fc-day-sat .fc-event{
+    background-color: #dbd0eb;
+    color: #220f5bd4;
+}
+
+.fc-day-sun .fc-event{
+    background-color: #f0c7cd;
+    color: #b71c1c;
+}

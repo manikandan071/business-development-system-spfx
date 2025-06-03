@@ -80,3 +80,9 @@
     color: var(--data-table-paginator-disabled-button-color);
     border: none;
 }
+.p-datatable-emptymessage td{
+    font-size: 14px;
+    color: var(--basic-font-color);
+    text-align: center;
+    font-weight: 600;
+}

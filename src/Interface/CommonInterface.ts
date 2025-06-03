@@ -4,4 +4,10 @@ interface IUserDetails {
   DisplayName: string;
   Permission?: string;
 }
-export { IUserDetails };
+interface FileItem {
+  name: string;
+  file: File;
+  uploaded?: boolean;
+  serverRelativeUrl?: string;
+}
+export { IUserDetails, FileItem };
