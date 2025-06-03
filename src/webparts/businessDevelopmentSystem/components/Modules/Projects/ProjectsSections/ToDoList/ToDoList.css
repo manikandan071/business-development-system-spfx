@@ -1,0 +1,20 @@
+.p-checkbox-box {
+  border: 2px solid #d74c14 !important;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  accent-color: #d74c14; /* This is fine but accent-color mostly affects the native checkbox input */
+}
+
+.p-checkbox .p-component .p-highlight{
+  background-color: #d74c14 !important;
+  border-color: #d74c14 !important;
+}
+.p-icon .p-checkbox-icon{
+  font-size: 0.75rem;
+  accent-color:#d74c14;
+}
+.p-checkbox .p-checkbox-box .p-checkbox-icon {
+  background-color: #d74c14 !important;
+  font-size: 0.75rem;
+}

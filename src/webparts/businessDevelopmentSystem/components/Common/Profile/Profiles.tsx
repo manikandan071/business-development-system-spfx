@@ -6,6 +6,8 @@ import * as React from "react";
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
 import "./Profiles.css";
+import { OnStatusRender } from "../../../../../Utils/dataTable";
+import { DirectionalHint, TooltipHost } from "@fluentui/react";
 interface ProfileProps {
   value: any[];
   maxVisible: number;
@@ -13,6 +15,7 @@ interface ProfileProps {
 const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
   let visibleUsers =value
   let remainingCount =0
+  const tooltipValue = value.map((user)=>user.text).join("\n")
   if(maxVisible>1){
       visibleUsers = value.slice(0, maxVisible);
    remainingCount = value.length - maxVisible;
@@ -21,6 +24,10 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
     <>
       {maxVisible > 1 ? (
         <div className="avatarGroup">
+          <TooltipHost
+        content={tooltipValue}
+       tooltipProps={{ directionalHint: DirectionalHint.bottomCenter, onRenderContent: props => <div style={{ whiteSpace: 'pre-line' }}>{props?.content}</div> }}
+>
           <AvatarGroup>
             {visibleUsers.map((user, index) => (
               <Avatar
@@ -45,12 +52,14 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
               />
             )}
           </AvatarGroup>
+          </TooltipHost>
         </div>
       ) :maxVisible === 1 ? (
         <div>
           <AvatarGroup>
             {visibleUsers.map((user, index) => (
               <>
+              <TooltipHost content={user.text} tooltipProps={{ directionalHint: DirectionalHint.bottomCenter}}>
                 <Avatar
                   key={index}
                   image={user.imgUrl}
@@ -58,7 +67,9 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
                   shape="circle"
                   title={user.text}
                 />
-                <span>{user.text}</span>
+                <OnStatusRender status ={ user.text}/>
+                </TooltipHost>
+                {/* <span style={{fontSize:"12px"}}>{user.text}</span> */}
               </>
             ))}
           </AvatarGroup>

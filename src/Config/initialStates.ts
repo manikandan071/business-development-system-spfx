@@ -300,6 +300,26 @@ const taskFormDetails = {
     isValid: true,
     isMandatory: true,
   },
+  isReminder:{
+    value:"",
+    isValid:true,
+    isMandatory:false,
+  },
+  isTaskOverdue:{
+    value:"",
+    isValid:true,
+    isMandatory:false,
+  },
+  ProjectOfTitle:{
+    value:"",
+    isValid:true,
+    isMandatory:true,
+  },
+  ProjectOfID:{
+    value:"",
+    isValid:true,
+    isMandatory:true,
+  }
 };
 
 const DocumentsFormDetails = {
