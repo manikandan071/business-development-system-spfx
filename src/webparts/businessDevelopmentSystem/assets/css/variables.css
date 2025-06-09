@@ -3,7 +3,8 @@
 :root {
     --section-header-font-color :#403b3b;
     --section-header-secondary-font-color :#6b5e43;
-    --input-fields-border-color: #d3d3f1a3;
+    /* --input-fields-border-color: #d3d3f1a3; */
+    --input-fields-border-color: #68687d61;
     --input-fields-border-hovor-color: #c8c8f0;
     --input-fields-bg-hovor-color: #b4b1d81b;
     --basic-font-color: #555555;

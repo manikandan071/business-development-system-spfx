@@ -12,13 +12,14 @@ import CustomDataTable from "../../../../Common/DataTable/DataTable";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
-  OnDateRender,
+  OnActionsRender,
+  OnDateAndTimeRender,
   OnStatusRender,
   OnTextRender,
 } from "../../../../../../../Utils/dataTable";
 import { useEffect, useState } from "react";
 import {
-  IcountriesType,
+  ICountriesDetails,
   IObligationDetails,
   IProjectDetails,
 } from "../../../../../../../Interface/ModulesInterface";
@@ -36,17 +37,20 @@ import CustomDropDown from "../../../../Common/CustomInputFields/CustomDropDown/
 import {
   ObligationStatusOptions,
   ObligationTypeOptions,
-  PriorityTypeOptions,
+  // PriorityTypeOptions,
+  ResponsibleOptions,
 } from "../../../../../../../Config/dropDownOptions";
-import CustomDatePicker from "../../../../Common/CustomInputFields/CustomDatePicker/CustomDatePicket";
 import { validateForm } from "../../../../../../../Utils/validations";
 import {
   fetchOblicationData,
   submitObligationForm,
+  updateObligationForm,
 } from "../../../../../../../Services/Obligation/ObligationService";
+import AppLoader from "../../../../Common/AppLoader/AppLoader";
+import CustomDateTimePicker from "../../../../Common/CustomInputFields/CustomDateTimePicker/CustomDateTimePicker";
 
 interface IObligationsProps {
-  countryDetails: IcountriesType;
+  countryDetails: ICountriesDetails;
   projectDetails: IProjectDetails;
 }
 
@@ -86,8 +90,11 @@ const Obligations: React.FC<IObligationsProps> = ({
     []
   );
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
-
-  console.log(masterOblicationData, oblicationData);
+  const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
+    Id: null,
+    Type: "",
+  });
+  const [isLoader, setIsLoader] = useState<boolean>(true);
 
   const popupInputs: any[] = [
     [
@@ -110,7 +117,7 @@ const Obligations: React.FC<IObligationsProps> = ({
           <CustomDropDown
             options={ObligationTypeOptions}
             value={formDetails?.ObligationType?.value}
-            placeholder="Select obligation type"
+            placeholder="Select contract type"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("ObligationType", value, setFormDetails);
@@ -118,12 +125,12 @@ const Obligations: React.FC<IObligationsProps> = ({
             isValid={formDetails?.ObligationType?.isValid}
             withLabel={true}
             mandatory={formDetails?.ObligationType?.isMandatory}
-            labelText="Obligation Type"
+            labelText="Contract type"
           />
           <CustomInput
             value={formDetails?.Description?.value}
             type="text"
-            placeholder="Enter description"
+            placeholder="Enter description of contractual obligation"
             rows={3}
             sectionType="one"
             onChange={(value: string) => {
@@ -132,12 +139,12 @@ const Obligations: React.FC<IObligationsProps> = ({
             isValid={formDetails?.Description?.isValid}
             withLabel={true}
             mandatory={formDetails?.Description?.isMandatory}
-            labelText="Description"
+            labelText="Description of contractual obligation"
           />
           <CustomInput
             value={formDetails?.Party?.value}
             type="text"
-            placeholder="Enter Party"
+            placeholder="Enter party"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Party", value, setFormDetails);
@@ -150,7 +157,7 @@ const Obligations: React.FC<IObligationsProps> = ({
           <CustomInput
             value={formDetails?.Clause?.value}
             type="text"
-            placeholder="Enter Clause"
+            placeholder="Enter clause"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Clause", value, setFormDetails);
@@ -161,9 +168,9 @@ const Obligations: React.FC<IObligationsProps> = ({
             labelText="Clause"
           />
           <CustomDropDown
-            options={PriorityTypeOptions}
+            options={ResponsibleOptions}
             value={formDetails?.Priority?.value}
-            placeholder="Select priority"
+            placeholder="Select party responsible"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Priority", value, setFormDetails);
@@ -171,12 +178,12 @@ const Obligations: React.FC<IObligationsProps> = ({
             isValid={formDetails?.Priority?.isValid}
             withLabel={true}
             mandatory={formDetails?.Priority?.isMandatory}
-            labelText="Priority"
+            labelText="Party responsible"
           />
           <CustomDropDown
             options={ObligationStatusOptions}
             value={formDetails?.Status?.value}
-            placeholder="Select Status"
+            placeholder="Select status"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Status", value, setFormDetails);
@@ -186,19 +193,31 @@ const Obligations: React.FC<IObligationsProps> = ({
             mandatory={formDetails?.Status?.isMandatory}
             labelText="Status"
           />
-          <CustomDatePicker
+          <CustomDateTimePicker
             value={formDetails?.StartDate?.value}
             sectionType="two"
-            placeholder="Select date"
+            placeholder="Select date/time"
             onChange={(value: string) => {
               onChangeFunction("StartDate", value, setFormDetails);
             }}
             isValid={formDetails?.StartDate?.isValid}
             withLabel={true}
             mandatory={formDetails?.StartDate?.isMandatory}
-            labelText="Start Date"
+            labelText="Associated date/time"
           />
-          <CustomDatePicker
+          {/* <CustomDatePicker
+            value={formDetails?.StartDate?.value}
+            sectionType="two"
+            placeholder="Select date/time"
+            onChange={(value: string) => {
+              onChangeFunction("StartDate", value, setFormDetails);
+            }}
+            isValid={formDetails?.StartDate?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.StartDate?.isMandatory}
+            labelText="Associated date/time"
+          /> */}
+          {/* <CustomDatePicker
             value={formDetails?.DueDate?.value}
             minDate={formDetails?.StartDate?.value}
             sectionType="two"
@@ -210,7 +229,7 @@ const Obligations: React.FC<IObligationsProps> = ({
             withLabel={true}
             mandatory={formDetails?.DueDate?.isMandatory}
             labelText="Start Date"
-          />
+          /> */}
         </div>
       </div>,
     ],
@@ -218,19 +237,30 @@ const Obligations: React.FC<IObligationsProps> = ({
 
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
       setPopupResponseFun(setPopupResponse, 0, true, "", "");
-      submitObligationForm(
-        formDetails,
-        setMasterOblicationData,
-        setOblicationData,
-        countryDetails,
-        projectDetails,
-        setPopupResponse,
-        0
-      );
+      if (isUpdateDetails?.Type === "New") {
+        submitObligationForm(
+          formDetails,
+          setMasterOblicationData,
+          setOblicationData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      } else {
+        updateObligationForm(
+          formDetails,
+          isUpdateDetails,
+          setMasterOblicationData,
+          setOblicationData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      }
     }
   };
 
@@ -245,10 +275,11 @@ const Obligations: React.FC<IObligationsProps> = ({
         onClick: () => {
           setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(0);
+          setPopupResponseFun(setPopupResponse, 0, false, "", "");
         },
       },
       {
-        text: "Submit",
+        text: isUpdateDetails?.Type === "New" ? "Submit" : "Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -260,18 +291,81 @@ const Obligations: React.FC<IObligationsProps> = ({
     ],
   ];
 
+  const setEditForm = (obligationDetails: IObligationDetails) => {
+    setFormDetails({
+      Title: {
+        value: obligationDetails?.Title,
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: obligationDetails?.Description,
+        isValid: true,
+        isMandatory: false,
+      },
+      ObligationType: {
+        value: obligationDetails?.ObligationType,
+        isValid: true,
+        isMandatory: true,
+      },
+      Priority: {
+        value: obligationDetails?.Priority,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: obligationDetails?.Status,
+        isValid: true,
+        isMandatory: true,
+      },
+      Party: {
+        value: obligationDetails?.Party,
+        isValid: true,
+        isMandatory: true,
+      },
+      Clause: {
+        value: obligationDetails?.Clause,
+        isValid: true,
+        isMandatory: true,
+      },
+      StartDate: {
+        value: obligationDetails?.StartDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      DueDate: {
+        value: obligationDetails?.DueDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      Remarks: {
+        value: obligationDetails?.Remarks,
+        isValid: true,
+        isMandatory: false,
+      },
+    });
+    setIsUpdateDetails({
+      Id: obligationDetails?.Id,
+      Type: "Update",
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Obligation`);
+  };
+
   const tableColumns = [
     [
       <DataTable
         value={oblicationData}
+        className="min_height_48vh"
         scrollable
-        scrollHeight="60vh"
+        scrollHeight="48vh"
         style={{ minWidth: "100%" }}
         key={0}
         paginator
         rows={10}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        currentPageReportTemplate={`Showing {first} to {last} of {totalRecords} ${
+          oblicationData?.length === 1 ? "record" : "records"
+        }`}
         emptyMessage="No data found."
       >
         <Column
@@ -283,7 +377,7 @@ const Obligations: React.FC<IObligationsProps> = ({
         />
         <Column
           field="ObligationType"
-          header="Obligation Type"
+          header="Contract type"
           style={{ width: "15%" }}
           body={(rowData) => <OnTextRender text={rowData?.ObligationType} />}
           sortable
@@ -291,15 +385,14 @@ const Obligations: React.FC<IObligationsProps> = ({
         <Column
           field="Party"
           header="Party"
-          style={{ width: "15%" }}
+          style={{ width: "10%" }}
           body={(rowData) => <OnTextRender text={rowData?.Party} />}
-          sortable
         />
         <Column
-          field="Priority"
-          header="Priority"
+          field="Clause"
+          header="Clause"
           style={{ width: "10%" }}
-          body={(rowData) => <OnTextRender text={rowData?.Priority} />}
+          body={(rowData) => <OnTextRender text={rowData?.Clause} />}
           sortable
         />
         <Column
@@ -311,26 +404,31 @@ const Obligations: React.FC<IObligationsProps> = ({
         />
         <Column
           field="StartDate"
-          header="Start Date"
-          style={{ width: "15%" }}
-          body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
+          header="Associated date/time"
+          style={{ width: "20%" }}
+          body={(rowData) => <OnDateAndTimeRender date={rowData?.StartDate} />}
           sortable
         />
-        <Column
+        {/* <Column
           field="DueDate"
           header="Due Date"
           style={{ width: "10%" }}
           body={(rowData) => <OnDateRender date={rowData?.DueDate} />}
           sortable
+        /> */}
+        <Column
+          field=""
+          header="Actions"
+          style={{ minWidth: "10%" }}
+          body={(rowData) => (
+            <OnActionsRender
+              editAction={setEditForm}
+              isShowLunch={false}
+              isShowUserAccess={false}
+              rowData={rowData}
+            />
+          )}
         />
-        {/* <Column
-            field=""
-            header="Actions"
-            style={{ minWidth: "20%" }}
-            body={(rowData) => (
-              <OnActionsRender setActiveProjectTab={setActiveProjectTab} />
-            )}
-          /> */}
       </DataTable>,
     ],
   ];
@@ -339,24 +437,42 @@ const Obligations: React.FC<IObligationsProps> = ({
     fetchOblicationData(
       setMasterOblicationData,
       setOblicationData,
-      projectDetails?.Id
+      projectDetails?.Id,
+      setIsLoader
     );
   }, []);
 
-  return (
+  const searchFilterFunctionality = (value: string) => {
+    const filteredOptions = masterOblicationData.filter(
+      (item) =>
+        item.Title.toLowerCase().includes(value.toLowerCase()) ||
+        item.ObligationType.toLowerCase().includes(value.toLowerCase()) ||
+        item.Party.toLowerCase().includes(value.toLowerCase()) ||
+        item.Clause.toLowerCase().includes(value.toLowerCase())
+    );
+    setOblicationData(filteredOptions);
+  };
+
+  return isLoader ? (
+    <AppLoader />
+  ) : (
     <div className={styles.Obligations_Wrapper}>
       <div className="justify-end gap-10">
-        <CustomSearchInput />
+        <CustomSearchInput searchFunction={searchFilterFunctionality} />
         <DefaultButton
           btnType="primaryBtn"
-          text="Add new contractual obligations"
+          text="Add Contractual Obligation"
           startIcon={<AddIcon />}
           onClick={() => {
+            setIsUpdateDetails({
+              Id: null,
+              Type: "New",
+            });
             togglePopupVisibility(
               setPopupController,
               0,
               "open",
-              `Add New Contractual Obligations`
+              `Add Contractual Obligations`
             );
             setFormDetails(deepClone(cloneFormDetails));
           }}

@@ -11,13 +11,16 @@ import styles from "./Calender.module.scss";
 import "./Calender.css";
 import DefaultButton from "../../../../Common/Buttons/DefaultButton/DefaultButton";
 import AddIcon from "@mui/icons-material/Add";
-import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../../../Utils/togglePopup";
 import Popup from "../../../../Common/Popup/Popup";
 import { useEffect, useState } from "react";
 import { deepClone } from "../../../../../../../Utils/deepClone";
 import {
   ICalenderDetails,
-  IcountriesType,
+  ICountriesDetails,
   IProjectDetails,
 } from "../../../../../../../Interface/ModulesInterface";
 import { CalenderFormDetails } from "../../../../../../../Config/initialStates";
@@ -38,9 +41,10 @@ import {
   submitCalenderForm,
   updateCalenderDorm,
 } from "../../../../../../../Services/Calender/CalenderService";
+import AppLoader from "../../../../Common/AppLoader/AppLoader";
 
 interface ICalendersProps {
-  countryDetails: IcountriesType;
+  countryDetails: ICountriesDetails;
   projectDetails: IProjectDetails;
 }
 
@@ -62,19 +66,28 @@ const Calender: React.FC<ICalendersProps> = ({
       popupData: "",
     },
   ];
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+  ];
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [masterCalenderData, setMasterCalenderData] = useState<
     ICalenderDetails[]
   >([]);
   const [calenderData, setCalenderData] = useState<ICalenderDetails[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
+  const [isLoader, setIsLoader] = useState<boolean>(true);
   const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
     Id: null,
-    Type: "New",
+    Type: "",
   });
-  console.log(masterCalenderData, calenderData);
+  console.log("masterCalenderData", masterCalenderData);
 
   // const events = [
   //   {
@@ -101,7 +114,7 @@ const Calender: React.FC<ICalendersProps> = ({
           <CustomInput
             value={formDetails?.EventTitle?.value}
             type="text"
-            placeholder="Enter title"
+            placeholder="Enter event name"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("EventTitle", value, setFormDetails);
@@ -109,7 +122,7 @@ const Calender: React.FC<ICalendersProps> = ({
             isValid={formDetails?.EventTitle?.isValid}
             withLabel={true}
             mandatory={formDetails?.EventTitle?.isMandatory}
-            labelText="Event Title"
+            labelText="Event name"
           />
           <CustomDropDown
             options={EventTypeOptions}
@@ -122,26 +135,12 @@ const Calender: React.FC<ICalendersProps> = ({
             isValid={formDetails?.EventType?.isValid}
             withLabel={true}
             mandatory={formDetails?.EventType?.isMandatory}
-            labelText="Event Type"
-          />
-          <CustomInput
-            value={formDetails?.Description?.value}
-            type="text"
-            placeholder="Enter description"
-            rows={3}
-            sectionType="one"
-            onChange={(value: string) => {
-              onChangeFunction("Description", value, setFormDetails);
-            }}
-            isValid={formDetails?.Description?.isValid}
-            withLabel={true}
-            mandatory={formDetails?.Description?.isMandatory}
-            labelText="Description"
+            labelText="Event type"
           />
           <CustomDropDown
             options={EventCategoryOptions}
             value={formDetails?.Category?.value}
-            placeholder="Select Category"
+            placeholder="Select category"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Category", value, setFormDetails);
@@ -161,12 +160,12 @@ const Calender: React.FC<ICalendersProps> = ({
             isValid={formDetails?.EventDateTime?.isValid}
             withLabel={true}
             mandatory={formDetails?.EventDateTime?.isMandatory}
-            labelText="Start Date"
+            labelText="Date & time"
           />
           <CustomInput
             value={formDetails?.Location?.value}
             type="text"
-            placeholder="Enter Location"
+            placeholder="Enter location"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Location", value, setFormDetails);
@@ -179,7 +178,7 @@ const Calender: React.FC<ICalendersProps> = ({
           <CustomPeoplePicker
             selectedItem={formDetails.AssignedTo.value}
             sectionType="two"
-            placeholder="Select User"
+            placeholder="Select user"
             personSelectionLimit={1}
             minHeight="38px"
             maxHeight="38px"
@@ -189,12 +188,26 @@ const Calender: React.FC<ICalendersProps> = ({
             isValid={formDetails.AssignedTo.isValid}
             withLabel={true}
             mandatory={true}
-            labelText="Assign To"
+            labelText="Assign to"
+          />
+          <CustomInput
+            value={formDetails?.Description?.value}
+            type="text"
+            placeholder="Enter any notes"
+            rows={3}
+            sectionType="one"
+            onChange={(value: string) => {
+              onChangeFunction("Description", value, setFormDetails);
+            }}
+            isValid={formDetails?.Description?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.Description?.isMandatory}
+            labelText="Notes"
           />
           <CustomDropDown
             options={EventStatusOptions}
             value={formDetails?.Status?.value}
-            placeholder="Select Status"
+            placeholder="Select status"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Status", value, setFormDetails);
@@ -211,29 +224,30 @@ const Calender: React.FC<ICalendersProps> = ({
 
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
-      isUpdateDetails?.Type === "New"
-        ? submitCalenderForm(
-            formDetails,
-            setMasterCalenderData,
-            setCalenderData,
-            countryDetails,
-            projectDetails,
-            setPopupController,
-            0
-          )
-        : updateCalenderDorm(
-            formDetails,
-            isUpdateDetails,
-            setMasterCalenderData,
-            setCalenderData,
-            countryDetails,
-            projectDetails,
-            setPopupController,
-            0
-          );
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
+      if (isUpdateDetails?.Type === "New") {
+        submitCalenderForm(
+          formDetails,
+          setMasterCalenderData,
+          setCalenderData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      } else {
+        updateCalenderDorm(
+          formDetails,
+          isUpdateDetails,
+          setMasterCalenderData,
+          setCalenderData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      }
     }
   };
 
@@ -248,6 +262,7 @@ const Calender: React.FC<ICalendersProps> = ({
         onClick: () => {
           setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(0);
+          setPopupResponseFun(setPopupResponse, 0, false, "", "");
         },
       },
       {
@@ -267,8 +282,6 @@ const Calender: React.FC<ICalendersProps> = ({
     info: import("@fullcalendar/core").EventClickArg
   ) => {
     const selectedEvent = info.event;
-    // Open your event edit modal/form here
-    console.log("Clicked event:", selectedEvent.title);
     setFormDetails({
       EventTitle: {
         value: selectedEvent.title,
@@ -327,7 +340,8 @@ const Calender: React.FC<ICalendersProps> = ({
     fetchCalenderData(
       setMasterCalenderData,
       setCalenderData,
-      projectDetails?.Id
+      projectDetails?.Id,
+      setIsLoader
     );
   }, []);
 
@@ -345,19 +359,25 @@ const Calender: React.FC<ICalendersProps> = ({
     },
   }));
 
-  return (
+  return isLoader ? (
+    <AppLoader />
+  ) : (
     <div className={styles.Calender_wrapper}>
       <div className="justify-end gap-10">
         <DefaultButton
           btnType="primaryBtn"
-          text="Add new critical date"
+          text="Add Critical Date"
           startIcon={<AddIcon />}
           onClick={() => {
+            setIsUpdateDetails({
+              Id: null,
+              Type: "New",
+            });
             togglePopupVisibility(
               setPopupController,
               0,
               "open",
-              `Add New Critical Date`
+              `Add Critical Date`
             );
             setFormDetails(deepClone(cloneFormDetails));
           }}
@@ -380,13 +400,15 @@ const Calender: React.FC<ICalendersProps> = ({
             key={index}
             isLoading={false}
             PopupType={popupData.popupType}
-            onHide={() =>
-              togglePopupVisibility(setPopupController, index, "close")
-            }
+            onHide={() => {
+              togglePopupVisibility(setPopupController, index, "close");
+              setPopupResponseFun(setPopupResponse, index, false, "", "");
+            }}
             popupTitle={
               popupData.popupType !== "confimation" && popupData.popupTitle
             }
             popupActions={popupActions[index]}
+            response={popupResponse[index]}
             visibility={popupData.open}
             content={popupInputs[index]}
             popupWidth={popupData.popupWidth}

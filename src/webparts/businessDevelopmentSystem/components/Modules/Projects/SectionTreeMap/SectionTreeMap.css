@@ -36,6 +36,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+    padding: 0px 5px;
 }
 .section_tree_map_wrapper .tree_map_project_text span{
     min-width: 1vh;
@@ -44,4 +45,5 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
+    padding: 0px 5px;
 }

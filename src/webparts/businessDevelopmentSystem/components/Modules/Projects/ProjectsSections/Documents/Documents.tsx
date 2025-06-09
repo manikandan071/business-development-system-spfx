@@ -13,11 +13,16 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
   OnActionsRender,
+  OnDateRender,
   OnTextRender,
+  OnUsersRender,
 } from "../../../../../../../Utils/dataTable";
 import { useEffect, useState } from "react";
 import { deepClone } from "../../../../../../../Utils/deepClone";
-import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../../../Utils/togglePopup";
 import Popup from "../../../../Common/Popup/Popup";
 import PopupSectionHeader from "../../../../Common/Headers/PopupSectionHeader/PopupSectionHeader";
 import { onChangeFunction } from "../../../../../../../Utils/onChange";
@@ -28,7 +33,7 @@ import { DocumentsFormDetails } from "../../../../../../../Config/initialStates"
 import CustomDropDown from "../../../../Common/CustomInputFields/CustomDropDown/CustomDropDown";
 import { DocumentsCategories } from "../../../../../../../Config/dropDownOptions";
 import {
-  IcountriesType,
+  ICountriesDetails,
   IDocumentsDetails,
   IProjectDetails,
 } from "../../../../../../../Interface/ModulesInterface";
@@ -39,9 +44,14 @@ import {
   updateDocumentForm,
 } from "../../../../../../../Services/Document/DocumentService";
 import { FileItem } from "../../../../../../../Interface/CommonInterface";
+import { submitManageAccessForm } from "../../../../../../../Services/CommonService/CommonService";
+import { SPLists } from "../../../../../../../Config/config";
+import AppLoader from "../../../../Common/AppLoader/AppLoader";
+import CustomInput from "../../../../Common/CustomInputFields/CustomInput/CustomInput";
+import CustomDatePicker from "../../../../Common/CustomInputFields/CustomDatePicker/CustomDatePicket";
 
 interface IDocumentsProps {
-  countryDetails: IcountriesType;
+  countryDetails: ICountriesDetails;
   projectDetails: IProjectDetails;
 }
 
@@ -62,33 +72,76 @@ const Documents: React.FC<IDocumentsProps> = ({
       defaultCloseBtn: false,
       popupData: "",
     },
+    {
+      open: false,
+      popupTitle: "",
+      popupWidth: "50%",
+      popupType: "custom",
+      defaultCloseBtn: false,
+      popupData: "",
+    },
+  ];
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
   ];
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [masterDocumentsData, setMasterDocumentsData] = useState<
     IDocumentsDetails[]
   >([]);
   const [documentsData, setDocumentsData] = useState<IDocumentsDetails[]>([]);
   const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
     Id: null,
-    Type: "New",
+    Type: "",
   });
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
+  const [isLoader, setIsLoader] = useState<boolean>(true);
+  const [selectedDocument, setSelectedDocument] = useState<IDocumentsDetails>({
+    Id: 0,
+    Category: "",
+    ContractType: "",
+    Party: "",
+    Date: "",
+    ManageAccess: [],
+    ProjectOfId: 0,
+    ManageAccessFormFormat: [],
+  });
 
-  console.log("formDetails", formDetails, masterDocumentsData);
-
-  const openDocumentAction = async (project: any) => {
-    console.log("project", project);
+  const openDocumentAction = async (documentDetails: any) => {
     const tempAttachments: FileItem[] = await getLibraryAttachments(
       countryDetails?.countryName,
       projectDetails?.ProjectName,
-      project?.Category
+      documentDetails?.Category
     );
-    console.log("tempAttachments", tempAttachments);
     setFormDetails({
       Category: {
-        value: project?.Category,
+        value: documentDetails?.Category,
+        isValid: true,
+        isMandatory: true,
+      },
+      ContractType: {
+        value: documentDetails?.ContractType,
+        isValid: true,
+        isMandatory: true,
+      },
+      Party: {
+        value: documentDetails?.Party,
+        isValid: true,
+        isMandatory: true,
+      },
+      Date: {
+        value: documentDetails?.Date,
         isValid: true,
         isMandatory: true,
       },
@@ -103,37 +156,90 @@ const Documents: React.FC<IDocumentsProps> = ({
         isMandatory: false,
       },
       ManageAccess: {
-        value: project?.ManageAccessFormFormat,
+        value: documentDetails?.ManageAccessFormFormat,
         isValid: true,
       },
     });
     setIsUpdateDetails({
-      Id: project?.Id,
+      Id: documentDetails?.Id,
       Type: "Update",
     });
     togglePopupVisibility(setPopupController, 0, "open", `Update Document`);
   };
-  const documentManageAccessAction = (project: any) => {
-    console.log("project", project);
+  const documentManageAccessAction = (document: any) => {
+    setSelectedDocument(document);
+    setFormDetails({
+      ManageAccess: {
+        value: document?.ManageAccessFormFormat,
+        isValid: true,
+        isMandatory: true,
+      },
+    });
+    togglePopupVisibility(
+      setPopupController,
+      1,
+      "open",
+      `Document Manage Access`
+    );
   };
 
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
         <PopupSectionHeader Title="Basic Details" />
-        <div>
+        <div className="section-wrapper">
           <CustomDropDown
             options={DocumentsCategories}
             value={formDetails?.Category?.value}
-            placeholder="Select category"
-            sectionType="three"
+            placeholder="Select contract category"
+            sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Category", value, setFormDetails);
             }}
             isValid={formDetails?.Category?.isValid}
             withLabel={true}
             mandatory={formDetails?.Category?.isMandatory}
-            labelText="Category"
+            labelText="Contract category"
+          />
+          <CustomDropDown
+            options={DocumentsCategories}
+            value={formDetails?.ContractType?.value}
+            placeholder="Select contract type"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("ContractType", value, setFormDetails);
+            }}
+            isValid={formDetails?.ContractType?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.ContractType?.isMandatory}
+            labelText="Contract type"
+          />
+          <CustomInput
+            value={formDetails?.Party?.value}
+            type="text"
+            placeholder="Enter party"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("Party", value, setFormDetails);
+            }}
+            isValid={formDetails?.Party?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.Party?.isMandatory}
+            labelText="Party"
+          />
+          <CustomDatePicker
+            value={formDetails?.Date?.value}
+            placeholder="Select date"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("Date", value, setFormDetails);
+            }}
+            isValid={formDetails?.Date?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.Date?.isMandatory}
+            labelText="Date"
+            disabled={false}
+            readOnly={false}
           />
         </div>
         <PopupSectionHeader Title="Attachments" />
@@ -153,7 +259,6 @@ const Documents: React.FC<IDocumentsProps> = ({
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
           onChange={(value: any) => {
-            console.log("value", value);
             onChangeFunction("ManageAccess", value, setFormDetails);
           }}
           showList="3"
@@ -161,33 +266,62 @@ const Documents: React.FC<IDocumentsProps> = ({
         />
       </div>,
     ],
+    [
+      <div key={1} style={{ width: "100%" }}>
+        <ManageAccess
+          ManageAccess={formDetails?.ManageAccess?.value}
+          onChange={(value: any) => {
+            onChangeFunction("ManageAccess", value, setFormDetails);
+          }}
+          showList="10"
+          showSectionTitle={false}
+        />
+      </div>,
+    ],
   ];
 
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
-      isUpdateDetails?.Type === "New"
-        ? submitDocumentForm(
-            formDetails,
-            setMasterDocumentsData,
-            setDocumentsData,
-            countryDetails,
-            projectDetails,
-            setPopupController,
-            0
-          )
-        : updateDocumentForm(
-            formDetails,
-            isUpdateDetails,
-            setMasterDocumentsData,
-            setDocumentsData,
-            countryDetails,
-            projectDetails,
-            setPopupController,
-            0
-          );
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
+      if (isUpdateDetails?.Type === "New") {
+        submitDocumentForm(
+          formDetails,
+          setMasterDocumentsData,
+          setDocumentsData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      } else {
+        updateDocumentForm(
+          formDetails,
+          isUpdateDetails,
+          setMasterDocumentsData,
+          setDocumentsData,
+          countryDetails,
+          projectDetails,
+          setPopupResponse,
+          0
+        );
+      }
+    }
+  };
+
+  const handleManageAccessSubmitFuction = () => {
+    const isFormValid = validateForm(formDetails, setFormDetails);
+    if (isFormValid) {
+      setPopupResponseFun(setPopupResponse, 1, true, "", "");
+      submitManageAccessForm(
+        formDetails,
+        selectedDocument?.Id,
+        SPLists.DocumentsList,
+        setMasterDocumentsData,
+        setDocumentsData,
+        setPopupResponse,
+        1
+      );
     }
   };
 
@@ -202,10 +336,11 @@ const Documents: React.FC<IDocumentsProps> = ({
         onClick: () => {
           setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(0);
+          setPopupResponseFun(setPopupResponse, 0, false, "", "");
         },
       },
       {
-        text: "Submit",
+        text: isUpdateDetails?.Type === "New" ? "Submit" : "Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -215,45 +350,92 @@ const Documents: React.FC<IDocumentsProps> = ({
         },
       },
     ],
+    [
+      {
+        text: "Cancel",
+        btnType: "closeBtn",
+        disabled: false,
+        endIcon: false,
+        startIcon: false,
+        onClick: () => {
+          setFormDetails(deepClone(cloneFormDetails));
+          handleClosePopup(1);
+        },
+      },
+      {
+        text: "Submit",
+        btnType: "primaryBtn",
+        disabled: false,
+        endIcon: false,
+        startIcon: false,
+        onClick: () => {
+          handleManageAccessSubmitFuction();
+        },
+      },
+    ],
   ];
 
   const tableColumns = [
     [
       <DataTable
         value={documentsData}
+        className="min_height_48vh"
         scrollable
-        scrollHeight="60vh"
-        style={{ minWidth: "100%" }}
+        scrollHeight="48vh"
+        style={{ minWidth: "48%" }}
         key={0}
         paginator
         rows={10}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        currentPageReportTemplate={`Showing {first} to {last} of {totalRecords} ${
+          documentsData?.length === 1 ? "record" : "records"
+        }`}
+        emptyMessage="No data found."
       >
         <Column
           field="Category"
-          header="Document Category"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
+          header="Contract category"
+          style={{ width: "20%" }}
           body={(rowData) => <OnTextRender text={rowData?.Category} />}
           sortable
         />
         <Column
+          field="ContractType"
+          header="Contract type"
+          style={{ width: "15%" }}
+          body={(rowData) => <OnTextRender text={rowData?.ContractType} />}
+          sortable
+        />
+        <Column
+          field="Party"
+          header="Party"
+          style={{ width: "15%" }}
+          body={(rowData) => <OnTextRender text={rowData?.Party} />}
+          sortable
+        />
+        <Column
+          field="Date"
+          header="Date"
+          style={{ width: "15%" }}
+          body={(rowData) => <OnDateRender date={rowData?.Date} />}
+          sortable
+        />
+        <Column
           field="ManageAccess"
-          header="Manage Access"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => (
-            <OnTextRender text={rowData?.ManageAccess?.length} />
-          )}
+          header="Manage access"
+          style={{ width: "20%" }}
+          body={(rowData) => <OnUsersRender users={rowData?.ManageAccess} />}
           sortable
         />
         <Column
           field=""
           header="Actions"
-          style={{ minWidth: "20%" }}
+          style={{ minWidth: "15%" }}
           body={(rowData) => (
             <OnActionsRender
-              openProjectAction={openDocumentAction}
+              editAction={openDocumentAction}
               userAccessAction={documentManageAccessAction}
+              isShowLunch={false}
               rowData={rowData}
             />
           )}
@@ -266,17 +448,29 @@ const Documents: React.FC<IDocumentsProps> = ({
     fetchDocumentsData(
       setMasterDocumentsData,
       setDocumentsData,
-      projectDetails?.Id
+      projectDetails?.Id,
+      setIsLoader
     );
   }, []);
 
-  return (
+  const searchFilterFunctionality = (value: string) => {
+    const filteredOptions = masterDocumentsData.filter(
+      (item) =>
+        item.ContractType.toLowerCase().includes(value.toLowerCase()) ||
+        item.Category.toLowerCase().includes(value.toLowerCase())
+    );
+    setDocumentsData(filteredOptions);
+  };
+
+  return isLoader ? (
+    <AppLoader />
+  ) : (
     <div className={styles.Documents_wrapper}>
       <div className="justify-end gap-10">
-        <CustomSearchInput />
+        <CustomSearchInput searchFunction={searchFilterFunctionality} />
         <DefaultButton
           btnType="primaryBtn"
-          text="Add new documents"
+          text="Add Document"
           startIcon={<AddIcon />}
           onClick={() => {
             setIsUpdateDetails({
@@ -287,7 +481,7 @@ const Documents: React.FC<IDocumentsProps> = ({
               setPopupController,
               0,
               "open",
-              `Add New Document`
+              `Add Document`
             );
             setFormDetails(deepClone(cloneFormDetails));
           }}
@@ -302,15 +496,17 @@ const Documents: React.FC<IDocumentsProps> = ({
             key={index}
             isLoading={false}
             PopupType={popupData.popupType}
-            onHide={() =>
-              togglePopupVisibility(setPopupController, index, "close")
-            }
+            onHide={() => {
+              togglePopupVisibility(setPopupController, index, "close");
+              setPopupResponseFun(setPopupResponse, index, false, "", "");
+            }}
             popupTitle={
               popupData.popupType !== "confimation" && popupData.popupTitle
             }
             popupActions={popupActions[index]}
             visibility={popupData.open}
             content={popupInputs[index]}
+            response={popupResponse[index]}
             popupWidth={popupData.popupWidth}
             defaultCloseBtn={popupData.defaultCloseBtn || false}
             confirmationTitle={

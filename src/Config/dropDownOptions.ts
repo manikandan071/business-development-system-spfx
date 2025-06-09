@@ -1,7 +1,14 @@
 export const PermissonOptions = ["Owner", "Read", "View and Download", "Read"];
-export const ProjectTypeOptions = ["Type 1", "Type2", "Type3", "Type4"];
+export const ProjectTypeOptions = [
+  "Process Improvement",
+  "System Upgrade",
+  "Training & Development",
+  "Infrastructure Maintenance",
+];
+export const ProjectStatusOptions = ["Not Started", "Completed", "In Progress"];
 export const ObligationTypeOptions = ["Payment", "Delivery", "Compliance"];
 export const PriorityTypeOptions = ["Low", "Medium", "High"];
+export const ResponsibleOptions = ["Development", "Commercial"];
 export const ObligationStatusOptions = ["Not Started", "Missed", "Completed"];
 export const EventTypeOptions = [
   "Meeting",

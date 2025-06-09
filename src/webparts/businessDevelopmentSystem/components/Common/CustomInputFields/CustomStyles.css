@@ -12,6 +12,13 @@
     flex: 0 0 calc(100% - 1px);
 }
 
+.Mui-disabled:disabled {
+    color: #000;
+    -webkit-text-fill-color: #000 !important;
+    opacity: 1;
+    background-color: #f5f5f5;
+}
+
 /* input label style */
 
 .input-label-text{

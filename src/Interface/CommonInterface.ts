@@ -3,6 +3,8 @@ interface IUserDetails {
   Email: string;
   DisplayName: string;
   Permission?: string;
+  ImgUrl: string;
+  Key?: number;
 }
 interface FileItem {
   name: string;

@@ -10,7 +10,7 @@ import {
 } from "../CommonService/CommonService";
 import { IProjectDetails } from "../../Interface/ModulesInterface";
 import { setProjectsData } from "../../Redux/Features/ProjectContextSlice";
-import { togglePopupVisibility } from "../../Utils/togglePopup";
+import { setPopupResponseFun } from "../../Utils/togglePopup";
 
 const getRegisteredCountries = async (setRegisteredCountries: any) => {
   await SpServices.SPReadItems({ Listname: SPLists.Countrieslist }).then(
@@ -27,18 +27,28 @@ const getRegisteredCountries = async (setRegisteredCountries: any) => {
 };
 
 const fetchProjectData = async (
+  countryId: number,
   setProjectData: (data: IProjectDetails[]) => void,
   setMasterProjectData: (data: IProjectDetails[]) => void,
-  setDispatch: any
+  setDispatch: any,
+  setLoader: any
 ) => {
   const response = await SpServices.SPReadItems({
     Listname: SPLists.Projectslist,
     Select: "*,CountryOf/Id,CountryOf/Title",
     Expand: "CountryOf",
-    Orderby: "Id",
-    Orderbydecorasc: "dec",
+    Filter: [
+      countryId
+        ? {
+            FilterKey: "CountryOfId",
+            Operator: "eq",
+            FilterValue: countryId,
+          }
+        : {},
+    ],
+    Orderby: "ID",
+    Orderbydecorasc: false,
   }).then();
-  console.log("response", response);
 
   const tempArray: IProjectDetails[] = response.map((project: any) => {
     // Transform ManageAccess to match IUserDetails[]
@@ -61,6 +71,9 @@ const fetchProjectData = async (
       CountryId: project?.CountryOf?.Id,
       City: project?.City,
       ProjectType: project?.ProjectType,
+      BrandingPartner: project?.BrandingPartner,
+      GoogleLocation: project?.BrandingPartner,
+      UnitSize: project?.UnitSize,
       StartDate: project?.StartDate,
       EndDate: project?.EndDate,
       Status: project?.Status,
@@ -73,45 +86,50 @@ const fetchProjectData = async (
   setProjectData([...tempArray]);
   setMasterProjectData([...tempArray]);
   setDispatch(setProjectsData([...tempArray]));
+  setLoader(false);
 };
 
 const submitAddProjectForm = (
   formDetails: any,
   setMasterProjectDatas: any,
   setProjectDatas: any,
-  setPopupController: any,
-  index: number
+  setPopupResponse: any,
+  index: number,
+  setDispatch: any
 ) => {
-  console.log("formDetails", formDetails);
   const payloadDetails = {
     Title: formDetails?.ProjectName?.value,
     Description: formDetails?.Description?.value,
     ProjectType: formDetails?.ProjectType?.value,
     CountryOfId: formDetails?.CountryId?.value,
     City: formDetails?.City?.value,
+    GoogleLocation: formDetails?.GoogleLocation?.value,
+    BrandingPartner: formDetails?.BrandingPartner?.value,
     StartDate: formDetails?.StartDate?.value,
     EndDate: formDetails?.EndDate?.value,
-    Status: "Not Started",
+    UnitSize: formDetails?.UnitSize?.value,
+    Status: formDetails?.Status?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
   };
-  debugger;
   SpServices.SPAddItem({
     Listname: SPLists.Projectslist,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
-      const projectDetails = {
+      const projectDetails: IProjectDetails = {
         Id: res?.data?.Id,
         ProjectName: payloadDetails?.Title,
         Description: payloadDetails?.Description,
         CountryName: formDetails?.Country?.value,
         CountryId: payloadDetails?.CountryOfId,
         City: payloadDetails?.City,
+        BrandingPartner: payloadDetails?.BrandingPartner,
+        GoogleLocation: payloadDetails?.GoogleLocation,
         ProjectType: payloadDetails?.ProjectType,
         StartDate: payloadDetails?.StartDate,
         EndDate: payloadDetails?.EndDate,
-        Status: "Not Started",
+        UnitSize: payloadDetails?.UnitSize,
+        Status: payloadDetails?.Status,
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -120,38 +138,70 @@ const submitAddProjectForm = (
         ),
       };
       setMasterProjectDatas((prev: any) => {
-        return [projectDetails, ...prev];
+        const updated = [projectDetails, ...prev];
+        setDispatch(setProjectsData(updated));
+        return updated;
       });
       setProjectDatas((prev: any) => {
-        return [projectDetails, ...prev];
+        const updated = [projectDetails, ...prev];
+        return updated;
       });
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "New Project have been added successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);
     });
 };
-const submitManageAccessForm = (
+const updateProjectForm = (
   formDetails: any,
-  recId: number,
+  isUpdateDetails: any,
   setMasterState: any,
   setLocalState: any,
-  setPopupController: any,
-  index: number
+  setPopupResponse: any,
+  index: number,
+  setDispatch: any
 ) => {
-  console.log("formDetails", formDetails);
+  const recId = isUpdateDetails?.Id;
   const payloadDetails = {
+    Title: formDetails?.ProjectName?.value,
+    Description: formDetails?.Description?.value,
+    ProjectType: formDetails?.ProjectType?.value,
+    CountryOfId: formDetails?.CountryId?.value,
+    City: formDetails?.City?.value,
+    GoogleLocation: formDetails?.GoogleLocation?.value,
+    BrandingPartner: formDetails?.BrandingPartner?.value,
+    StartDate: formDetails?.StartDate?.value,
+    EndDate: formDetails?.EndDate?.value,
+    UnitSize: formDetails?.UnitSize?.value,
+    Status: formDetails?.Status?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
   };
-  debugger;
   SpServices.SPUpdateItem({
     Listname: SPLists.Projectslist,
     ID: recId,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
-      const projectDetails = {
+      const projectDetails: IProjectDetails = {
+        Id: recId,
+        ProjectName: payloadDetails?.Title,
+        Description: payloadDetails?.Description,
+        CountryName: formDetails?.Country?.value,
+        CountryId: payloadDetails?.CountryOfId,
+        City: payloadDetails?.City,
+        BrandingPartner: payloadDetails?.BrandingPartner,
+        GoogleLocation: payloadDetails?.GoogleLocation,
+        ProjectType: payloadDetails?.ProjectType,
+        StartDate: payloadDetails?.StartDate,
+        EndDate: payloadDetails?.EndDate,
+        UnitSize: payloadDetails?.UnitSize,
+        Status: payloadDetails?.Status,
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -159,18 +209,26 @@ const submitManageAccessForm = (
           payloadDetails?.ManageAccess
         ),
       };
-
-      setMasterState((prev: any) =>
-        prev.map((item: any) =>
+      setMasterState((prev: any) => {
+        const updated = prev.map((item: any) =>
           item.Id === recId ? { ...item, ...projectDetails } : item
-        )
-      );
-      setLocalState((prev: any) =>
-        prev.map((item: any) =>
+        );
+        setDispatch(setProjectsData(updated));
+        return updated;
+      });
+      setLocalState((prev: any) => {
+        const updated = prev.map((item: any) =>
           item.Id === recId ? { ...item, ...projectDetails } : item
-        )
+        );
+        return updated;
+      });
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "The Project have been updated successfully."
       );
-      togglePopupVisibility(setPopupController, index, "close");
     })
     .catch((err: any) => {
       console.log("Error :", err);
@@ -181,5 +239,5 @@ export {
   getRegisteredCountries,
   submitAddProjectForm,
   fetchProjectData,
-  submitManageAccessForm,
+  updateProjectForm,
 };

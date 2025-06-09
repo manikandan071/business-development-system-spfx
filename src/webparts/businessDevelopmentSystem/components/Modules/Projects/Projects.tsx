@@ -21,7 +21,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import ProjectActiveSection from "./ProjectActiveSection/ProjectActiveSection";
 import Popup from "../../Common/Popup/Popup";
-import { togglePopupVisibility } from "../../../../../Utils/togglePopup";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../Utils/togglePopup";
 import { IProjectDetails } from "../../../../../Interface/ModulesInterface";
 import PopupSectionHeader from "../../Common/Headers/PopupSectionHeader/PopupSectionHeader";
 import CustomAutoSelect from "../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
@@ -32,17 +35,27 @@ import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { deepClone } from "../../../../../Utils/deepClone";
 import { ProjectFormDetails } from "../../../../../Config/initialStates";
 import CustomDatePicker from "../../Common/CustomInputFields/CustomDatePicker/CustomDatePicket";
-import { ProjectTypeOptions } from "../../../../../Config/dropDownOptions";
+import {
+  ProjectStatusOptions,
+  ProjectTypeOptions,
+} from "../../../../../Config/dropDownOptions";
 import { validateForm } from "../../../../../Utils/validations";
 import {
   fetchProjectData,
   getRegisteredCountries,
   submitAddProjectForm,
-  submitManageAccessForm,
+  updateProjectForm,
 } from "../../../../../Services/Projects/ProjectService";
 import { useDispatch } from "react-redux";
+import { submitManageAccessForm } from "../../../../../Services/CommonService/CommonService";
+import { SPLists } from "../../../../../Config/config";
+import AppLoader from "../../Common/AppLoader/AppLoader";
 
-const Projects: React.FC = () => {
+interface IProjectProps {
+  selectedCountry: any;
+}
+
+const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
   const dispatch = useDispatch();
   const cloneFormDetails = deepClone(ProjectFormDetails);
   const handleClosePopup = (index?: any): void => {
@@ -67,16 +80,35 @@ const Projects: React.FC = () => {
     },
   ];
 
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+  ];
+
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [activeProjectTab, setActiveProjectTab] = useState("");
+  const [isLoader, setIsLoader] = useState<boolean>(true);
   const [registeredCountries, setRegisteredCountries] = useState([]);
   const [masterProjectData, setMasterProjectData] = useState<IProjectDetails[]>(
     []
   );
   const [projectData, setProjectData] = useState<IProjectDetails[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
+  const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
+    Id: null,
+    Type: "New",
+  });
   const [selectedProject, setSelectedProject] = useState<IProjectDetails>({
     Id: 0,
     ProjectName: "",
@@ -84,19 +116,16 @@ const Projects: React.FC = () => {
     CountryName: "",
     CountryId: 0,
     City: "",
+    GoogleLocation: "",
+    BrandingPartner: "",
+    UnitSize: "",
     Description: "",
     StartDate: "",
     EndDate: "",
     Status: "",
     ManageAccess: [],
+    ManageAccessFormFormat: [],
   });
-  console.log(
-    "activeProjectTab",
-    formDetails,
-    activeProjectTab,
-    masterProjectData,
-    registeredCountries
-  );
 
   const popupInputs: any[] = [
     [
@@ -114,7 +143,7 @@ const Projects: React.FC = () => {
             isValid={formDetails?.ProjectName?.isValid}
             withLabel={true}
             mandatory={formDetails?.ProjectName?.isMandatory}
-            labelText="Project Name"
+            labelText="Project name"
           />
           <CustomDropDown
             options={ProjectTypeOptions}
@@ -127,9 +156,9 @@ const Projects: React.FC = () => {
             isValid={formDetails?.ProjectType?.isValid}
             withLabel={true}
             mandatory={formDetails?.ProjectType?.isMandatory}
-            labelText="Project Type"
+            labelText="Project type"
           />
-          <CustomInput
+          {/* <CustomInput
             value={formDetails?.Description?.value}
             type="text"
             placeholder="Enter description"
@@ -142,7 +171,7 @@ const Projects: React.FC = () => {
             withLabel={true}
             mandatory={formDetails?.Description?.isMandatory}
             labelText="Description"
-          />
+            /> */}
           <CustomAutoSelect
             value={formDetails?.Country?.value}
             options={registeredCountries.map((country: any) => ({
@@ -178,6 +207,32 @@ const Projects: React.FC = () => {
             mandatory={formDetails?.City?.isMandatory}
             labelText="City"
           />
+          <CustomInput
+            value={formDetails?.GoogleLocation?.value}
+            type="text"
+            placeholder="Enter google location"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("GoogleLocation", value, setFormDetails);
+            }}
+            isValid={formDetails?.GoogleLocation?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.GoogleLocation?.isMandatory}
+            labelText="Google location"
+          />
+          <CustomInput
+            value={formDetails?.BrandingPartner?.value}
+            type="text"
+            placeholder="Enter branding partner"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("BrandingPartner", value, setFormDetails);
+            }}
+            isValid={formDetails?.BrandingPartner?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.BrandingPartner?.isMandatory}
+            labelText="Branding partner"
+          />
           <CustomDatePicker
             value={formDetails?.StartDate?.value}
             sectionType="two"
@@ -188,7 +243,7 @@ const Projects: React.FC = () => {
             isValid={formDetails?.StartDate?.isValid}
             withLabel={true}
             mandatory={formDetails?.StartDate?.isMandatory}
-            labelText="Start Date"
+            labelText="Sales launch date"
           />
           <CustomDatePicker
             value={formDetails?.EndDate?.value}
@@ -201,13 +256,38 @@ const Projects: React.FC = () => {
             isValid={formDetails?.EndDate?.isValid}
             withLabel={true}
             mandatory={formDetails?.EndDate?.isMandatory}
-            labelText="End Date"
+            labelText="Sales to date"
+          />
+          <CustomInput
+            value={formDetails?.UnitSize?.value}
+            type="text"
+            placeholder="Enter unit mix & size"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("UnitSize", value, setFormDetails);
+            }}
+            isValid={formDetails?.UnitSize?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.UnitSize?.isMandatory}
+            labelText="Unit mix & size"
+          />
+          <CustomDropDown
+            options={ProjectStatusOptions}
+            value={formDetails?.Status?.value}
+            placeholder="Select Status"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("Status", value, setFormDetails);
+            }}
+            isValid={formDetails?.Status?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.Status?.isMandatory}
+            labelText="Status"
           />
         </div>
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
           onChange={(value: any) => {
-            // console.log("value", value);
             onChangeFunction("ManageAccess", value, setFormDetails);
           }}
           showList="3"
@@ -220,7 +300,6 @@ const Projects: React.FC = () => {
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
           onChange={(value: any) => {
-            // console.log("value", value);
             onChangeFunction("ManageAccess", value, setFormDetails);
           }}
           showList="10"
@@ -232,30 +311,42 @@ const Projects: React.FC = () => {
 
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
-      submitAddProjectForm(
-        formDetails,
-        setMasterProjectData,
-        setProjectData,
-        setPopupController,
-        0
-      );
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
+      if (isUpdateDetails?.Type === "New") {
+        submitAddProjectForm(
+          formDetails,
+          setMasterProjectData,
+          setProjectData,
+          setPopupResponse,
+          0,
+          dispatch
+        );
+      } else {
+        updateProjectForm(
+          formDetails,
+          isUpdateDetails,
+          setMasterProjectData,
+          setProjectData,
+          setPopupResponse,
+          0,
+          dispatch
+        );
+      }
     }
   };
 
   const handleManageAccessSubmitFuction = () => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
+      setPopupResponseFun(setPopupResponse, 1, true, "", "");
       submitManageAccessForm(
         formDetails,
         selectedProject?.Id,
+        SPLists.Projectslist,
         setMasterProjectData,
         setProjectData,
-        setPopupController,
+        setPopupResponse,
         1
       );
     }
@@ -275,7 +366,7 @@ const Projects: React.FC = () => {
         },
       },
       {
-        text: "Submit",
+        text: isUpdateDetails?.Type === "New" ? "Submit" : "Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -311,14 +402,12 @@ const Projects: React.FC = () => {
   ];
 
   const openProjectAction = (project: any) => {
-    console.log("project", project);
     setActiveProjectTab("Obligations");
     setSelectedProject(project);
   };
 
   const projectManageAccessAction = (project: any) => {
     setSelectedProject(project);
-    console.log("project", project);
     setFormDetails({
       ManageAccess: {
         value: project?.ManageAccessFormFormat,
@@ -334,10 +423,85 @@ const Projects: React.FC = () => {
     );
   };
 
+  const setEditForm = (projectDetails: IProjectDetails) => {
+    setFormDetails({
+      ProjectName: {
+        value: projectDetails?.ProjectName,
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: projectDetails?.Description,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectType: {
+        value: projectDetails?.ProjectType,
+        isValid: true,
+        isMandatory: true,
+      },
+      Country: {
+        value: projectDetails?.CountryName,
+        isValid: true,
+        isMandatory: true,
+      },
+      CountryId: {
+        value: projectDetails?.CountryId,
+        isValid: true,
+        isMandatory: true,
+      },
+      City: {
+        value: projectDetails?.City,
+        isValid: true,
+        isMandatory: true,
+      },
+      GoogleLocation: {
+        value: projectDetails?.GoogleLocation,
+        isValid: true,
+        isMandatory: true,
+      },
+      BrandingPartner: {
+        value: projectDetails?.BrandingPartner,
+        isValid: true,
+        isMandatory: true,
+      },
+      StartDate: {
+        value: projectDetails?.StartDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      EndDate: {
+        value: projectDetails?.EndDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: projectDetails?.Status,
+        isValid: true,
+        isMandatory: true,
+      },
+      UnitSize: {
+        value: projectDetails?.UnitSize,
+        isValid: true,
+        isMandatory: false,
+      },
+      ManageAccess: {
+        value: projectDetails?.ManageAccessFormFormat,
+        isValid: true,
+      },
+    });
+    setIsUpdateDetails({
+      Id: projectDetails?.Id,
+      Type: "Update",
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Project`);
+  };
+
   const tableColumns = [
     [
       <DataTable
         value={projectData}
+        className="min_height_60vh"
         scrollable
         scrollHeight="60vh"
         style={{ width: "100%" }}
@@ -345,18 +509,21 @@ const Projects: React.FC = () => {
         paginator
         rows={10}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        currentPageReportTemplate={`Showing {first} to {last} of {totalRecords} ${
+          projectData?.length === 1 ? "record" : "records"
+        }`}
+        emptyMessage="No data found."
       >
         <Column
           field="ProjectName"
-          header="Project Name"
+          header="Project name"
           style={{ width: "20%" }}
           body={(rowData) => <OnTextRender text={rowData?.ProjectName} />}
           sortable
         />
         <Column
           field="ProjectType"
-          header="Project Type"
+          header="Project type"
           style={{ width: "15%" }}
           body={(rowData) => <OnTextRender text={rowData?.ProjectType} />}
           sortable
@@ -369,15 +536,22 @@ const Projects: React.FC = () => {
           sortable
         />
         <Column
+          field="BrandingPartner"
+          header="Branding partner"
+          style={{ width: "20%" }}
+          body={(rowData) => <OnTextRender text={rowData?.BrandingPartner} />}
+          sortable
+        />
+        {/* <Column
           field="StartDate"
           header="Start Date"
           style={{ width: "15%" }}
           body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
           sortable
-        />
+        /> */}
         <Column
           field="EndDate"
-          header="End Date"
+          header="Sales to date"
           style={{ width: "15%" }}
           body={(rowData) => <OnDateRender date={rowData?.EndDate} />}
           sortable
@@ -385,7 +559,7 @@ const Projects: React.FC = () => {
         <Column
           field="Status"
           header="Status"
-          style={{ width: "15%" }}
+          style={{ width: "10%" }}
           body={(rowData) => <OnStatusRender status={rowData?.Status} />}
           sortable
         />
@@ -395,8 +569,9 @@ const Projects: React.FC = () => {
           style={{ width: "10%" }}
           body={(rowData) => (
             <OnActionsRender
-              openProjectAction={openProjectAction}
+              editAction={setEditForm}
               userAccessAction={projectManageAccessAction}
+              launchAction={openProjectAction}
               rowData={rowData}
             />
           )}
@@ -407,65 +582,111 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     getRegisteredCountries(setRegisteredCountries);
-    fetchProjectData(setProjectData, setMasterProjectData, dispatch);
+    fetchProjectData(
+      selectedCountry?.ID,
+      setProjectData,
+      setMasterProjectData,
+      dispatch,
+      setIsLoader
+    );
   }, []);
+
+  const searchFilterFunctionality = (value: string) => {
+    const filteredOptions = masterProjectData.filter(
+      (item) =>
+        item.ProjectName.toLowerCase().includes(value.toLowerCase()) ||
+        item.ProjectType.toLowerCase().includes(value.toLowerCase()) ||
+        item.BrandingPartner.toLowerCase().includes(value.toLowerCase()) ||
+        item.CountryName.toLowerCase().includes(value.toLowerCase()) ||
+        item.Status.toLowerCase().includes(value.toLowerCase())
+    );
+    setProjectData(filteredOptions);
+  };
 
   return (
     <>
       {activeProjectTab === "" ? (
-        <div className={styles.projects_container}>
-          <div className="justify-space-between margin-right-20">
-            <ModuleHeader title="Projects" />
-            <div className="gap-10">
-              <CustomSearchInput />
-              <DefaultButton
-                btnType="primaryBtn"
-                text="Add new project"
-                startIcon={<AddIcon />}
-                onClick={() => {
-                  togglePopupVisibility(
-                    setPopupController,
-                    0,
-                    "open",
-                    `Add New Project`
-                  );
-                  setFormDetails(deepClone(cloneFormDetails));
-                }}
+        isLoader ? (
+          <AppLoader />
+        ) : (
+          <div className={styles.projects_container}>
+            <div className="justify-space-between margin-right-20">
+              <ModuleHeader
+                title="Projects"
+                selectedCountry={selectedCountry}
               />
+              <div className="gap-10">
+                <CustomSearchInput searchFunction={searchFilterFunctionality} />
+                <DefaultButton
+                  btnType="primaryBtn"
+                  text="Add Project"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    setIsUpdateDetails({
+                      Id: null,
+                      Type: "New",
+                    });
+                    togglePopupVisibility(
+                      setPopupController,
+                      0,
+                      "open",
+                      `Add Project`
+                    );
+                    const newFormTemp = deepClone(cloneFormDetails);
+                    setFormDetails({
+                      ...newFormTemp,
+                      Country: {
+                        value: selectedCountry?.countryName,
+                        isValid: true,
+                        isMandatory: true,
+                      },
+                      CountryId: {
+                        value: selectedCountry?.ID,
+                        isValid: true,
+                        isMandatory: true,
+                      },
+                    });
+                  }}
+                />
+              </div>
+            </div>
+            <div className={styles.projects_Wrapper}>
+              <CustomDataTable table={tableColumns[0]} />
+            </div>
+            <div>
+              {popupController?.map((popupData: any, index: number) => (
+                <Popup
+                  key={index}
+                  isLoading={false}
+                  PopupType={popupData.popupType}
+                  onHide={() => {
+                    togglePopupVisibility(setPopupController, index, "close");
+                    setPopupResponseFun(setPopupResponse, index, false, "", "");
+                  }}
+                  popupTitle={
+                    popupData.popupType !== "confimation" &&
+                    popupData.popupTitle
+                  }
+                  popupActions={popupActions[index]}
+                  visibility={popupData.open}
+                  content={popupInputs[index]}
+                  response={popupResponse[index]}
+                  popupWidth={popupData.popupWidth}
+                  defaultCloseBtn={popupData.defaultCloseBtn || false}
+                  confirmationTitle={
+                    popupData.popupType !== "custom" ? popupData.popupTitle : ""
+                  }
+                />
+              ))}
             </div>
           </div>
-          <div className={styles.projects_Wrapper}>
-            <CustomDataTable table={tableColumns[0]} />
-          </div>
-          <div>
-            {popupController?.map((popupData: any, index: number) => (
-              <Popup
-                key={index}
-                isLoading={false}
-                PopupType={popupData.popupType}
-                onHide={() =>
-                  togglePopupVisibility(setPopupController, index, "close")
-                }
-                popupTitle={
-                  popupData.popupType !== "confimation" && popupData.popupTitle
-                }
-                popupActions={popupActions[index]}
-                visibility={popupData.open}
-                content={popupInputs[index]}
-                popupWidth={popupData.popupWidth}
-                defaultCloseBtn={popupData.defaultCloseBtn || false}
-                confirmationTitle={
-                  popupData.popupType !== "custom" ? popupData.popupTitle : ""
-                }
-              />
-            ))}
-          </div>
-        </div>
+        )
       ) : (
         <div style={{ width: "100%", display: "flex" }}>
           <ProjectActiveSection
             countryId={selectedProject?.CountryId}
             projectId={selectedProject?.Id}
+            setActiveProjectTab={setActiveProjectTab}
           />
         </div>
       )}

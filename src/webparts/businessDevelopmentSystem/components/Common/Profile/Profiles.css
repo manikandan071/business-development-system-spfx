@@ -3,8 +3,14 @@
     background: linear-gradient(90deg,rgba(146, 150, 150, 1) 0%, rgba(218, 217, 212, 0.86) 100%);
     border: 1px solid #fff;
     font-size: 8px !important;
-     width:25px !important ;
+    width:25px !important ;
     height: 25px !important;
+}
+.avatar_user_name{
+    font-size: 13px;
+    align-self: center;
+    margin-left: 10px;
+    color: var(--basic-font-color);
 }
 .p-avatar{
     width:25px;
@@ -15,6 +21,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
+ }
+ .p-avatar-group .ms-TooltipHost{
+    display: flex !important;
  }
  .root-102 {
     display: flex;

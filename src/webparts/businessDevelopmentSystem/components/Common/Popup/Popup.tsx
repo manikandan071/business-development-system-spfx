@@ -11,6 +11,7 @@ import { memo, useEffect, useState } from "react";
 import "./popupsStyle.css";
 import DefaultButton from "../Buttons/DefaultButton/DefaultButton";
 const InfoIcon = require("../../../assets/images/png/info.png");
+const verified = require("../../../assets/images/gif/verified.gif");
 
 interface Props {
   popupTitle?: string;
@@ -55,7 +56,6 @@ const Popup = ({
   popupHeight,
   ...btnRest
 }: Props): JSX.Element => {
-  console.log("response", response);
   const [label, setLabel] = useState("3s");
   const headerElement = (
     <div
@@ -129,7 +129,7 @@ const Popup = ({
     );
 
   const startCountdown = () => {
-    let seconds = 100;
+    let seconds = 3;
     setLabel(`${seconds}s`);
 
     const interval = setInterval(() => {
@@ -150,7 +150,12 @@ const Popup = ({
     return (
       <div className="popup_response_wrapper">
         <div className="popup_response_content">
-          <p>{response?.Title}</p>
+          <img
+            src={verified}
+            alt="Success"
+            style={{ width: "100px", height: "107px" }}
+          />
+          <p style={{ margin: "0px 0px 15px 0px" }}>{response?.Title}</p>
           <span>{response?.Message}</span>
           <div style={{ marginTop: "15px" }}>
             <DefaultButton

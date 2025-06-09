@@ -4,7 +4,7 @@
 
 import { SPLists } from "../../Config/config";
 import {
-  IcountriesType,
+  ICountriesDetails,
   IObligationDetails,
   IProjectDetails,
 } from "../../Interface/ModulesInterface";
@@ -14,7 +14,8 @@ import SpServices from "../SPServices/SpServices";
 const fetchOblicationData = async (
   setMasterState: any,
   setLocalState: any,
-  projectId: number
+  projectId: number,
+  setLoader: any
 ) => {
   try {
     const tempObligations = await SpServices.SPReadItems({
@@ -28,6 +29,8 @@ const fetchOblicationData = async (
           FilterValue: projectId,
         },
       ],
+      Orderby: "ID",
+      Orderbydecorasc: false,
     }).then();
 
     const tempArray: IObligationDetails[] = [];
@@ -51,6 +54,7 @@ const fetchOblicationData = async (
     });
     setMasterState(tempArray);
     setLocalState(tempArray);
+    setLoader(false);
   } catch (err) {
     console.log("Error : ", err);
   }
@@ -60,12 +64,11 @@ const submitObligationForm = (
   formDetails: any,
   setMasterProjectDatas: any,
   setProjectDatas: any,
-  countryDetails: IcountriesType,
+  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
   setPopupResponse: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const payloadDetails = {
     Title: formDetails?.Title?.value,
     Description: formDetails?.Description?.value,
@@ -75,17 +78,15 @@ const submitObligationForm = (
     Party: formDetails?.Party?.value,
     Clause: formDetails?.Clause?.value,
     StartDate: formDetails?.StartDate?.value,
-    DueDate: formDetails?.DueDate?.value,
+    // DueDate: formDetails?.DueDate?.value,
     Remarks: formDetails?.Remarks?.value,
     ProjectOfId: projectDetails?.Id,
   };
-  debugger;
   SpServices.SPAddItem({
     Listname: SPLists.Obligationlist,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
       const obligationDetails: IObligationDetails = {
         Id: res?.data?.Id,
         Title: payloadDetails?.Title,
@@ -96,7 +97,7 @@ const submitObligationForm = (
         Priority: payloadDetails?.Priority,
         Status: payloadDetails?.Status,
         StartDate: payloadDetails?.StartDate,
-        DueDate: payloadDetails?.DueDate,
+        DueDate: formDetails?.DueDate?.value,
         Remarks: payloadDetails?.Remarks,
         ProjectOfId: projectDetails?.Id,
       };
@@ -110,8 +111,76 @@ const submitObligationForm = (
         setPopupResponse,
         index,
         false,
-        "Form Submission!",
-        "Contractual obligation form have been added successfully."
+        "Success!",
+        "New contractual obligation have been added successfully."
+      );
+    })
+    .catch((err: any) => {
+      console.log("Error :", err);
+    });
+};
+const updateObligationForm = (
+  formDetails: any,
+  isUpdateDetails: any,
+  setMasterState: any,
+  setLocalState: any,
+  countryDetails: ICountriesDetails,
+  projectDetails: IProjectDetails,
+  setPopupResponse: any,
+  index: number
+) => {
+  const recId = isUpdateDetails?.Id;
+  const payloadDetails = {
+    Title: formDetails?.Title?.value,
+    Description: formDetails?.Description?.value,
+    ObligationType: formDetails?.ObligationType?.value,
+    Priority: formDetails?.Priority?.value,
+    Status: formDetails?.Status?.value,
+    Party: formDetails?.Party?.value,
+    Clause: formDetails?.Clause?.value,
+    StartDate: formDetails?.StartDate?.value,
+    // DueDate: formDetails?.DueDate?.value,
+    Remarks: formDetails?.Remarks?.value,
+    ProjectOfId: projectDetails?.Id,
+  };
+  SpServices.SPUpdateItem({
+    Listname: SPLists.Obligationlist,
+    ID: recId,
+    RequestJSON: payloadDetails,
+  })
+    .then((res: any) => {
+      const obligationDetails: IObligationDetails = {
+        Id: recId,
+        Title: payloadDetails?.Title,
+        Description: payloadDetails?.Description,
+        ObligationType: payloadDetails?.ObligationType,
+        Party: payloadDetails?.Party,
+        Clause: payloadDetails?.Clause,
+        Priority: payloadDetails?.Priority,
+        Status: payloadDetails?.Status,
+        StartDate: payloadDetails?.StartDate,
+        DueDate: formDetails?.DueDate?.value,
+        Remarks: payloadDetails?.Remarks,
+        ProjectOfId: projectDetails?.Id,
+      };
+      setMasterState((prev: any) => {
+        const updated = prev.map((item: any) =>
+          item.Id === recId ? { ...item, ...obligationDetails } : item
+        );
+        return updated;
+      });
+      setLocalState((prev: any) => {
+        const updated = prev.map((item: any) =>
+          item.Id === recId ? { ...item, ...obligationDetails } : item
+        );
+        return updated;
+      });
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "The contractual obligation have been updated successfully."
       );
     })
     .catch((err: any) => {
@@ -119,4 +188,4 @@ const submitObligationForm = (
     });
 };
 
-export { fetchOblicationData, submitObligationForm };
+export { fetchOblicationData, submitObligationForm, updateObligationForm };

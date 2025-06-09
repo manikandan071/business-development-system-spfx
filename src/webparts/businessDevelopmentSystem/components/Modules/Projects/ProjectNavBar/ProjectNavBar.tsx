@@ -24,7 +24,7 @@ const ProjectNavBar: React.FC<IProjectNavBarProps> = ({ setActiveTab }) => {
     },
     {
       name: "Todos",
-      displayName: "To-Do List",
+      displayName: "Project Tasks",
     },
     {
       name: "Documents",
