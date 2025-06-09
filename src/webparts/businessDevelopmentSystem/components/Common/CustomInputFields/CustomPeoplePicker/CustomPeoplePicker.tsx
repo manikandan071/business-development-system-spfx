@@ -71,7 +71,6 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
       selectedItem?.map(
         (item: any) => item.secondaryText || item.Email || item.email
       ) || [];
-    console.log("bindSelectUsers", bindSelectUsers);
 
     return [bindSelectUsers];
   })();
@@ -89,6 +88,9 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
           fontSize: "14px",
           color: "var(--input-placeholder-font-color)",
         },
+      },
+      ".ms-SelectionZone": {
+        width: "100%",
       },
       ".ms-BasePicker-text": {
         alignItems: "start",

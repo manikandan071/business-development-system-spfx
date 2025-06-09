@@ -78,7 +78,7 @@ tbody .fc-scroller{
 
 /* weekday based colors */
 
-tbody .fc-day-mon{
+/* tbody .fc-day-mon{
     background-color: #e3f2fd96;
 }
 
@@ -104,16 +104,16 @@ tbody .fc-day-sat{
 
 tbody .fc-day-sun{
     background-color: #c2c6bf75;
-}
+} */
 tbody .fc-day-today{
-    background-color: #3c374dc2!important;
+    background-color: #60553b!important;
     border-radius: 10px;
     color: #fff;
 }
 
 .fc-day-mon .fc-event{
-    background-color: #309aec36;
-    color: #0d47a1;
+    background-color: #309aecd9;
+    color: #16386b;
 }
 
 .fc-day-tue .fc-event{

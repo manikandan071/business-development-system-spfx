@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import * as React from "react";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 // import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -48,7 +48,6 @@ const CustomDatePicker: React.FC<ICutomDatePickerProps> = ({
   const [open, setOpen] = useState(false);
   const handleChange = useCallback(
     (date: dayjs.Dayjs) => {
-      console.log("date", date.toDate());
       onChange?.(date ? date.toDate() : null);
     },
     [onChange]

@@ -9,7 +9,9 @@ import { useState } from "react";
 import styles from "./CustomSearchinput.module.scss";
 const searchIcon = require("../../../../assets/images/png/search.png");
 
-const CustomSearchInput: React.FC = () => {
+const CustomSearchInput: React.FC<{ searchFunction: any }> = ({
+  searchFunction,
+}) => {
   const [inputValue, setInputValue] = useState("");
   return (
     <div className={styles.search_input_wrapper}>
@@ -17,7 +19,10 @@ const CustomSearchInput: React.FC = () => {
         type="text"
         placeholder="Search here"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+          searchFunction(e.target.value);
+        }}
       />
       {inputValue === "" && (
         <img src={searchIcon} alt="Search" className={styles.search_icon} />

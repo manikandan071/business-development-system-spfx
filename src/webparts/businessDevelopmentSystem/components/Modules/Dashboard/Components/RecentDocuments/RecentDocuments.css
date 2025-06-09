@@ -1,0 +1,103 @@
+.recent_documents_dashboard {
+    height: 100%;
+}
+
+.recent_documents_wrapper {
+    height: 90%;
+    overflow: auto;
+    padding: 8px 8px 0px 8px;
+    border-radius: 5px;
+    border: 1px solid #d8d4d4bf;
+}
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.event-header span {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--section-header-secondary-font-color);
+}
+
+.recent_documents_wrapper .document-card {
+    display: flex;
+    align-items: center;
+    background-color: #dfd8ed17;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid 1px solid #ac9be575;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 10px;
+    box-shadow: 0px 2px 8px 0px #4a1e8036;
+}
+
+.recent_documents_wrapper .document-icon {
+    text-align: center;
+    font-weight: 600;
+    color: #4b2e2e;
+    display: flex;
+    align-self: center;
+}
+
+.recent_documents_wrapper .document-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.recent_documents_wrapper .document-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b2e2e;
+    min-width: 100px;
+    max-width: 350px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.recent_documents_wrapper .document-path-details {
+    font-size: 13px;
+    color: #474c88;
+    min-width: 100px;
+    max-width: 350px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.recent_documents_wrapper .document-author-created{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+.recent_documents_wrapper .document-created {
+    font-size: 12px;
+    color: #b79595;
+}
+
+.recent_documents_wrapper .document-author {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 8px;
+    font-size: 12px;
+    color: #5f5f5f;
+}
+
+.recent_documents_wrapper .document-author img {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.no_data_found_message{
+    font-size: 14px;
+    color: var(--basic-font-color);
+    text-align: center;
+    font-weight: 600;
+}

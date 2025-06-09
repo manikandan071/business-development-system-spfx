@@ -9,10 +9,16 @@ import MainHeader from "../../Common/Headers/MainHeader/MainHeader";
 
 interface NavBarProps {
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+  setCustomActiveTab: any;
+  rejectSelectedCountry: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
-  const [activeIndex, setActiveIndex] = useState("");
+const NavBar: React.FC<NavBarProps> = ({
+  setActiveTab,
+  setCustomActiveTab,
+  rejectSelectedCountry,
+}) => {
+  const [activeIndex, setActiveIndex] = useState(setCustomActiveTab);
 
   const navOptions = [
     {
@@ -30,11 +36,11 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
       icon: require("../../../assets/images/png/navImages/box-open.png"),
       activeIcon: require("../../../assets/images/png/navImages/box-open-active.png"),
     },
-    {
-      name: "Events",
-      icon: require("../../../assets/images/png/navImages/calendar-check.png"),
-      activeIcon: require("../../../assets/images/png/navImages/calendar-check-active.png"),
-    },
+    // {
+    //   name: "Events",
+    //   icon: require("../../../assets/images/png/navImages/calendar-check.png"),
+    //   activeIcon: require("../../../assets/images/png/navImages/calendar-check-active.png"),
+    // },
     {
       name: "My Tasks",
       icon: require("../../../assets/images/png/navImages/list-check.png"),
@@ -42,9 +48,9 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
     },
   ];
   React.useEffect(() => {
-    setActiveIndex("Dashboard");
-    setActiveTab("Dashboard");
-  }, []);
+    setActiveIndex(setCustomActiveTab);
+    setActiveTab(setCustomActiveTab);
+  }, [setCustomActiveTab]);
   return (
     <div>
       {/* <div className={styles.navBar_wrapper}>
@@ -100,6 +106,8 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
             src={require("../../../assets/images/png/navImages/logo.svg")}
             alt="Logo"
           />
+        </div>
+        <div className={styles.navBar_logo_options}>
           {navOptions.map((option, index) =>
             activeIndex === option?.name ? (
               <div
@@ -125,6 +133,7 @@ const NavBar: React.FC<NavBarProps> = ({ setActiveTab }) => {
                 onClick={() => {
                   setActiveIndex(option.name);
                   setActiveTab(option.name);
+                  rejectSelectedCountry({});
                 }}
               >
                 <img

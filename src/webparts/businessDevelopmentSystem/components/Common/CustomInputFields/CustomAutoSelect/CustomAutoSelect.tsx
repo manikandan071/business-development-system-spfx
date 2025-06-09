@@ -6,7 +6,7 @@
 import * as React from "react";
 import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
 import { Autocomplete, TextField } from "@mui/material";
-import { useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 
 interface ICutomAutoSelectProps {
   value: string | number | any;
@@ -38,13 +38,23 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
   readOnly,
   mandatory,
 }) => {
+  const [selectedOption, setSelectedOption] = useState<any>(null);
   const handleChange = useCallback(
     (event: React.SyntheticEvent<Element, Event>, newValue: any) => {
-      console.log("newValue", newValue);
       onChange?.(newValue);
     },
     [onChange]
   );
+
+  useEffect(() => {
+    const matched =
+      typeof value === "object"
+        ? value
+        : options.find((opt) => opt?.Value === value || opt?.Text === value) ??
+          null;
+
+    setSelectedOption(matched);
+  }, [value, options]);
   return (
     <div
       className={`customAutoSelectWrapper ${sectionType} ${
@@ -61,7 +71,10 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
         disablePortal
         options={options}
         getOptionLabel={(option) => option.Text}
-        value={options.find((opt) => opt.Text === value)}
+        // value={options.find((opt) => opt.Text === value)}
+        // isOptionEqualToValue={(option, value) => option.Text === value}
+        value={selectedOption}
+        isOptionEqualToValue={(option, value) => option?.Value === value?.Value}
         sx={{ width: 300 }}
         placeholder={placeholder}
         disabled={disabled}
@@ -69,7 +82,6 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            // value={value}
             placeholder={placeholder}
             variant="outlined"
             InputLabelProps={{ shrink: false }}
@@ -95,4 +107,4 @@ const CustomAutoSelect: React.FC<ICutomAutoSelectProps> = ({
   );
 };
 
-export default CustomAutoSelect;
+export default memo(CustomAutoSelect);

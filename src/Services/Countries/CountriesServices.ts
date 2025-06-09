@@ -8,13 +8,18 @@ import {
   manageAccessUsersSerialized,
   peopleHandler,
 } from "../CommonService/CommonService";
-import { togglePopupVisibility } from "../../Utils/togglePopup";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../Utils/togglePopup";
 import { setCountriesData } from "../../Redux/Features/CountryContextSlice";
+import { ICountriesDetails } from "../../Interface/ModulesInterface";
 
 export const getCountriesList = async (
-  setCountries: any,
   setAllCountries: any,
   setMasterProjectData: any,
+  setCountries: any,
+  setIsLoader: any,
   dispatch: any
 ) => {
   try {
@@ -57,11 +62,12 @@ export const getCountriesList = async (
       },
     ];
 
-    const response = await fetch("https://restcountries.com/v3.1/all");
+    const response = await fetch(
+      "https://restcountries.com/v3.1/all?fields=name,cca2,languages,region,timezones,currencies"
+    ).then();
     const data = await response.json();
     const tempCountryData: any[] = [];
-
-    data.forEach((country: any) => {
+    data?.forEach((country: any) => {
       const currencyKeys = Object.keys(country.currencies || {});
       tempCountryData.push({
         CountryName: country.name.common,
@@ -75,54 +81,116 @@ export const getCountriesList = async (
         TimeZone: country.timezones[0],
       });
     });
-
-    console.log(tempCountryData);
     setAllCountries([...customCountries, ...tempCountryData]);
 
-    await SpServices.SPReadItems({
+    // await SpServices.SPReadItems({
+    //   Listname: SPLists.Countrieslist,
+    //   Select: "*,Manager/ID,Manager/Title,Manager/EMail",
+    //   Expand: "Manager",
+    // })
+    //   .then(async (items) => {
+    //     const tempsetCountries: any[] = [];
+    //     items.forEach(async (country) => {
+    //       const response = await SpServices.SPReadItems({
+    //         Listname: SPLists.Projectslist,
+    //         Select: "*,CountryOf/Id,CountryOf/Title",
+    //         Expand: "CountryOf",
+    //         Filter: [
+    //           {
+    //             FilterKey: "CountryOfId",
+    //             Operator: "eq",
+    //             FilterValue: country?.ID,
+    //           },
+    //         ],
+    //       }).then();
+    //       tempsetCountries.push({
+    //         ID: country.ID,
+    //         countryName: country.Title,
+    //         ProjectCount: response?.length,
+    //         ISOCode: country.ISOCode,
+    //         Manager: peopleHandler(country?.Manager),
+    //         Languages: country?.Language,
+    //         Region: country?.Region,
+    //         Currency: country?.Currency,
+    //         TimeZone: country?.TimeZone,
+    //         Status: country?.Status,
+    //         Notes: country?.Notes,
+    //         ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
+    //         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+    //           country?.ManageAccess
+    //         ),
+    //       });
+    //     });
+    //     console.log("tempsetCountries", tempsetCountries);
+
+    //     setCountries(tempsetCountries);
+    //     setMasterProjectData(tempsetCountries);
+    //     dispatch(setCountriesData([...tempsetCountries]));
+    //   })
+    //   .catch((err) => console.log("Error reading SharePoint items:", err));
+
+    const items = await SpServices.SPReadItems({
       Listname: SPLists.Countrieslist,
       Select: "*,Manager/ID,Manager/Title,Manager/EMail",
       Expand: "Manager",
-    })
-      .then((items) => {
-        const tempsetCountries: any[] = [];
+      Orderby: "ID",
+      Orderbydecorasc: false,
+    });
 
-        const sortedItems = items.sort(
-          (a: any, b: any) =>
-            new Date(b.Created).getTime() - new Date(a.Created).getTime()
-        );
+    const tempsetCountries = await Promise.all(
+      items.map(async (country) => {
+        const response = await SpServices.SPReadItems({
+          Listname: SPLists.Projectslist,
+          Select: "*,CountryOf/Id,CountryOf/Title",
+          Expand: "CountryOf",
+          Filter: [
+            {
+              FilterKey: "CountryOfId",
+              Operator: "eq",
+              FilterValue: country?.ID,
+            },
+          ],
+        });
 
-        sortedItems.map((country) =>
-          tempsetCountries.push({
-            ID: country.ID,
-            countryName: country.Title,
-            ISOCode: country.ISOCode,
-            Manager: peopleHandler(country?.Manager),
-            Languages: country?.Language,
-            Region: country?.Region,
-            Currency: country?.Currency,
-            TimeZone: country?.TimeZone,
-            Status: country?.Status,
-            Notes: country?.Notes,
-            ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
-            ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-              country?.ManageAccess
-            ),
-          })
-        );
-
-        setCountries(tempsetCountries);
-        setMasterProjectData(tempsetCountries);
-        dispatch(setCountriesData([...tempsetCountries]));
+        return {
+          ID: country.ID,
+          countryName: country.Title,
+          ProjectCount: response?.length || 0,
+          ISOCode: country.ISOCode,
+          Manager: peopleHandler(country?.Manager),
+          Languages: country?.Language,
+          Region: country?.Region,
+          Currency: country?.Currency,
+          TimeZone: country?.TimeZone,
+          Status: country?.Status,
+          Notes: country?.Notes,
+          ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
+          ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+            country?.ManageAccess
+          ),
+        };
       })
-      .catch((err) => console.log("Error reading SharePoint items:", err));
+    );
+
+    // Only runs after ALL are ready
+    setCountries([...tempsetCountries]);
+    setMasterProjectData([...tempsetCountries]);
+    dispatch(setCountriesData([...tempsetCountries]));
+    setIsLoader(false);
   } catch (err: any) {
     console.log("Error in getCountriesList:", err);
   }
 };
 
-export const addCountriesList = async (countryData: any, setCountries: any) => {
-  const managerData = countryData?.selectedPeople?.value.map(
+export const submitCountryForm = async (
+  formDetails: any,
+  setMasterState: any,
+  setLocalState: any,
+  setPopupResponse: any,
+  index: number,
+  setDispatch: any
+) => {
+  const managerData = formDetails?.selectedPeople?.value.map(
     (manager: any) => ({
       ID: manager.id,
       Title: manager.name,
@@ -130,47 +198,141 @@ export const addCountriesList = async (countryData: any, setCountries: any) => {
     })
   );
   const requestPayload = {
-    Title: countryData.CountryName.value,
-    ISOCode: countryData.CountryISOCode.value,
-    Region: countryData.Region.value,
-    Language: countryData?.Languages?.value,
-    Currency: countryData.Currency.value,
-    TimeZone: countryData.TimeZone.value,
-    ManagerId: {
-      results: countryData.selectedPeople.value?.map(
-        (manager: any) => manager.id
-      ),
-    },
-    Status: countryData.Status.value,
-    Notes: countryData.Notes.value,
-    ManageAccess: manageAccessUsersSerialized(countryData?.ManageAccess.value),
+    Title: formDetails.CountryName.value,
+    ISOCode: formDetails.CountryISOCode.value,
+    Region: formDetails.Region.value,
+    Language: formDetails?.Languages?.value,
+    Currency: formDetails.Currency.value,
+    TimeZone: formDetails.TimeZone.value,
+    // ManagerId: {
+    //   results: formDetails.selectedPeople.value?.map(
+    //     (manager: any) => manager.id
+    //   ),
+    // },
+    Status: formDetails.Status.value,
+    Notes: formDetails.Notes.value,
+    ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess.value),
   };
-  console.log(requestPayload);
   await SpServices.SPAddItem({
     Listname: SPLists.Countrieslist,
     RequestJSON: requestPayload,
   })
     .then((newValue: any) => {
-      console.log(newValue);
-      const newValueObj = {
+      const countryDetails: ICountriesDetails = {
         ID: newValue.data?.ID,
-        countryName: newValue.data.Title,
-        ISOCode: newValue.data.ISOCode,
-        Manager: peopleHandler(managerData),
-        Languages: newValue?.data.Language,
-        Region: newValue?.data.Region,
-        Currency: newValue?.data.Currency,
-        TimeZone: newValue?.data.TimeZone,
-        Status: newValue?.data.Status,
-        Notes: newValue?.data.Notes,
+        countryName: requestPayload.Title,
+        ISOCode: requestPayload.ISOCode,
+        Manager: peopleHandler(managerData) || [],
+        Languages: requestPayload.Language,
+        Region: requestPayload.Region,
+        Currency: requestPayload.Currency,
+        TimeZone: requestPayload.TimeZone,
+        Status: requestPayload.Status,
+        Notes: requestPayload.Notes,
         ManageAccess: manageAccessUsersDeserialized(
-          newValue?.data?.ManageAccess
+          requestPayload?.ManageAccess
         ),
         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-          newValue?.data?.ManageAccess
+          requestPayload?.ManageAccess
+        ),
+        ProjectCount: 0,
+      };
+      setMasterState((prev: any) => {
+        const updated = [countryDetails, ...prev];
+        setDispatch(setCountriesData(updated));
+        return updated;
+      });
+      setLocalState((prev: any) => {
+        const updated = [countryDetails, ...prev];
+        return updated;
+      });
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "New country have been added successfully."
+      );
+    })
+    .catch((err) => console.error(err));
+};
+export const updateCountryForm = async (
+  formDetails: any,
+  isUpdateDetails: any,
+  setMasterState: any,
+  setLocalState: any,
+  setPopupResponse: any,
+  index: number,
+  setDispatch: any
+) => {
+  const recId = isUpdateDetails?.Id;
+  // const managerData = formDetails?.selectedPeople?.value.map(
+  //   (manager: any) => ({
+  //     ID: manager.id,
+  //     Title: manager.name,
+  //     EMail: manager.email,
+  //   })
+  // );
+  const requestPayload = {
+    Title: formDetails.CountryName.value,
+    ISOCode: formDetails.CountryISOCode.value,
+    Region: formDetails.Region.value,
+    Language: formDetails?.Languages?.value,
+    Currency: formDetails.Currency.value,
+    TimeZone: formDetails.TimeZone.value,
+    // ManagerId: {
+    //   results: formDetails.selectedPeople.value?.map(
+    //     (manager: any) => manager.id
+    //   ),
+    // },
+    Status: formDetails.Status.value,
+    Notes: formDetails.Notes.value,
+    ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess.value),
+  };
+  await SpServices.SPUpdateItem({
+    Listname: SPLists.Countrieslist,
+    ID: recId,
+    RequestJSON: requestPayload,
+  })
+    .then((newValue: any) => {
+      const countryDetails: ICountriesDetails = {
+        ID: recId,
+        countryName: requestPayload.Title,
+        ISOCode: requestPayload.ISOCode,
+        Manager: peopleHandler(formDetails.selectedPeople.value) || [],
+        Languages: requestPayload.Language,
+        Region: requestPayload.Region,
+        Currency: requestPayload.Currency,
+        TimeZone: requestPayload.TimeZone,
+        Status: requestPayload.Status,
+        Notes: requestPayload.Notes,
+        ManageAccess: manageAccessUsersDeserialized(
+          requestPayload.ManageAccess
+        ),
+        ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+          requestPayload.ManageAccess
         ),
       };
-      setCountries((prev: any[]) => [newValueObj, ...prev]);
+      setMasterState((prev: any) => {
+        const updated = prev.map((item: any) =>
+          item.ID === recId ? { ...item, ...countryDetails } : item
+        );
+        setDispatch(setCountriesData(updated));
+        return updated;
+      });
+      setLocalState((prev: any) => {
+        const updated = prev.map((item: any) =>
+          item.ID === recId ? { ...item, ...countryDetails } : item
+        );
+        return updated;
+      });
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "The country have been updated successfully."
+      );
     })
     .catch((err) => console.error(err));
 };
@@ -186,7 +348,6 @@ export const filterCountryUnselected = (
     (country: any) =>
       !existing.includes(country.CountryName?.toLowerCase().trim())
   );
-  console.log(existing);
   setAllCountries(filtered);
 };
 
@@ -194,11 +355,10 @@ export const submitManageAccessForm = (
   formDetails: any,
   recId: number,
   setMasterState: any,
-  setCountries: any,
+  setLocalState: any,
   setPopupController: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const payloadDetails = {
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
   };
@@ -208,7 +368,6 @@ export const submitManageAccessForm = (
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
       const countryDetails = {
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
@@ -222,7 +381,7 @@ export const submitManageAccessForm = (
           item.ID === recId ? { ...item, ...countryDetails } : item
         )
       );
-      setCountries((prev: any) =>
+      setLocalState((prev: any) =>
         prev.map((item: any) =>
           item.ID === recId ? { ...item, ...countryDetails } : item
         )

@@ -78,7 +78,7 @@ const countryFormDetails = {
   Status: {
     value: "Active",
     isValid: true,
-    isMandatory: true,
+    isMandatory: false,
   },
   Notes: {
     value: "",
@@ -88,7 +88,7 @@ const countryFormDetails = {
   selectedPeople: {
     value: [],
     isValid: true,
-    isMandatory: true,
+    isMandatory: false,
   },
   ManageAccess: {
     value: [
@@ -140,6 +140,16 @@ const ProjectFormDetails = {
     isValid: true,
     isMandatory: true,
   },
+  GoogleLocation: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  BrandingPartner: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
   StartDate: {
     value: "",
     isValid: true,
@@ -147,6 +157,16 @@ const ProjectFormDetails = {
   },
   EndDate: {
     value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  UnitSize: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Status: {
+    value: "Not Started",
     isValid: true,
     isMandatory: true,
   },
@@ -212,7 +232,7 @@ const ObligationFormDetails = {
   DueDate: {
     value: "",
     isValid: true,
-    isMandatory: true,
+    isMandatory: false,
   },
   Remarks: {
     value: "",
@@ -280,7 +300,7 @@ const taskFormDetails = {
     isValid: true,
     isMandatory: true,
   },
-  selectedPeople: {
+  AssignedTo: {
     value: [],
     isValid: true,
     isMandatory: true,
@@ -300,30 +320,45 @@ const taskFormDetails = {
     isValid: true,
     isMandatory: true,
   },
-  isReminder:{
-    value:"",
-    isValid:true,
-    isMandatory:false,
+  isReminder: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
   },
-  isTaskOverdue:{
-    value:"",
-    isValid:true,
-    isMandatory:false,
+  isTaskOverdue: {
+    value: "",
+    isValid: true,
+    isMandatory: false,
   },
-  ProjectOfTitle:{
-    value:"",
-    isValid:true,
-    isMandatory:true,
+  ProjectOfTitle: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
   },
-  ProjectOfID:{
-    value:"",
-    isValid:true,
-    isMandatory:true,
-  }
+  ProjectOfID: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
 };
 
 const DocumentsFormDetails = {
   Category: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  ContractType: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Party: {
+    value: "",
+    isValid: true,
+    isMandatory: true,
+  },
+  Date: {
     value: "",
     isValid: true,
     isMandatory: true,

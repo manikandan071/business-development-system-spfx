@@ -9,26 +9,30 @@ import * as React from "react";
 import styles from "./Countries.module.scss";
 import { useState, useEffect } from "react";
 import {
-  addCountriesList,
   filterCountryUnselected,
   getCountriesList,
-  submitManageAccessForm,
+  submitCountryForm,
+  updateCountryForm,
 } from "../../../../../Services/Countries/CountriesServices";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
   OnActionsRender,
   OnCountryRender,
-  OnCountryStatusRender,
-  OnManagerRender,
+  // OnCountryStatusRender,
   OnProjectCountRender,
+  OnTextRender,
+  OnUsersRender,
 } from "../../../../../Utils/dataTable";
 import CustomDataTable from "../../Common/DataTable/DataTable";
 import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
 import CustomSearchInput from "../../Common/CustomInputFields/CustomSearchInput/CustomSearchInput";
 import DefaultButton from "../../Common/Buttons/DefaultButton/DefaultButton";
 import AddIcon from "@mui/icons-material/Add";
-import { togglePopupVisibility } from "../../../../../Utils/togglePopup";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../Utils/togglePopup";
 import { countryFormDetails } from "../../../../../Config/initialStates";
 import { deepClone } from "../../../../../Utils/deepClone";
 import Popup from "../../Common/Popup/Popup";
@@ -38,19 +42,26 @@ import CustomAutoSelect from "../../Common/CustomInputFields/CustomAutoSelect/Cu
 // import CustomDatePicker from "../../Common/CustomInputFields/CustomDatePicker/CustomDatePicket";
 import CustomDropDown from "../../Common/CustomInputFields/CustomDropDown/CustomDropDown";
 import CustomInput from "../../Common/CustomInputFields/CustomInput/CustomInput";
-import CustomPeoplePicker from "../../Common/CustomInputFields/CustomPeoplePicker/CustomPeoplePicker";
+// import CustomPeoplePicker from "../../Common/CustomInputFields/CustomPeoplePicker/CustomPeoplePicker";
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { validateForm } from "../../../../../Utils/validations";
 import { useDispatch } from "react-redux";
 import {
-  IallCountriesType,
-  IcountriesType,
+  IAllCountriesJson,
+  ICountriesDetails,
 } from "../../../../../Interface/ModulesInterface";
+import { SPLists } from "../../../../../Config/config";
+import { submitManageAccessForm } from "../../../../../Services/CommonService/CommonService";
+import AppLoader from "../../Common/AppLoader/AppLoader";
 
 // import Profiles from "../../Common/Profile/Profiles";
 // import DefaultButton from "../../Common/Buttons/DefaultButton/DefaultButton";
 
-const Countries: React.FC = () => {
+interface ICountriesProps {
+  onSelectCountry: any;
+}
+
+const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   const dispatch = useDispatch();
   const cloneFormDetails = deepClone(countryFormDetails);
   const handleClosePopup = (index?: any): void => {
@@ -74,8 +85,23 @@ const Countries: React.FC = () => {
       popupData: "",
     },
   ];
-  const [countries, setCountries] = useState<IcountriesType[]>([]);
-  const [allCountries, setAllCountries] = useState<IallCountriesType[]>([]);
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+  ];
+  const [masterCountriesData, setMasterCountriesData] = useState<
+    ICountriesDetails[]
+  >([]);
+  const [countriesData, setCountriesData] = useState<ICountriesDetails[]>([]);
+  const [allCountries, setAllCountries] = useState<IAllCountriesJson[]>([]);
   const [selectedCountry, setSelectedCountry] = useState({
     ID: 0,
     countryName: "",
@@ -89,22 +115,22 @@ const Countries: React.FC = () => {
     Notes: "",
   });
 
-  const [masterCountryData, setMasterCountryData] =
-    useState<IcountriesType[]>();
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
+  const [isUpdateDetails, setIsUpdateDetails] = useState<any>({
+    Id: null,
+    Type: "New",
+  });
   const [languagesOptions, setLanguagesOptions] = useState<any[]>([]);
-  console.log("Master", masterCountryData);
-  console.log("Country", countries);
-
-  console.log("formDetails", formDetails);
+  const [isLoader, setIsLoader] = useState<boolean>(true);
 
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
-        <PopupSectionHeader Title="BASIC DETAILS" />
+        <PopupSectionHeader Title="Basic Details" />
         <div className="section-wrapper">
           <CustomAutoSelect
             value={formDetails?.CountryName?.value}
@@ -123,7 +149,6 @@ const Countries: React.FC = () => {
                 languageOptions: any;
               } | null
             ) => {
-              console.log("Optionsss", option);
               onChangeFunction(
                 "CountryName",
                 option?.CountryName,
@@ -139,17 +164,17 @@ const Countries: React.FC = () => {
               onChangeFunction("Currency", option?.Currency, setFormDetails);
               onChangeFunction("TimeZone", option?.TimeZone, setFormDetails);
             }}
-            placeholder="Enter Country Name"
+            placeholder="Enter country name"
             sectionType="two"
             isValid={formDetails?.CountryName?.isValid}
             withLabel={true}
             mandatory={formDetails?.CountryName?.isMandatory}
-            labelText="Country Name"
+            labelText="Country name"
           />
           <CustomInput
             value={formDetails?.CountryISOCode?.value}
             type="text"
-            placeholder="Enter Country ISO Code"
+            placeholder="Enter country ISO code"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("CountryISOCode", value, setFormDetails);
@@ -157,14 +182,14 @@ const Countries: React.FC = () => {
             isValid={formDetails?.CountryISOCode?.isValid}
             withLabel={true}
             mandatory={formDetails?.CountryISOCode?.isMandatory}
-            labelText="Country ISO Code"
+            labelText="Country ISO code"
             readOnly={true}
-            disabled={true}
+            disabled={false}
           />
           <CustomDropDown
             options={languagesOptions}
             value={formDetails?.Languages?.value}
-            placeholder="Select Languages"
+            placeholder="Select languages"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Languages", value, setFormDetails);
@@ -179,7 +204,7 @@ const Countries: React.FC = () => {
           <CustomInput
             value={formDetails?.Region?.value}
             type="text"
-            placeholder="Enter Region"
+            placeholder="Enter region"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Region", value, setFormDetails);
@@ -188,11 +213,12 @@ const Countries: React.FC = () => {
             withLabel={true}
             mandatory={formDetails?.Region?.isMandatory}
             labelText="Region"
-            disabled={true}
+            disabled={false}
+            readOnly={false}
           />
           <CustomInput
             value={formDetails?.Currency?.value}
-            placeholder="Enter Currency"
+            placeholder="Enter currency"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Currency", value, setFormDetails);
@@ -201,12 +227,12 @@ const Countries: React.FC = () => {
             withLabel={true}
             mandatory={formDetails?.Currency?.isMandatory}
             labelText="Currency"
-            disabled={true}
-            readOnly={true}
+            disabled={false}
+            readOnly={false}
           />
           <CustomInput
             value={formDetails?.TimeZone?.value}
-            placeholder="Enter TimeZone"
+            placeholder="Enter time zone"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("TimeZone", value, setFormDetails);
@@ -214,13 +240,13 @@ const Countries: React.FC = () => {
             isValid={formDetails?.TimeZone?.isValid}
             withLabel={true}
             mandatory={formDetails?.TimeZone?.isMandatory}
-            labelText="TimeZone"
-            disabled={true}
-            readOnly={true}
+            labelText="Time zone"
+            disabled={false}
+            readOnly={false}
           />
         </div>
         <div>
-          <PopupSectionHeader Title="PEOPLE & OTHERS" />
+          {/* <PopupSectionHeader Title="PEOPLE & OTHERS" />
           <div className="section-wrapper">
             <CustomPeoplePicker
               selectedItem={formDetails?.selectedPeople?.value}
@@ -250,13 +276,13 @@ const Countries: React.FC = () => {
               labelText="Status"
               disabled={true}
             />
-          </div>
+          </div> */}
           <div>
-            <PopupSectionHeader Title="NOTES" />
+            <PopupSectionHeader Title="Notes" />
             <CustomInput
               value={formDetails?.Notes?.value}
               type="text"
-              placeholder="Enter Notes"
+              placeholder="Enter notes"
               rows={3}
               sectionType="one"
               onChange={(value: string) => {
@@ -296,27 +322,42 @@ const Countries: React.FC = () => {
   ];
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
 
     if (isFormValid) {
-      console.log("Form is valid");
-      // console.log("Form Details", formDetails);
-      await addCountriesList(formDetails, setCountries);
-      togglePopupVisibility(setPopupController, 0, "close");
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
+      if (isUpdateDetails?.Type === "New") {
+        await submitCountryForm(
+          formDetails,
+          setMasterCountriesData,
+          setCountriesData,
+          setPopupResponse,
+          0,
+          dispatch
+        );
+      } else {
+        await updateCountryForm(
+          formDetails,
+          isUpdateDetails,
+          setMasterCountriesData,
+          setCountriesData,
+          setPopupResponse,
+          0,
+          dispatch
+        );
+      }
     }
   };
   const handleManageAccessSubmitFuction = () => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
-    console.log("Countries", countries);
     if (isFormValid) {
-      console.log("Form is valid");
+      setPopupResponseFun(setPopupResponse, 1, true, "", "");
       submitManageAccessForm(
         formDetails,
         selectedCountry?.ID,
-        setMasterCountryData,
-        setCountries,
-        setPopupController,
+        SPLists.Countrieslist,
+        setMasterCountriesData,
+        setCountriesData,
+        setPopupResponse,
         1
       );
     }
@@ -335,7 +376,7 @@ const Countries: React.FC = () => {
         },
       },
       {
-        text: "Submit",
+        text: isUpdateDetails?.Type === "New" ? "Submit" : "Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -370,9 +411,7 @@ const Countries: React.FC = () => {
     ],
   ];
   const countryManageAccessAction = (country: any) => {
-    debugger;
     setSelectedCountry(country);
-    console.log("country", country);
     setFormDetails({
       ManageAccess: {
         value: country?.ManageAccessFormFormat,
@@ -387,10 +426,74 @@ const Countries: React.FC = () => {
       `Country Manage Access`
     );
   };
+
+  const projectCountClick = (countryDetails: any) => {
+    onSelectCountry(countryDetails);
+  };
+
+  const setEditForm = (countryDetails: ICountriesDetails) => {
+    setFormDetails({
+      CountryName: {
+        value: countryDetails?.countryName,
+        isValid: true,
+        isMandatory: true,
+      },
+      CountryISOCode: {
+        value: countryDetails?.ISOCode,
+        isValid: true,
+        isMandatory: true,
+      },
+      Languages: {
+        value: countryDetails?.Languages,
+        isValid: true,
+        isMandatory: true,
+      },
+      Region: {
+        value: countryDetails?.Region,
+        isValid: true,
+        isMandatory: true,
+      },
+      Currency: {
+        value: countryDetails?.Currency,
+        isValid: true,
+        isMandatory: true,
+      },
+      TimeZone: {
+        value: countryDetails?.TimeZone,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: "Active",
+        isValid: true,
+        isMandatory: false,
+      },
+      Notes: {
+        value: countryDetails?.Notes,
+        isValid: true,
+        isMandatory: false,
+      },
+      selectedPeople: {
+        value: countryDetails?.Manager,
+        isValid: true,
+        isMandatory: false,
+      },
+      ManageAccess: {
+        value: countryDetails?.ManageAccessFormFormat,
+        isValid: true,
+      },
+    });
+    setIsUpdateDetails({
+      Id: countryDetails?.ID,
+      Type: "Update",
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Country`);
+  };
   const tableColumns = [
     [
       <DataTable
-        value={countries}
+        value={countriesData}
+        className="min_height_60vh"
         scrollable
         scrollHeight="60vh"
         style={{ minWidth: "100%" }}
@@ -398,7 +501,10 @@ const Countries: React.FC = () => {
         paginator
         rows={10}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        currentPageReportTemplate={`Showing {first} to {last} of {totalRecords} ${
+          countriesData?.length === 1 ? "record" : "records"
+        }`}
+        emptyMessage="No data found."
       >
         <Column
           field="countryName"
@@ -408,30 +514,50 @@ const Countries: React.FC = () => {
           sortable
         />
         <Column
-          field=""
-          header="No of projects"
-          style={{ minWidth: "20%" }}
-          body={(rowData) => <OnProjectCountRender rowData={rowData} />}
+          field="ISOCode"
+          header="ISO code"
+          style={{ minWidth: "10%" }}
+          body={(rowData) => <OnTextRender text={rowData?.ISOCode} />}
+          sortable
+        />
+        <Column
+          field="Region"
+          header="Region"
+          style={{ minWidth: "10%" }}
+          body={(rowData) => <OnTextRender text={rowData?.Region} />}
+          sortable
         />
         <Column
           field=""
-          header="Manager Access"
+          header="Project counts"
           style={{ minWidth: "20%" }}
-          body={(rowData) => <OnManagerRender rowData={rowData?.Manager} />}
+          body={(rowData) => (
+            <OnProjectCountRender
+              rowData={rowData}
+              onClick={projectCountClick}
+            />
+          )}
         />
         <Column
+          field=""
+          header="Manage access"
+          style={{ minWidth: "20%" }}
+          body={(rowData) => <OnUsersRender users={rowData?.ManageAccess} />}
+        />
+        {/* <Column
           field="Status"
           header="Status"
-          style={{ minWidth: "20%" }}
+          style={{ minWidth: "10%" }}
           body={(rowData) => <OnCountryStatusRender status={rowData?.Status} />}
-        />
+        /> */}
         <Column
           field=""
           header="Action"
           style={{ minWidth: "20%" }}
           body={(rowData) => (
             <OnActionsRender
-              openProjectAction={() => console.log("Working Properly")}
+              editAction={setEditForm}
+              launchAction={onSelectCountry}
               userAccessAction={countryManageAccessAction}
               rowData={rowData}
             />
@@ -442,30 +568,50 @@ const Countries: React.FC = () => {
   ];
   useEffect(() => {
     getCountriesList(
-      setCountries,
       setAllCountries,
-      setMasterCountryData,
+      setMasterCountriesData,
+      setCountriesData,
+      setIsLoader,
       dispatch
     );
   }, []);
-  // console.log("Countries", countries);
-  return (
+
+  const searchFilterFunctionality = (value: string) => {
+    const filteredOptions = masterCountriesData.filter(
+      (item) =>
+        item.countryName.toLowerCase().includes(value.toLowerCase()) ||
+        item.Region.toLowerCase().includes(value.toLowerCase()) ||
+        item.ISOCode.toLowerCase().includes(value.toLowerCase())
+    );
+    setCountriesData(filteredOptions);
+  };
+  return isLoader ? (
+    <AppLoader />
+  ) : (
     <div className={styles.countries_container}>
       <div className="justify-space-between margin-right-20">
         <ModuleHeader title="Countries" />
         <div className="gap-10">
-          <CustomSearchInput />
+          <CustomSearchInput searchFunction={searchFilterFunctionality} />
           <DefaultButton
             btnType="primaryBtn"
-            text="Add new country"
+            text="Add Country"
             startIcon={<AddIcon />}
             onClick={() => {
-              filterCountryUnselected(countries, allCountries, setAllCountries);
+              setIsUpdateDetails({
+                Id: null,
+                Type: "New",
+              });
+              filterCountryUnselected(
+                countriesData,
+                allCountries,
+                setAllCountries
+              );
               togglePopupVisibility(
                 setPopupController,
                 0,
                 "open",
-                `Add New Country`
+                `Add Country`
               );
               setFormDetails(deepClone(cloneFormDetails));
             }}
@@ -478,15 +624,17 @@ const Countries: React.FC = () => {
             key={index}
             isLoading={false}
             PopupType={popupData.popupType}
-            onHide={() =>
-              togglePopupVisibility(setPopupController, index, "close")
-            }
+            onHide={() => {
+              togglePopupVisibility(setPopupController, index, "close");
+              setPopupResponseFun(setPopupResponse, index, false, "", "");
+            }}
             popupTitle={
               popupData.popupType !== "confimation" && popupData.popupTitle
             }
             popupActions={popupActions[index]}
             visibility={popupData.open}
             content={popupInputs[index]}
+            response={popupResponse[index]}
             popupWidth={popupData.popupWidth}
             defaultCloseBtn={popupData.defaultCloseBtn || false}
             confirmationTitle={

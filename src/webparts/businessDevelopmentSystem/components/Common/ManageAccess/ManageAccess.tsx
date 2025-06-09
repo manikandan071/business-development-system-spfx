@@ -35,7 +35,6 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
   const [manageAccessList, setManageAccessList] = useState<any[]>(
     ManageAccess || []
   );
-  console.log("manageAccessList", manageAccessList);
 
   useEffect(() => {
     setManageAccessList(

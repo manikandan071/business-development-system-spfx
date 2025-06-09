@@ -8,13 +8,23 @@ import styles from "../webparts/businessDevelopmentSystem/components/Modules/Cou
 import Profiles from "../webparts/businessDevelopmentSystem/components/Common/Profile/Profiles";
 import LaunchIcon from "@mui/icons-material/Launch";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ImageIcon from "@mui/icons-material/Image";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import * as React from "react";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
+const editIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/edit.png");
+const launchIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/document.png");
+const usersIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/adduser.png");
 import "./dataTable.css";
 
 interface IActionsProps {
-  openProjectAction?: React.Dispatch<React.SetStateAction<any>>;
+  editAction?: React.Dispatch<React.SetStateAction<any>>;
   userAccessAction?: React.Dispatch<React.SetStateAction<any>>;
+  launchAction?: React.Dispatch<React.SetStateAction<any>>;
+  isShowLunch?: boolean;
+  isShowUserAccess?: boolean;
   rowData: any;
 }
 interface IStatusRenderProps {
@@ -22,18 +32,14 @@ interface IStatusRenderProps {
 }
 
 export const OnTextRender = (text: any) => {
-  console.log("text", text);
-
   return (
     <div
       style={{
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
         color: "var(--basic-font-color)",
         fontSize: "13px",
         fontWeight: "400",
       }}
+      className="ellipsis-3-lines "
     >
       {text?.text}
     </div>
@@ -41,34 +47,68 @@ export const OnTextRender = (text: any) => {
 };
 
 export const OnActionsRender: React.FC<IActionsProps> = ({
-  openProjectAction,
+  editAction,
   userAccessAction,
+  launchAction,
+  isShowLunch = true,
+  isShowUserAccess = true,
   rowData,
 }) => {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <LaunchIcon
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        padding: "5px",
+      }}
+    >
+      <img
+        src={editIcon}
         style={{
-          width: "20px",
-          height: "20px",
+          width: "18px",
+          height: "18px",
           cursor: "pointer",
-          color: "#60553b",
         }}
-        onClick={() => {
-          openProjectAction?.(rowData);
+        alt=""
+        onClick={(e) => {
+          e.stopPropagation();
+          editAction?.(rowData);
         }}
+        title="Edit"
       />
-      <GroupAddIcon
-        style={{
-          width: "20px",
-          height: "20px",
-          cursor: "pointer",
-          color: "#60553b",
-        }}
-        onClick={() => {
-          userAccessAction?.(rowData);
-        }}
-      />
+      {isShowUserAccess && (
+        <img
+          src={usersIcon}
+          style={{
+            width: "16px",
+            height: "16px",
+            cursor: "pointer",
+          }}
+          alt=""
+          onClick={(e) => {
+            e.stopPropagation();
+            userAccessAction?.(rowData);
+          }}
+          title="Manage Access"
+        />
+      )}
+      {isShowLunch && (
+        <img
+          src={launchIcon}
+          style={{
+            width: "16px",
+            height: "16px",
+            cursor: "pointer",
+          }}
+          alt=""
+          onClick={(e) => {
+            e.stopPropagation();
+            launchAction?.(rowData);
+          }}
+          title="Lookup"
+        />
+      )}
     </div>
   );
 };
@@ -86,8 +126,6 @@ export const OnStatusRender: React.FC<IStatusRenderProps> = ({ status }) => {
 };
 
 export const OnDateRender = (date: any) => {
-  console.log("date", date);
-
   return (
     <div
       style={{
@@ -103,6 +141,22 @@ export const OnDateRender = (date: any) => {
     </div>
   );
 };
+export const OnDateAndTimeRender = (date: any) => {
+  return (
+    <div
+      style={{
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        color: "var(--basic-font-color)",
+        fontSize: "13px",
+        fontWeight: "400",
+      }}
+    >
+      {dayjs(date?.date).format("D MMM YYYY, h:mm A")}
+    </div>
+  );
+};
 
 export const OnCountryRender = (rowData: any) => {
   const code = rowData?.rowData;
@@ -112,29 +166,35 @@ export const OnCountryRender = (rowData: any) => {
     <>
       <div style={{ display: "flex", alignItems: "center" }}>
         <img
-          style={{ borderRadius: "50%", marginRight: "15px" }}
+          style={{ borderRadius: "50%", marginRight: "10px" }}
           src={flagImg}
           height="28px"
           width="28px"
         />
-        <span>{code.countryName}</span>
+        <span className="country_name_text">{code.countryName}</span>
       </div>
     </>
   );
 };
-export const OnProjectCountRender = (rowData: any) => {
+export const OnProjectCountRender: React.FC<{ rowData: any; onClick: any }> = ({
+  rowData,
+  onClick,
+}) => {
   return (
     <>
-      <div className={styles.projectCount}>
-        <span className={styles.projectnumber}>05</span>
-        <span>Projects</span>
+      <div className="projectCount" onClick={() => onClick?.(rowData)}>
+        <span className="projectnumber">
+          {rowData?.ProjectCount < 10
+            ? `0${rowData?.ProjectCount}`
+            : rowData?.ProjectCount}
+        </span>
+        <span>{rowData?.ProjectCount < 2 ? "Project" : "Projects"}</span>
       </div>
     </>
   );
 };
 export const OnManagerRender = (rowData: any) => {
   const code = rowData?.rowData;
-  console.log("RowData", code);
   return (
     <>
       <div>
@@ -143,6 +203,16 @@ export const OnManagerRender = (rowData: any) => {
     </>
   );
 };
+export const OnUsersRender: React.FC<{ users: any[] }> = ({ users }) => {
+  return (
+    <>
+      <div>
+        <Profiles value={users} maxVisible={users?.length === 1 ? 1 : 3} />
+      </div>
+    </>
+  );
+};
+
 export const OnCountryStatusRender: React.FC<{ status: string }> = ({
   status,
 }) => {
@@ -174,4 +244,26 @@ export const OnCountryActionsRender: React.FC = () => {
       />
     </div>
   );
+};
+
+export const getFileIcon = (name: string) => {
+  const extension = name.split(".").pop()?.toLowerCase();
+  switch (extension) {
+    case "pdf":
+      return <PictureAsPdfIcon style={{ color: "red" }} />;
+    case "doc":
+    case "docx":
+      return <DescriptionIcon style={{ color: "blue" }} />;
+    case "xls":
+    case "xlsx":
+      return <DescriptionIcon style={{ color: "green" }} />;
+    case "png":
+    case "jpg":
+    case "jpeg":
+      return <ImageIcon style={{ color: "orange" }} />;
+    case "txt":
+      return <InsertDriveFileIcon style={{ color: "gray" }} />;
+    default:
+      return <InsertDriveFileIcon />;
+  }
 };

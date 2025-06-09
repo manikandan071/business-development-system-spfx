@@ -5,11 +5,11 @@
 import { sp } from "@pnp/sp";
 import { SPLibraries, SPLists } from "../../Config/config";
 import {
-  IcountriesType,
+  ICountriesDetails,
   IDocumentsDetails,
   IProjectDetails,
 } from "../../Interface/ModulesInterface";
-import { togglePopupVisibility } from "../../Utils/togglePopup";
+import { setPopupResponseFun } from "../../Utils/togglePopup";
 import {
   appendCategoryToFileName,
   manageAccessUsersDeserialized,
@@ -49,7 +49,8 @@ const getLibraryAttachments = async (
 const fetchDocumentsData = async (
   setMasterState: any,
   setLocalState: any,
-  projectId: number
+  projectId: number,
+  setLoader: any
 ) => {
   try {
     const tempDocuments = await SpServices.SPReadItems({
@@ -63,6 +64,8 @@ const fetchDocumentsData = async (
           FilterValue: projectId,
         },
       ],
+      Orderby: "ID",
+      Orderbydecorasc: false,
     }).then();
 
     const tempArray: IDocumentsDetails[] = [];
@@ -71,6 +74,9 @@ const fetchDocumentsData = async (
       const documentDetails: IDocumentsDetails = {
         Id: document?.Id,
         Category: document?.Category,
+        ContractType: document?.ContractType,
+        Party: document?.Party,
+        Date: document?.Date,
         ManageAccess: manageAccessUsersDeserialized(document?.ManageAccess),
         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
           document?.ManageAccess
@@ -81,6 +87,7 @@ const fetchDocumentsData = async (
     });
     setMasterState(tempArray);
     setLocalState(tempArray);
+    setLoader(false);
   } catch (err) {
     console.log("Error : ", err);
   }
@@ -109,25 +116,24 @@ const submitDocumentForm = async (
   formDetails: any,
   setMasterState: any,
   setLocalState: any,
-  countryDetails: IcountriesType,
+  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
-  setPopupController: any,
+  setPopupResponse: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const payloadDetails = {
     Category: formDetails?.Category?.value,
+    ContractType: formDetails?.ContractType?.value,
+    Party: formDetails?.Party?.value,
+    Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
   };
-  debugger;
   await SpServices.SPAddItem({
     Listname: SPLists.DocumentsList,
     RequestJSON: payloadDetails,
   })
     .then(async (res: any) => {
-      console.log("res", res);
-
       const folderPath = `${countryDetails?.countryName.trimEnd()}/${projectDetails?.ProjectName.trimEnd()}/${payloadDetails?.Category.trimEnd()}`;
       const fullPath = await createFolderIfNotExists(folderPath);
       console.log("fullPath", fullPath);
@@ -149,6 +155,9 @@ const submitDocumentForm = async (
       const documentDetails: IDocumentsDetails = {
         Id: res?.data?.Id,
         Category: payloadDetails?.Category,
+        ContractType: payloadDetails?.ContractType,
+        Party: payloadDetails?.Party,
+        Date: payloadDetails?.Date,
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -164,7 +173,13 @@ const submitDocumentForm = async (
       setLocalState((prev: any) => {
         return [documentDetails, ...prev];
       });
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "New document have been added successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);
@@ -175,19 +190,20 @@ const updateDocumentForm = async (
   isUpdateDetails: any,
   setMasterState: any,
   setLocalState: any,
-  countryDetails: IcountriesType,
+  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
-  setPopupController: any,
+  setPopupResponse: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const recId = isUpdateDetails?.Id;
   const payloadDetails = {
     Category: formDetails?.Category?.value,
+    ContractType: formDetails?.ContractType?.value,
+    Party: formDetails?.Party?.value,
+    Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
   };
-  debugger;
   await SpServices.SPUpdateItem({
     Listname: SPLists.DocumentsList,
     ID: recId,
@@ -225,6 +241,9 @@ const updateDocumentForm = async (
       const documentDetails: IDocumentsDetails = {
         Id: recId,
         Category: payloadDetails?.Category,
+        ContractType: payloadDetails?.ContractType,
+        Party: payloadDetails?.Party,
+        Date: payloadDetails?.Date,
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -244,7 +263,13 @@ const updateDocumentForm = async (
           item.Id === recId ? { ...item, ...documentDetails } : item
         )
       );
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "The document have been updated successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);

@@ -8,13 +8,10 @@ import { useState } from "react";
 
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import DescriptionIcon from "@mui/icons-material/Description";
-import ImageIcon from "@mui/icons-material/Image";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 import styles from "./CustomFileUpload.module.scss";
 import { removeCategoryFromFileName } from "../../../../../../Services/CommonService/CommonService";
+import { getFileIcon } from "../../../../../../Utils/dataTable";
 const uploadImage = require("../../../../assets/images/png/upload.png");
 interface IDocumentsProps {
   value: any[];
@@ -31,8 +28,6 @@ const CustomFileUpload: React.FC<IDocumentsProps> = ({
   onChange,
   isValid,
 }) => {
-  console.log("value", value);
-
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -86,28 +81,6 @@ const CustomFileUpload: React.FC<IDocumentsProps> = ({
     const updated = [...value];
     updated.splice(index, 1);
     onChange?.(updated, false);
-  };
-
-  const getFileIcon = (name: string) => {
-    const extension = name.split(".").pop()?.toLowerCase();
-    switch (extension) {
-      case "pdf":
-        return <PictureAsPdfIcon style={{ color: "red" }} />;
-      case "doc":
-      case "docx":
-        return <DescriptionIcon style={{ color: "blue" }} />;
-      case "xls":
-      case "xlsx":
-        return <DescriptionIcon style={{ color: "green" }} />;
-      case "png":
-      case "jpg":
-      case "jpeg":
-        return <ImageIcon style={{ color: "orange" }} />;
-      case "txt":
-        return <InsertDriveFileIcon style={{ color: "gray" }} />;
-      default:
-        return <InsertDriveFileIcon />;
-    }
   };
 
   return (

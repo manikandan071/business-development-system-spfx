@@ -5,17 +5,18 @@
 import { SPLists } from "../../Config/config";
 import {
   ICalenderDetails,
-  IcountriesType,
+  ICountriesDetails,
   IProjectDetails,
 } from "../../Interface/ModulesInterface";
-import { togglePopupVisibility } from "../../Utils/togglePopup";
+import { setPopupResponseFun } from "../../Utils/togglePopup";
 import { peopleHandler } from "../CommonService/CommonService";
 import SpServices from "../SPServices/SpServices";
 
 const fetchCalenderData = async (
   setMasterState: any,
   setLocalState: any,
-  projectId: number
+  projectId: number,
+  setLoader: any
 ) => {
   try {
     const tempCalenders = await SpServices.SPReadItems({
@@ -30,6 +31,8 @@ const fetchCalenderData = async (
           FilterValue: projectId,
         },
       ],
+      Orderby: "ID",
+      Orderbydecorasc: false,
     }).then();
 
     const tempArray: ICalenderDetails[] = [];
@@ -51,6 +54,7 @@ const fetchCalenderData = async (
     });
     setMasterState(tempArray);
     setLocalState(tempArray);
+    setLoader(false);
   } catch (err) {
     console.log("Error : ", err);
   }
@@ -60,12 +64,11 @@ const submitCalenderForm = (
   formDetails: any,
   setMasterProjectDatas: any,
   setProjectDatas: any,
-  countryDetails: IcountriesType,
+  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
-  setPopupController: any,
+  setPopupResponse: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const payloadDetails = {
     Title: formDetails?.EventTitle?.value,
     Description: formDetails?.Description?.value,
@@ -76,18 +79,16 @@ const submitCalenderForm = (
     EventDateTime: formDetails?.EventDateTime?.value,
     AssignedToId: {
       results: formDetails?.AssignedTo?.value?.map(
-        (manager: any) => manager.id
+        (manager: any) => manager?.id || manager?.ID
       ),
     },
     ProjectOfId: projectDetails?.Id,
   };
-  debugger;
   SpServices.SPAddItem({
     Listname: SPLists.Calenderlist,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
       const obligationDetails: ICalenderDetails = {
         Id: res?.data?.Id,
         EventTitle: payloadDetails?.Title,
@@ -106,7 +107,13 @@ const submitCalenderForm = (
       setProjectDatas((prev: any) => {
         return [obligationDetails, ...prev];
       });
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "New event have been added successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);
@@ -117,12 +124,11 @@ const updateCalenderDorm = (
   isUpdateDetails: any,
   setMasterState: any,
   setLocalState: any,
-  countryDetails: IcountriesType,
+  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
-  setPopupController: any,
+  setPopupResponse: any,
   index: number
 ) => {
-  console.log("formDetails", formDetails);
   const recId = isUpdateDetails?.Id;
   const payloadDetails = {
     Title: formDetails?.EventTitle?.value,
@@ -134,18 +140,16 @@ const updateCalenderDorm = (
     EventDateTime: formDetails?.EventDateTime?.value,
     AssignedToId: {
       results: formDetails?.AssignedTo?.value?.map(
-        (manager: any) => manager.ID
+        (manager: any) => manager?.id || manager?.ID
       ),
     },
   };
-  debugger;
   SpServices.SPUpdateItem({
     Listname: SPLists.Calenderlist,
     ID: recId,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      console.log("res", res);
       const calenderDetails: ICalenderDetails = {
         Id: recId,
         EventTitle: payloadDetails?.Title,
@@ -168,7 +172,13 @@ const updateCalenderDorm = (
           item.Id === recId ? { ...item, ...calenderDetails } : item
         )
       );
-      togglePopupVisibility(setPopupController, index, "close");
+      setPopupResponseFun(
+        setPopupResponse,
+        index,
+        false,
+        "Success!",
+        "The event have been updated successfully."
+      );
     })
     .catch((err: any) => {
       console.log("Error :", err);

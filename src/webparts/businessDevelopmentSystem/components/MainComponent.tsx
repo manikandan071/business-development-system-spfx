@@ -24,7 +24,8 @@ import Events from "./Modules/Events/Events";
 
 const MainComponent = (props: any) => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState<string>("Dashboard");
+  const [selectedCountry, setSelectedCountry] = useState<any>({});
 
   useEffect(() => {
     sp.web.currentUser
@@ -46,10 +47,22 @@ const MainComponent = (props: any) => {
     );
     dispatch(setMainSPContext(props.context));
   }, []);
+
+  const onSelectCountry = (countryDetails: any) => {
+    setSelectedCountry(countryDetails);
+    setActiveTab("Projects");
+  };
+  const viewAllTasks = () => {
+    setActiveTab("My Tasks");
+  };
   return (
     <div className={styles.container}>
       <div style={{ width: "100%" }}>
-        <NavBar setActiveTab={setActiveTab} />
+        <NavBar
+          setActiveTab={setActiveTab}
+          setCustomActiveTab={activeTab}
+          rejectSelectedCountry={setSelectedCountry}
+        />
       </div>
       <div style={{ width: "100%", display: "flex" }}>
         <div style={{ width: "100%" }}>
@@ -58,9 +71,13 @@ const MainComponent = (props: any) => {
           </div> */}
 
           <div className={styles.screen_container}>
-            {activeTab === "Dashboard" && <Dashboard />}
-            {activeTab === "Countries" && <Countries />}
-            {activeTab === "Projects" && <Projects />}
+            {activeTab === "Dashboard" && <Dashboard viewAll={viewAllTasks} />}
+            {activeTab === "Countries" && (
+              <Countries onSelectCountry={onSelectCountry} />
+            )}
+            {activeTab === "Projects" && (
+              <Projects selectedCountry={selectedCountry} />
+            )}
             {activeTab === "Events" && <Events />}
             {activeTab === "My Tasks" && <MyTasks />}
           </div>

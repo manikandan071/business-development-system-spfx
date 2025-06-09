@@ -13,20 +13,27 @@ import CustomDataTable from "../../../../Common/DataTable/DataTable";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
+  OnActionsRender,
   OnDateRender,
-  OnManagerRender,
   OnStatusRender,
   OnTextRender,
+  OnUsersRender,
 } from "../../../../../../../Utils/dataTable";
 import { useState, useEffect } from "react";
 import {
-  addNewTask,
   getProjectList,
-  getTasksList,
-  updateTask,
+  fetchProjectTasks,
+  submitProjectTaskForm,
+  updateProjectTaskForm,
 } from "../../../../../../../Services/Tasks/TaskService";
-import { IallTasksType } from "../../../../../../../Interface/ModulesInterface";
-import { togglePopupVisibility } from "../../../../../../../Utils/togglePopup";
+import {
+  IProjectTaskDeatils,
+  IProjectDetails,
+} from "../../../../../../../Interface/ModulesInterface";
+import {
+  setPopupResponseFun,
+  togglePopupVisibility,
+} from "../../../../../../../Utils/togglePopup";
 import { taskFormDetails } from "../../../../../../../Config/initialStates";
 import { deepClone } from "../../../../../../../Utils/deepClone";
 import { onChangeFunction } from "../../../../../../../Utils/onChange";
@@ -38,19 +45,21 @@ import CustomPeoplePicker from "../../../../Common/CustomInputFields/CustomPeopl
 import { validateForm } from "../../../../../../../Utils/validations";
 import Popup from "../../../../Common/Popup/Popup";
 import { Checkbox } from "primereact/checkbox";
-import "./ToDoList.css"
+import "./ToDoList.css";
 import CustomAutoSelect from "../../../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
-interface projectOfType{
-  ID:number;
-  Title:string;
+import AppLoader from "../../../../Common/AppLoader/AppLoader";
+interface projectOf {
+  ID: number;
+  Title: string;
 }
 interface ToDoListProps {
-  ProjectTitle: string;
-  Taskdisabled: boolean;
+  ProjectDetails: IProjectDetails;
+  setProjectTasksList?: any;
 }
-const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
-  console.log("ProjectTitle",ProjectTitle);
-  
+const ToDoList: React.FC<ToDoListProps> = ({
+  ProjectDetails,
+  setProjectTasksList,
+}) => {
   const initialPopupController = [
     {
       open: false,
@@ -69,63 +78,81 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
       popupData: "",
     },
   ];
+  const initialPopupResponse = [
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+    {
+      Loading: false,
+      Title: "",
+      Message: "",
+    },
+  ];
   const cloneFormDetails = deepClone(taskFormDetails);
-  const [toDoList, setToDoList] = useState<IallTasksType[]>([]);
+  const [projectTasksData, setProjectTasksData] = useState<
+    IProjectTaskDeatils[]
+  >([]);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
   };
-  const [masterTasksData, setMasterTasksData] = useState<IallTasksType[]>([]);
-  const [selectedRow,setSelectedRow]=useState<IallTasksType>();
-  const [projectOfData,setProjectOfData]=useState<projectOfType[]>([]);
+  const [masterProjectTasksData, setMasterProjectTasksData] = useState<
+    IProjectTaskDeatils[]
+  >([]);
+  const [selectedRow, setSelectedRow] = useState<IProjectTaskDeatils>();
+  const [projectOfData, setProjectOfData] = useState<projectOf[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
   const [popupController, setPopupController] = useState(
     initialPopupController
   );
-  console.log(masterTasksData,projectOfData,formDetails);
+  const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
+  const [isLoader, setIsLoader] = useState<boolean>(true);
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
-        <PopupSectionHeader Title="BASIC DETAILS" />
+        <PopupSectionHeader Title="Basic Details" />
         <div className="section-wrapper">
           <CustomInput
             value={formDetails?.TaskTitle?.value}
             type="text"
-            placeholder="Enter Task Title"
-            sectionType="two"
+            placeholder="Enter task name"
+            sectionType={ProjectDetails?.Id === 0 ? "two" : "one"}
             onChange={(value: string) => {
               onChangeFunction("TaskTitle", value, setFormDetails);
             }}
             isValid={formDetails?.TaskTitle?.isValid}
             withLabel={true}
             mandatory={formDetails?.TaskTitle?.isMandatory}
-            labelText="Title"
+            labelText="Task name"
             readOnly={false}
             disabled={false}
           />
-           <CustomAutoSelect
-            value={formDetails?.ProjectOfTitle?.value}
-            options={projectOfData?.map((project:any)=>({
-              Text:project.Title,
-              ...project
-            }))}
-            onChange={async (value: { Text: string; ID: number } | null) => {
-              onChangeFunction("ProjectOfTitle", value?.Text, setFormDetails);
-              onChangeFunction("ProjectOfID", value?.ID, setFormDetails);
-              console.log("value",value)
-            }}
-            placeholder="Select Project"
-            sectionType="two"
-            isValid={formDetails?.ProjectOfTitle?.isValid}
-            withLabel={true}
-            disabled={Taskdisabled}
-            mandatory={formDetails?.ProjectOfTitle?.isMandatory}
-            labelText="Project"
-          />
+          {ProjectDetails?.Id === 0 && (
+            <CustomAutoSelect
+              value={formDetails?.ProjectOfTitle?.value}
+              options={projectOfData?.map((project: any) => ({
+                Text: project.Title,
+                ...project,
+              }))}
+              onChange={async (value: { Text: string; ID: number } | null) => {
+                onChangeFunction("ProjectOfTitle", value?.Text, setFormDetails);
+                onChangeFunction("ProjectOfID", value?.ID, setFormDetails);
+              }}
+              placeholder="Select project"
+              sectionType="two"
+              isValid={formDetails?.ProjectOfTitle?.isValid}
+              withLabel={true}
+              disabled={ProjectDetails?.Id !== 0 ? true : false}
+              mandatory={formDetails?.ProjectOfTitle?.isMandatory}
+              labelText="Project"
+            />
+          )}
           <CustomInput
             value={formDetails?.Description?.value}
             type="text"
             rows={3}
-            placeholder="Enter Description"
+            placeholder="Enter description"
             sectionType="one"
             onChange={(value: string) => {
               onChangeFunction("Description", value, setFormDetails);
@@ -136,10 +163,53 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             labelText="Description"
             disabled={false}
           />
+          <CustomPeoplePicker
+            selectedItem={formDetails?.AssignedTo?.value}
+            sectionType="one"
+            personSelectionLimit={1}
+            placeholder="Select user"
+            minHeight="38px"
+            maxHeight="38px"
+            onChange={(value: any[]) => {
+              onChangeFunction("AssignedTo", value, setFormDetails);
+            }}
+            isValid={formDetails?.AssignedTo?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.AssignedTo?.isMandatory}
+            labelText="Person in charge"
+          />
+          <CustomDatePicker
+            value={formDetails?.StartDate?.value}
+            placeholder="Enter start date"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("StartDate", value, setFormDetails);
+            }}
+            isValid={formDetails?.StartDate?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.StartDate?.isMandatory}
+            labelText="Start date"
+            disabled={false}
+            readOnly={false}
+          />
+          <CustomDatePicker
+            value={formDetails?.DueDate?.value}
+            placeholder="Enter due date"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("DueDate", value, setFormDetails);
+            }}
+            isValid={formDetails?.DueDate?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.DueDate?.isMandatory}
+            labelText="Due date"
+            disabled={false}
+            readOnly={false}
+          />
           <CustomDropDown
             options={["Low", "Medium", "High"]}
             value={formDetails?.Priority?.value}
-            placeholder="Select Priority"
+            placeholder="Select priority"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Priority", value, setFormDetails);
@@ -152,9 +222,9 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             readOnly={false}
           />
           <CustomDropDown
-            options={["Not Started", "In Progress", "Completed"]}
+            options={["Not Started", "In Progress", "Completed", "Overdue"]}
             value={formDetails?.Status?.value}
-            placeholder="Select Status"
+            placeholder="Select status"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Status", value, setFormDetails);
@@ -166,66 +236,25 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             disabled={false}
             readOnly={false}
           />
-          <CustomDatePicker
-            value={formDetails?.StartDate?.value}
-            placeholder="Enter StartDate"
-            sectionType="two"
-            onChange={(value: string) => {
-              onChangeFunction("StartDate", value, setFormDetails);
-            }}
-            isValid={formDetails?.StartDate?.isValid}
-            withLabel={true}
-            mandatory={formDetails?.StartDate?.isMandatory}
-            labelText="StartDate"
-            disabled={false}
-            readOnly={false}
-          />
-          <CustomDatePicker
-            value={formDetails?.DueDate?.value}
-            placeholder="Enter DueDate"
-            sectionType="two"
-            onChange={(value: string) => {
-              onChangeFunction("DueDate", value, setFormDetails);
-            }}
-            isValid={formDetails?.DueDate?.isValid}
-            withLabel={true}
-            mandatory={formDetails?.DueDate?.isMandatory}
-            labelText="DueDate"
-            disabled={false}
-            readOnly={false}
-          />
         </div>
-        <div>
+        {/* <div>
           <PopupSectionHeader Title="PEOPLE & OTHERS" />
-          <div className="section-wrapper">
-            <CustomPeoplePicker
-              selectedItem={formDetails?.selectedPeople?.value}
-              sectionType="one"
-              personSelectionLimit={1}
-              minHeight="38px"
-              maxHeight="38px"
-              onChange={(value: any[]) => {
-                onChangeFunction("selectedPeople", value, setFormDetails);
-              }}
-              isValid={formDetails?.selectedPeople?.isValid}
-              withLabel={true}
-              mandatory={formDetails?.selectedPeople?.isMandatory}
-              labelText="Manager"
-            />
-          </div>
-        </div>
+          <div className="section-wrapper"></div>
+        </div> */}
         <div className={styles.checkBox_Wrapper}>
-          <div style={{display:"flex",gap:"8px"}}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Checkbox
               inputId="sendReminder"
               checked={formDetails?.isReminder?.value}
-               onChange={(e) =>
+              onChange={(e) =>
                 onChangeFunction("isReminder", e.target.checked, setFormDetails)
               }
             />
-            <label htmlFor="sendReminder" style={{fontSize:"14px"}}>Send Reminder</label>
+            <label htmlFor="sendReminder" style={{ fontSize: "14px" }}>
+              Send reminder
+            </label>
           </div>
-          <div style={{display:"flex",gap:"8px"}}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Checkbox
               inputId="isTaskOverdue"
               checked={formDetails?.isTaskOverdue?.value}
@@ -237,54 +266,61 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
                 )
               }
             />
-            <label htmlFor="isTaskOverdue" style={{fontSize:"14px"}}>Escalate if Task Overdue</label>
+            <label htmlFor="isTaskOverdue" style={{ fontSize: "14px" }}>
+              Escalate if task overdue
+            </label>
           </div>
         </div>
       </div>,
     ],
-     [
+    [
       <div key={1} style={{ width: "100%" }}>
-        <PopupSectionHeader Title="BASIC DETAILS" />
+        <PopupSectionHeader Title="Basic Details" />
         <div className="section-wrapper">
           <CustomInput
             value={formDetails?.TaskTitle?.value}
             type="text"
-            placeholder="Enter Task Title"
-            sectionType="two"
+            placeholder="Enter task name"
+            sectionType={ProjectDetails?.Id === 0 ? "two" : "one"}
             onChange={(value: string) => {
               onChangeFunction("TaskTitle", value, setFormDetails);
             }}
             isValid={formDetails?.TaskTitle?.isValid}
             withLabel={true}
             mandatory={formDetails?.TaskTitle?.isMandatory}
-            labelText="Title"
+            labelText="Task name"
             readOnly={false}
             disabled={false}
           />
-          <CustomAutoSelect
-            value={formDetails?.ProjectOfTitle?.value}
-            options={projectOfData?.map((project:any)=>({
-              Text:project.Title,
-              ...project
-            }))}
-            onChange={async (option: { Text: string; ID: number } | null) => {
-              onChangeFunction("ProjectOfTitle", option?.Text, setFormDetails);
-              onChangeFunction("ProjectOfID", option?.ID, setFormDetails);
-              console.log("value",option)
-            }}
-            placeholder="Select Project"
-            sectionType="two"
-            isValid={formDetails?.ProjectOfTitle?.isValid}
-            withLabel={true}
-            disabled={Taskdisabled}
-            mandatory={formDetails?.ProjectOfTitle?.isMandatory}
-            labelText="Project"
-          />
+          {ProjectDetails?.Id === 0 && (
+            <CustomAutoSelect
+              value={formDetails?.ProjectOfTitle?.value}
+              options={projectOfData?.map((project: any) => ({
+                Text: project.Title,
+                ...project,
+              }))}
+              onChange={async (option: { Text: string; ID: number } | null) => {
+                onChangeFunction(
+                  "ProjectOfTitle",
+                  option?.Text,
+                  setFormDetails
+                );
+                onChangeFunction("ProjectOfID", option?.ID, setFormDetails);
+              }}
+              placeholder="Select project"
+              sectionType="two"
+              isValid={formDetails?.ProjectOfTitle?.isValid}
+              withLabel={true}
+              disabled={ProjectDetails?.Id !== 0 ? true : false}
+              mandatory={formDetails?.ProjectOfTitle?.isMandatory}
+              labelText="Project"
+            />
+          )}
           <CustomInput
             value={formDetails?.Description?.value}
             type="text"
             rows={3}
-            placeholder="Enter Description"
+            placeholder="Enter description"
             sectionType="one"
             onChange={(value: string) => {
               onChangeFunction("Description", value, setFormDetails);
@@ -295,10 +331,53 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             labelText="Description"
             disabled={false}
           />
+          <CustomPeoplePicker
+            selectedItem={formDetails?.AssignedTo?.value}
+            sectionType="one"
+            personSelectionLimit={1}
+            placeholder="Select user"
+            minHeight="38px"
+            maxHeight="38px"
+            onChange={(value: any[]) => {
+              onChangeFunction("AssignedTo", value, setFormDetails);
+            }}
+            isValid={formDetails?.AssignedTo?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.AssignedTo?.isMandatory}
+            labelText="Person in charge"
+          />
+          <CustomDatePicker
+            value={formDetails?.StartDate?.value}
+            placeholder="Enter start date"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("StartDate", value, setFormDetails);
+            }}
+            isValid={formDetails?.StartDate?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.StartDate?.isMandatory}
+            labelText="Start date"
+            disabled={false}
+            readOnly={false}
+          />
+          <CustomDatePicker
+            value={formDetails?.DueDate?.value}
+            placeholder="Enter due date"
+            sectionType="two"
+            onChange={(value: string) => {
+              onChangeFunction("DueDate", value, setFormDetails);
+            }}
+            isValid={formDetails?.DueDate?.isValid}
+            withLabel={true}
+            mandatory={formDetails?.DueDate?.isMandatory}
+            labelText="Due date"
+            disabled={false}
+            readOnly={false}
+          />
           <CustomDropDown
             options={["Low", "Medium", "High"]}
             value={formDetails?.Priority?.value}
-            placeholder="Select Priority"
+            placeholder="Select priority"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Priority", value, setFormDetails);
@@ -311,9 +390,9 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             readOnly={false}
           />
           <CustomDropDown
-            options={["Not Started", "In Progress", "Completed"]}
+            options={["Not Started", "In Progress", "Completed", "Overdue"]}
             value={formDetails?.Status?.value}
-            placeholder="Select Status"
+            placeholder="Select status"
             sectionType="two"
             onChange={(value: string) => {
               onChangeFunction("Status", value, setFormDetails);
@@ -325,66 +404,26 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             disabled={false}
             readOnly={false}
           />
-          <CustomDatePicker
-            value={formDetails?.StartDate?.value}
-            placeholder="Enter StartDate"
-            sectionType="two"
-            onChange={(value: string) => {
-              onChangeFunction("StartDate", value, setFormDetails);
-            }}
-            isValid={formDetails?.StartDate?.isValid}
-            withLabel={true}
-            mandatory={formDetails?.StartDate?.isMandatory}
-            labelText="StartDate"
-            disabled={false}
-            readOnly={false}
-          />
-          <CustomDatePicker
-            value={formDetails?.DueDate?.value}
-            placeholder="Enter DueDate"
-            sectionType="two"
-            onChange={(value: string) => {
-              onChangeFunction("DueDate", value, setFormDetails);
-            }}
-            isValid={formDetails?.DueDate?.isValid}
-            withLabel={true}
-            mandatory={formDetails?.DueDate?.isMandatory}
-            labelText="DueDate"
-            disabled={false}
-            readOnly={false}
-          />
         </div>
-        <div>
+        {/* <div>
           <PopupSectionHeader Title="PEOPLE & OTHERS" />
           <div className="section-wrapper">
-            <CustomPeoplePicker
-              selectedItem={formDetails?.selectedPeople?.value}
-              sectionType="one"
-              personSelectionLimit={1}
-              minHeight="38px"
-              maxHeight="38px"
-              onChange={(value: any[]) => {
-                onChangeFunction("selectedPeople", value, setFormDetails);
-              }}
-              isValid={formDetails?.selectedPeople?.isValid}
-              withLabel={true}
-              mandatory={formDetails?.selectedPeople?.isMandatory}
-              labelText="Manager"
-            />
           </div>
-        </div>
+        </div> */}
         <div className={styles.checkBox_Wrapper}>
-          <div style={{display:"flex",gap:"8px"}}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Checkbox
               inputId="sendReminder"
               checked={formDetails?.isReminder?.value}
-               onChange={(e) =>
+              onChange={(e) =>
                 onChangeFunction("isReminder", e.target.checked, setFormDetails)
               }
             />
-            <label htmlFor="sendReminder" style={{fontSize:"14px"}}>Send Reminder</label>
+            <label htmlFor="sendReminder" style={{ fontSize: "14px" }}>
+              Send reminder
+            </label>
           </div>
-          <div style={{display:"flex",gap:"8px"}}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Checkbox
               inputId="isTaskOverdue"
               checked={formDetails?.isTaskOverdue?.value}
@@ -396,107 +435,107 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
                 )
               }
             />
-            <label htmlFor="isTaskOverdue" style={{fontSize:"14px"}}>Escalate if Task Overdue</label>
+            <label htmlFor="isTaskOverdue" style={{ fontSize: "14px" }}>
+              Escalate if task overdue
+            </label>
           </div>
         </div>
       </div>,
     ],
   ];
-  const handleRowClick =   (rowData:any)=>{
-    const taskData=rowData?.data;
-    console.log("taskData",taskData)
-  setSelectedRow(taskData);
-  setFormDetails({
-        TaskTitle: {
-                value: taskData.TaskTitle,
-                isValid: true,
-                isMandatory: true,
-              },
-        Description: {
-                value: taskData.Description,
-                isValid: true,
-                isMandatory: true,
-              },
-        Priority: {
-                value: taskData.Priority,
-                isValid: true,
-                isMandatory: true,
-              },
-        Status: {
-                value: taskData.Status,
-                isValid: true,
-                isMandatory: true,
-              },
-        StartDate:{
-                value: taskData.StartDate,
-                isValid: true,
-                isMandatory: true,
-              },
-        DueDate: {
-                value: taskData.DueDate,
-                isValid: true,
-                isMandatory: true,
-              },
-        selectedPeople: {
-                value: taskData.AssignTo,
-                isValid: true,
-                isMandatory: true,
-              },
-        isReminder:{
-                value: taskData.isReminder,
-                isValid: true,
-                isMandatory: false,
-              },
-        isTaskOverdue:{
-                value: taskData.isTaskOverdue,
-                isValid: true,
-                isMandatory: false,
-              },
-          ProjectOfTitle:{
-            value:taskData.ProjectOfTitle,
-            isValid:true,
-            isMandatory:true,
-           },
-           ProjectOfID:{
-            value:taskData.ProjectOfID,
-            isValid:true,
-            isMandatory:true,
-           }
-      });
-        togglePopupVisibility(
-                      setPopupController,
-                      1,
-                      "open",
-                      `Update Task Data`
-                    );
-  }
+  const setEditForm = (rowData: any) => {
+    const taskData = rowData;
+    setSelectedRow(taskData);
+    setFormDetails({
+      TaskTitle: {
+        value: taskData.TaskTitle,
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: taskData.Description,
+        isValid: true,
+        isMandatory: true,
+      },
+
+      Priority: {
+        value: taskData.Priority,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: taskData.Status,
+        isValid: true,
+        isMandatory: true,
+      },
+      StartDate: {
+        value: taskData.StartDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      DueDate: {
+        value: taskData.DueDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      AssignedTo: {
+        value: taskData.AssignTo,
+        isValid: true,
+        isMandatory: true,
+      },
+      isReminder: {
+        value: taskData.isReminder,
+        isValid: true,
+        isMandatory: false,
+      },
+      isTaskOverdue: {
+        value: taskData.isTaskOverdue,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectOfTitle: {
+        value: taskData.ProjectOfTitle,
+        isValid: true,
+        isMandatory: true,
+      },
+      ProjectOfID: {
+        value: taskData.ProjectOfID,
+        isValid: true,
+        isMandatory: true,
+      },
+    });
+    togglePopupVisibility(setPopupController, 1, "open", `Update Task`);
+  };
   const handleSubmitFuction = async (): Promise<void> => {
-    console.log("FormDetails",formDetails)
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
 
     if (isFormValid) {
-      console.log("Form is valid");
-      addNewTask(formDetails, setToDoList);
-      togglePopupVisibility(setPopupController, 0, "close");
+      setPopupResponseFun(setPopupResponse, 0, true, "", "");
+      submitProjectTaskForm(
+        formDetails,
+        setMasterProjectTasksData,
+        setProjectTasksData,
+        tasksUpdateToAllTasks,
+        setPopupResponse,
+        0
+      );
     }
   };
-  const handleUpdateFuction = async (): Promise<void>=>{
-    console.log("formDeatails",formDetails);
+  const handleUpdateFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-     console.log("isFormValid", isFormValid);
     if (isFormValid) {
-      console.log("Form is valid");
-      updateTask(
+      setPopupResponseFun(setPopupResponse, 1, true, "", "");
+      updateProjectTaskForm(
         formDetails,
         selectedRow?.ID,
-        setMasterTasksData,
-        setToDoList,
-        setPopupController,
+        setMasterProjectTasksData,
+        setProjectTasksData,
+        tasksUpdateToAllTasks,
+        setPopupResponse,
         1
       );
     }
-  }
+  };
   const popupActions: any[] = [
     [
       {
@@ -508,6 +547,7 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
         onClick: () => {
           setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(0);
+          setPopupResponseFun(setPopupResponse, 0, false, "", "");
         },
       },
       {
@@ -531,6 +571,7 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
         onClick: () => {
           setFormDetails(deepClone(cloneFormDetails));
           handleClosePopup(1);
+          setPopupResponseFun(setPopupResponse, 1, false, "", "");
         },
       },
       {
@@ -548,156 +589,193 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
   const tableColumns = [
     [
       <DataTable
-        value={toDoList}
+        value={projectTasksData}
+        className={
+          ProjectDetails?.ProjectName !== ""
+            ? "min_height_48vh"
+            : "min_height_62vh"
+        }
         scrollable
-        scrollHeight="60vh"
+        scrollHeight={ProjectDetails?.ProjectName !== "" ? "48vh" : "62vh"}
         style={{ minWidth: "100%" }}
         key={0}
         paginator
         rows={10}
-        onRowClick={handleRowClick}
         paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
+        currentPageReportTemplate={`Showing {first} to {last} of {totalRecords} ${
+          projectTasksData?.length === 0 ? "record" : "records"
+        }`}
+        emptyMessage="No data found."
       >
         <Column
           field="TaskTitle"
-          header="Task Name"
+          header="Task name"
           style={{ minWidth: "25%", maxWidth: "25%" }}
           body={(rowData) => <OnTextRender text={rowData?.TaskTitle} />}
           sortable
         />
-        <Column
+        {/* <Column
           field="Priority"
           header="Priority"
           style={{ minWidth: "25%" }}
           body={(rowData) => <OnStatusRender status={rowData?.Priority} />}
           sortable
+        /> */}
+        <Column
+          field="CreatedBy"
+          header="Assigned by"
+          style={{ minWidth: "15%", maxWidth: "25%" }}
+          body={(rowData) => <OnUsersRender users={rowData?.CreatedBy} />}
+          sortable
         />
         <Column
           field="AssignTo"
-          header="Assigned To"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnManagerRender rowData={rowData?.AssignTo} />}
+          header="Person in charge"
+          style={{ minWidth: "15%", maxWidth: "25%" }}
+          body={(rowData) => <OnUsersRender users={rowData?.AssignTo} />}
+          sortable
+        />
+        <Column
+          field="StartDate"
+          header="Start date"
+          style={{ minWidth: "15%", maxWidth: "25%" }}
+          body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
+          sortable
+        />
+        <Column
+          field="DueDate"
+          header="Due date"
+          style={{ minWidth: "15%", maxWidth: "25%" }}
+          body={(rowData) => <OnDateRender date={rowData?.DueDate} />}
           sortable
         />
         <Column
           field="Status"
           header="Status"
-          style={{ minWidth: "25%" }}
+          style={{ minWidth: "15%" }}
           body={(rowData) => <OnStatusRender status={rowData?.Status} />}
           sortable
         />
         <Column
-          field="StartDate"
-          header="StartDate"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnDateRender text={rowData?.StartDate} />}
-          sortable
+          field=""
+          header="Actions"
+          style={{ minWidth: "20%" }}
+          body={(rowData) => (
+            <OnActionsRender
+              editAction={setEditForm}
+              isShowLunch={false}
+              isShowUserAccess={false}
+              rowData={rowData}
+            />
+          )}
         />
-        <Column
-          field="DueDate"
-          header="DueDate"
-          style={{ minWidth: "25%", maxWidth: "25%" }}
-          body={(rowData) => <OnDateRender text={rowData?.DueDate} />}
-          sortable
-        />
-        {/* <Column
-            field=""
-            header="Actions"
-            style={{ minWidth: "20%" }}
-            body={(rowData) => (
-              <OnActionsRender setActiveProjectTab={setActiveProjectTab} />
-            )}
-          /> */}
       </DataTable>,
     ],
   ];
+
+  const tasksUpdateToAllTasks = (allTasks: IProjectTaskDeatils) => {
+    setProjectTasksList?.(allTasks);
+  };
+
   useEffect(() => {
     getProjectList(setProjectOfData);
-    getTasksList(setToDoList, setMasterTasksData);
+    fetchProjectTasks(
+      setMasterProjectTasksData,
+      setProjectTasksData,
+      tasksUpdateToAllTasks,
+      ProjectDetails?.Id,
+      setIsLoader
+    );
   }, []);
 
-  const setInitialState =()=>{
-    if(ProjectTitle){
+  const setInitialState = () => {
+    if (ProjectDetails?.ProjectName !== "") {
       setFormDetails({
         TaskTitle: {
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        Description: {
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        Priority: {
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        Status: {
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        StartDate:{
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        DueDate: {
-                value: "",
-                isValid: true,
-                isMandatory: true,
-              },
-        selectedPeople: {
-                value: [],
-                isValid: true,
-                isMandatory: true,
-              },
-        isReminder:{
-                value: "",
-                isValid: true,
-                isMandatory: false,
-              },
-        isTaskOverdue:{
-                value: "",
-                isValid: true,
-                isMandatory: false,
-              },
-          ProjectOfTitle:{
-          value:ProjectTitle,
-          isValid:true,
-          isMandatory:true,
+          value: "",
+          isValid: true,
+          isMandatory: true,
         },
-           ProjectOfID:{
-            value:"",
-            isValid:true,
-            isMandatory:true,
-           },
-       
-      })
-    }else{
+        Description: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+        Priority: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+        Status: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+        StartDate: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+        DueDate: {
+          value: "",
+          isValid: true,
+          isMandatory: true,
+        },
+        AssignedTo: {
+          value: [],
+          isValid: true,
+          isMandatory: true,
+        },
+        isReminder: {
+          value: "",
+          isValid: true,
+          isMandatory: false,
+        },
+        isTaskOverdue: {
+          value: "",
+          isValid: true,
+          isMandatory: false,
+        },
+        ProjectOfTitle: {
+          value: ProjectDetails?.ProjectName,
+          isValid: true,
+          isMandatory: true,
+        },
+        ProjectOfID: {
+          value: ProjectDetails?.Id,
+          isValid: true,
+          isMandatory: true,
+        },
+      });
+    } else {
       setFormDetails(deepClone(cloneFormDetails));
     }
-  }
-  return (
+  };
+
+  const searchFilterFunctionality = (value: string) => {
+    const filteredOptions = masterProjectTasksData.filter(
+      (item) =>
+        item.TaskTitle.toLowerCase().includes(value.toLowerCase()) ||
+        item.Priority.toLowerCase().includes(value.toLowerCase()) ||
+        item.Status.toLowerCase().includes(value.toLowerCase())
+    );
+    setProjectTasksData(filteredOptions);
+  };
+
+  return isLoader ? (
+    <AppLoader />
+  ) : (
     <div className={styles.TodoList_Wrapper}>
       <div className="justify-end gap-10">
-        <CustomSearchInput />
+        <CustomSearchInput searchFunction={searchFilterFunctionality} />
         <DefaultButton
           btnType="primaryBtn"
-          text="Add new to-do"
+          text="Add Task"
           startIcon={<AddIcon />}
           onClick={() => {
             // setFormDetails(deepClone(cloneFormDetails));
-             setInitialState()
-            togglePopupVisibility(
-              setPopupController,
-              0,
-              "open",
-              `Add New Task`
-            );
+            setInitialState();
+            togglePopupVisibility(setPopupController, 0, "open", `Add Task`);
           }}
         />
       </div>
@@ -707,15 +785,17 @@ const ToDoList: React.FC<ToDoListProps> = ({ ProjectTitle, Taskdisabled }) => {
             key={index}
             isLoading={false}
             PopupType={popupData.popupType}
-            onHide={() =>
-              togglePopupVisibility(setPopupController, index, "close")
-            }
+            onHide={() => {
+              togglePopupVisibility(setPopupController, index, "close");
+              setPopupResponseFun(setPopupResponse, index, false, "", "");
+            }}
             popupTitle={
               popupData.popupType !== "confimation" && popupData.popupTitle
             }
             popupActions={popupActions[index]}
             visibility={popupData.open}
             content={popupInputs[index]}
+            response={popupResponse[index]}
             popupWidth={popupData.popupWidth}
             defaultCloseBtn={popupData.defaultCloseBtn || false}
             confirmationTitle={

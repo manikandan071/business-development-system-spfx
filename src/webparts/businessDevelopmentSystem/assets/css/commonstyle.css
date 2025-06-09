@@ -48,7 +48,8 @@
 /* Handle on hover */
 *::-webkit-scrollbar-thumb:hover {
     background: #555555ac !important;
-    border-radius: 30px !important; }
+    border-radius: 30px !important; 
+}
 
 
 /* common styles */
@@ -76,4 +77,8 @@
 }
 .margin-right-20{
     margin-right: 20px;
+}
+
+.country_chart .recharts-wrapper{
+    top: 10px !important;
 }

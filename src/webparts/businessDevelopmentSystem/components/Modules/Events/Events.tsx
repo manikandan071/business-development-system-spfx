@@ -42,7 +42,6 @@ const Events: React.FC = () => {
   };
 
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
-  console.log("formDetails", cloneFormDetails, formDetails);
 
   const popupInputs: any[] = [
     [
@@ -176,8 +175,6 @@ const Events: React.FC = () => {
         <ManageAccess
           ManageAccess={formDetails?.manageAccess?.value}
           onChange={(value: any) => {
-            console.log("value", value);
-
             onChangeFunction("manageAccess", value, setFormDetails);
           }}
           showList="3"
@@ -189,8 +186,6 @@ const Events: React.FC = () => {
 
   const handleSubmitFuction = (): void => {
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("isFormValid", isFormValid);
-
     if (isFormValid) {
       console.log("Form is valid");
     }
@@ -229,15 +224,10 @@ const Events: React.FC = () => {
     <div style={{ width: "100%", padding: " 15px 20px" }}>
       <DefaultButton
         btnType="primaryBtn"
-        text="Add new country"
+        text="Add country"
         startIcon={<AddIcon />}
         onClick={() => {
-          togglePopupVisibility(
-            setPopupController,
-            0,
-            "open",
-            `Add New Country`
-          );
+          togglePopupVisibility(setPopupController, 0, "open", `Add Country`);
           setFormDetails(deepClone(cloneFormDetails));
           // ApproveDefinition(definitionsData, setPopupLoaders);
         }}

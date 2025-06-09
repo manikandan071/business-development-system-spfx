@@ -8,15 +8,20 @@ interface IProjectDetails {
   CountryId: number;
   CountryName: string;
   City: string;
+  GoogleLocation: string;
+  BrandingPartner: string;
   StartDate: string;
   EndDate: string;
+  UnitSize: string;
   Status: string;
   ManageAccess: IUserDetails[];
+  ManageAccessFormFormat: any[];
 }
 
-interface IcountriesType {
+interface ICountriesDetails {
   ID: number;
   countryName: string;
+  ProjectCount?: number;
   ISOCode: string;
   Manager: any[];
   Languages: string;
@@ -28,7 +33,7 @@ interface IcountriesType {
   ManageAccess: IUserDetails[];
   ManageAccessFormFormat: any[];
 }
-interface IallCountriesType {
+interface IAllCountriesJson {
   CountryName: string;
   CountryISOCode: string;
   Languages: string;
@@ -64,9 +69,25 @@ interface ICalenderDetails {
   AssignedTo: any[];
   Status: string;
   ProjectOfId: number;
+  CreatedBy?: IUserDetails[];
 }
 
-interface IallTasksType {
+interface IProjectTaskDeatils {
+  ID: number;
+  TaskTitle: string;
+  Description: string;
+  Priority: string;
+  Status: string;
+  StartDate: string;
+  DueDate: string;
+  AssignTo: IUserDetails[];
+  isReminder: boolean;
+  isTaskOverdue: boolean;
+  ProjectOfID: number;
+  ProjectOfTitle: string;
+  CreatedBy: IUserDetails[];
+}
+interface ITasksDetails {
   ID: number;
   TaskTitle: string;
   Description: string;
@@ -83,6 +104,9 @@ interface IallTasksType {
 interface IDocumentsDetails {
   Id: number;
   Category: string;
+  ContractType: string;
+  Party: string;
+  Date: string;
   ManageAccess: IUserDetails[];
   ManageAccessFormFormat: any[];
   ProjectOfId: number;
@@ -90,10 +114,11 @@ interface IDocumentsDetails {
 
 export {
   IProjectDetails,
-  IcountriesType,
-  IallCountriesType,
+  ICountriesDetails,
+  IAllCountriesJson,
+  ITasksDetails,
   IObligationDetails,
   ICalenderDetails,
-  IallTasksType,
+  IProjectTaskDeatils,
   IDocumentsDetails,
 };

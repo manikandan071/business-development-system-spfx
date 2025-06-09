@@ -16,23 +16,23 @@ import CountryDetails from "../Cards/CountryDetails/CountryDetails";
 import ProjectDetails from "../Cards/ProjectDetails/ProjectDetails";
 import { useSelector } from "react-redux";
 import {
-  IcountriesType,
+  ICountriesDetails,
   IProjectDetails,
 } from "../../../../../../Interface/ModulesInterface";
-import * as dayjs from "dayjs";
-import * as duration from "dayjs/plugin/duration";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 interface IProjectActiveSectionPros {
   countryId: number | any;
   projectId: number | any;
+  setActiveProjectTab: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
   countryId,
   projectId,
+  setActiveProjectTab,
 }) => {
-  console.log(countryId, projectId);
-
   const projectDataState: any = useSelector(
     (state: any) => state.ProjectContextSlice.projectsData
   );
@@ -41,9 +41,10 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
   );
 
   const [activeTab, setActiveTab] = useState<any>({});
-  const [countryDetails, setCountryDetails] = useState<IcountriesType>({
+  const [countryDetails, setCountryDetails] = useState<ICountriesDetails>({
     ID: 0,
     countryName: "",
+    ProjectCount: 0,
     Currency: "",
     ISOCode: "",
     Languages: "",
@@ -63,26 +64,32 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
     CountryName: "",
     City: "",
     Description: "",
+    BrandingPartner: "",
+    GoogleLocation: "",
+    UnitSize: "",
     StartDate: "",
     EndDate: "",
     Status: "",
     ManageAccess: [],
+    ManageAccessFormFormat: [],
   });
-  console.log("projectDetails", projectDetails);
 
   useEffect(() => {
-    console.log("projectDataState", projectDataState);
     projectDataState?.forEach((state: IProjectDetails) => {
       if (state?.Id === projectId) {
         setProjectDetails(state);
       }
     });
-    countryDataState.forEach((state: IcountriesType) => {
+    countryDataState.forEach((state: ICountriesDetails) => {
       if (state?.ID === countryId) {
         setCountryDetails(state);
       }
     });
   }, []);
+
+  const backToProject = () => {
+    setActiveProjectTab("");
+  };
   return (
     <>
       <div style={{ width: "82%" }}>
@@ -90,6 +97,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
           CountryName={countryDetails?.countryName}
           ProjectName={projectDetails?.ProjectName}
           SectionName={activeTab?.displayName}
+          setActiveProjectTab={backToProject}
         />
         <div className={styles.project_Active_Section_wrapper}>
           <div style={{ width: "100%" }}>
@@ -110,10 +118,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
                     />
                   )}
                   {activeTab?.name === "Todos" && (
-                    <ToDoList
-                      ProjectTitle={projectDetails?.ProjectName}
-                      Taskdisabled={true}
-                    />
+                    <ToDoList ProjectDetails={projectDetails} />
                   )}
                   {activeTab?.name === "Documents" && (
                     <Documents
