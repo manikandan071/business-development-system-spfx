@@ -3,8 +3,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable  @typescript-eslint/explicit-function-return-type */
-
-import styles from "../webparts/businessDevelopmentSystem/components/Modules/Countries/Countries.module.scss";
+// import styles from "../webparts/businessDevelopmentSystem/components/Modules/Countries/Countries.module.scss";
 import Profiles from "../webparts/businessDevelopmentSystem/components/Common/Profile/Profiles";
 import LaunchIcon from "@mui/icons-material/Launch";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
@@ -218,15 +217,26 @@ export const OnCountryStatusRender: React.FC<{ status: string }> = ({
 }) => {
   return (
     <>
-      <div className={styles.cardStatus}>
+    {status==="Active"?
+    (<div className="cardStatusActive">
         <i
           className="pi pi-circle-fill"
           style={{ fontSize: "6px", placeSelf: "center" }}
         />
         <span>{status}</span>
       </div>
-    </>
-  );
+   
+  ):(<div className="cardStatusInactive">
+        <i
+          className="pi pi-circle-fill"
+          style={{ fontSize: "6px", placeSelf: "center" }}
+        />
+        <span>{status}</span>
+      </div>
+   
+  )}
+   </>
+   ) 
 };
 export const OnCountryActionsRender: React.FC = () => {
   return (
