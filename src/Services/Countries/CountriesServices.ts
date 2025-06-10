@@ -339,15 +339,17 @@ export const updateCountryForm = async (
 export const filterCountryUnselected = (
   countries: any,
   allCountries: any,
-  setAllCountries: any
+  setAllCountries: any,
+  currentCountryDetails: any
 ) => {
   const existing = countries.map((country: any) =>
     country.countryName?.toLowerCase().trim()
   );
-  const filtered = allCountries.filter(
-    (country: any) =>
-      !existing.includes(country.CountryName?.toLowerCase().trim())
-  );
+  const currentName = currentCountryDetails?.countryName?.toLowerCase().trim();
+  const filtered = allCountries.filter((country: any) => {
+    const name = country.CountryName?.toLowerCase().trim();
+    return !existing.includes(name) || name === currentName;
+  });
   setAllCountries(filtered);
 };
 
