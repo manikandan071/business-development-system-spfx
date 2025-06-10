@@ -6,6 +6,7 @@ const SPLists = {
   Calenderlist: "Calenders",
   TasksList: "AllTasks",
   DocumentsList: "ProjectDocuments",
+  SubTaskList: "SubTasks",
 };
 
 const SPLibraries = {

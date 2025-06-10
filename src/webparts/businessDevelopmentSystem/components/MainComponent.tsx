@@ -21,6 +21,7 @@ import {
 } from "../../../Redux/Features/MainSPContextSlice";
 import { sp } from "@pnp/sp";
 import Events from "./Modules/Events/Events";
+import TaskAndSubTasks from "./Modules/TaskAndSubTasks/TaskAndSubTasks";
 
 const MainComponent = (props: any) => {
   const dispatch = useDispatch();
@@ -80,6 +81,7 @@ const MainComponent = (props: any) => {
             )}
             {activeTab === "Events" && <Events />}
             {activeTab === "My Tasks" && <MyTasks />}
+            {activeTab == "Aari's Components" && <TaskAndSubTasks />}
           </div>
         </div>
       </div>

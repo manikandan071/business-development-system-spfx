@@ -48,6 +48,9 @@ import { Checkbox } from "primereact/checkbox";
 import "./ToDoList.css";
 import CustomAutoSelect from "../../../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
 import AppLoader from "../../../../Common/AppLoader/AppLoader";
+import SpServices from "../../../../../../../Services/SPServices/SpServices";
+import { SPLists } from "../../../../../../../Config/config";
+import { peopleHandler } from "../../../../../../../Services/CommonService/CommonService";
 interface projectOf {
   ID: number;
   Title: string;
@@ -100,6 +103,10 @@ const ToDoList: React.FC<ToDoListProps> = ({
   const [masterProjectTasksData, setMasterProjectTasksData] = useState<
     IProjectTaskDeatils[]
   >([]);
+  const [expandedRows, setExpandedRows] = useState<any>(null);
+  const [subTasksMap, setSubTasksMap] = useState<IProjectTaskDeatils[]>([]);
+  console.log(subTasksMap, "subTasksMap");
+  console.log(expandedRows, "expandedRows");
   const [selectedRow, setSelectedRow] = useState<IProjectTaskDeatils>();
   const [projectOfData, setProjectOfData] = useState<projectOf[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
@@ -586,10 +593,122 @@ const ToDoList: React.FC<ToDoListProps> = ({
       },
     ],
   ];
+
+  const onRowExpand = (e: any) => {
+    const rowData = e.data;
+    getSubtasksData(rowData?.ID);
+  };
+
+  const getSubtasksData = (id: number) => {
+    SpServices.SPReadItems({
+      Listname: SPLists?.SubTaskList,
+      Select:
+        "*,AssignTo/ID,AssignTo/Title,AssignTo/EMail,ProjectOf/ID,ProjectOf/Title,Author/ID,Author/Title,Author/EMail",
+      Expand: "AssignTo,ProjectOf,Author",
+      Filter: [
+        {
+          FilterKey: "TasksId",
+          Operator: "eq",
+          FilterValue: id,
+        },
+      ],
+      Orderby: "Modified",
+      Orderbydecorasc: false,
+    })
+      .then((res) => {
+        debugger;
+        console.log(res, "response from subtasks");
+        const tempSubTasks: IProjectTaskDeatils[] = [];
+        res.forEach((tasks: any) => {
+          tempSubTasks.push({
+            ID: tasks.ID,
+            TaskTitle: tasks.Title,
+            Description: tasks.Descriptions,
+            Priority: tasks.Priority,
+            Status: tasks.Status,
+            StartDate: tasks.StartDate,
+            DueDate: tasks.DueDate,
+            AssignTo: peopleHandler(tasks.AssignTo),
+            isReminder: tasks?.isReminder,
+            isTaskOverdue: tasks?.isTaskOverdue,
+            ProjectOfID: tasks?.ProjectOf?.ID || null,
+            ProjectOfTitle: tasks?.ProjectOf?.Title || null,
+            CreatedBy: peopleHandler([tasks?.Author]),
+          });
+        });
+        setSubTasksMap(tempSubTasks);
+      })
+      .catch((err) => {
+        console.log("Error fetching subtasks: ", err);
+      });
+  };
+
+  const onRowCollapse = (row: any) => {
+    setExpandedRows(null);
+  };
+
+  const rowExpansionTemplate = (data: IProjectTaskDeatils) => {
+    const subtasks = subTasksMap;
+    return (
+      <div className="p-3">
+        <DataTable value={subtasks} emptyMessage="No subtasks available">
+          <Column
+            field="TaskTitle"
+            header="Task name"
+            style={{ minWidth: "25%", maxWidth: "25%" }}
+            body={(rowData) => <OnTextRender text={rowData?.TaskTitle} />}
+            sortable
+          />
+          <Column
+            field="CreatedBy"
+            header="Assigned by"
+            style={{ minWidth: "15%", maxWidth: "25%" }}
+            body={(rowData) => <OnUsersRender users={rowData?.CreatedBy} />}
+            sortable
+          />
+          <Column
+            field="AssignTo"
+            header="Person in charge"
+            style={{ minWidth: "15%", maxWidth: "25%" }}
+            body={(rowData) => <OnUsersRender users={rowData?.AssignTo} />}
+            sortable
+          />
+          <Column
+            field="StartDate"
+            header="Start date"
+            style={{ minWidth: "15%", maxWidth: "25%" }}
+            body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
+            sortable
+          />
+          <Column
+            field="DueDate"
+            header="Due date"
+            style={{ minWidth: "15%", maxWidth: "25%" }}
+            body={(rowData) => <OnDateRender date={rowData?.DueDate} />}
+            sortable
+          />
+          <Column
+            field="Status"
+            header="Status"
+            style={{ minWidth: "15%" }}
+            body={(rowData) => <OnStatusRender status={rowData?.Status} />}
+            sortable
+          />
+        </DataTable>
+      </div>
+    );
+  };
+
   const tableColumns = [
     [
       <DataTable
         value={projectTasksData}
+        onRowExpand={(row) => onRowExpand(row)}
+        onRowCollapse={onRowCollapse}
+        rowExpansionTemplate={rowExpansionTemplate}
+        expandedRows={expandedRows}
+        dataKey="ID"
+        onRowToggle={(e) => setExpandedRows(e.data)}
         className={
           ProjectDetails?.ProjectName !== ""
             ? "min_height_48vh"
@@ -607,6 +726,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
         }`}
         emptyMessage="No data found."
       >
+        <Column expander={true} style={{ width: "5rem" }} />
         <Column
           field="TaskTitle"
           header="Task name"
