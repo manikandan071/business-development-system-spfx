@@ -18,3 +18,11 @@
   background-color: #d74c14 !important;
   font-size: 0.75rem;
 }
+.subtask_wrapper{
+  display: flex;
+  flex-direction: column;
+}
+.subTaskButton{
+  display: flex;
+  justify-content: end;
+}

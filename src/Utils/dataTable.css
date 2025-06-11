@@ -8,13 +8,27 @@
   text-overflow: ellipsis;
 }
 
-.cardStatus{
+.cardStatusActive {
     justify-content: center;
     font-size: 13px;
     display: flex;
     width: 30%;
     gap: 10px;
-    color: #006f04;
+    color: #006f04 !important;
+  }
+.cardStatusInactive {
+   color: #f50707 !important;
+   justify-content: center;
+    font-size: 13px;
+    display: flex;
+    width: 30%;
+    gap: 10px;
+}
+.cardStatusInactive span {
+   color: #f50707 !important;
+}
+.cardStatusActive span {
+    color: #006f04 !important;
   }
 .country_name_text{
   font-size: 13px;
