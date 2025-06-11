@@ -237,3 +237,163 @@ export const getProjectList = async (setProjectOfData: any) => {
     console.log("error", err);
   }
 };
+export const getSubtasksData = (id: number | undefined, setSubTasksMap: any,setIsSubTaskLoader?:any) => {
+  SpServices.SPReadItems({
+    Listname: SPLists?.SubTaskList,
+    Select:
+      "*,AssignTo/ID,AssignTo/Title,AssignTo/EMail,ProjectOf/ID,ProjectOf/Title,Author/ID,Author/Title,Author/EMail",
+    Expand: "AssignTo,ProjectOf,Author",
+    Filter: [
+      {
+        FilterKey: "TasksId",
+        Operator: "eq",
+        FilterValue: id,
+      },
+    ],
+    Orderby: "Modified",
+    Orderbydecorasc: false,
+  })
+    .then((res) => {
+      debugger;
+      console.log(res, "response from subtasks");
+      const tempSubTasks: IProjectTaskDeatils[] = [];
+      res.forEach((tasks: any) => {
+        tempSubTasks.push({
+          ID: tasks.ID,
+          TaskTitle: tasks.Title,
+          Description: tasks.Descriptions,
+          Priority: tasks.Priority,
+          Status: tasks.Status,
+          StartDate: tasks.StartDate,
+          DueDate: tasks.DueDate,
+          AssignTo: peopleHandler(tasks.AssignTo),
+          isReminder: tasks?.isReminder,
+          isTaskOverdue: tasks?.isTaskOverdue,
+          ProjectOfID: tasks?.ProjectOf?.ID || null,
+          ProjectOfTitle: tasks?.ProjectOf?.Title || null,
+          CreatedBy: peopleHandler([tasks?.Author]),
+        });
+      });
+    setSubTasksMap((prevMap: any) => ({
+        ...prevMap,
+        [id!]: tempSubTasks,
+      }));
+      setIsSubTaskLoader(false);
+    })
+    .catch((err) => {
+      console.log("Error fetching subtasks: ", err);
+    });
+};
+export const addSubTask = async (
+  formDetails: any,
+  setLocalState: any,
+  setPopupResponse: any,
+  index: number,
+  taskID:number | undefined,
+  setIsSubTaskLoader?:any
+) => {
+  try {
+    const requestPayload = {
+      Title: formDetails.TaskTitle.value,
+      Descriptions: formDetails.Description?.value,
+      Priority: formDetails.Priority.value,
+      Status: formDetails.Status.value,
+      StartDate: formDetails.StartDate.value,
+      DueDate: formDetails.DueDate.value,
+      AssignToId: {
+        results: formDetails.AssignedTo.value?.map(
+          (assignTo: any) => assignTo.id || assignTo.ID || assignTo.Id
+        ),
+      },
+      isReminder: formDetails.isReminder?.value ? true : false,
+      isTaskOverdue: formDetails.isTaskOverdue?.value ? true : false,
+      ProjectOfId: formDetails.ProjectOfID?.value,
+      TasksId:taskID
+    };
+    await SpServices.SPAddItem({
+      Listname: SPLists.SubTaskList,
+      RequestJSON: requestPayload,
+    })
+      .then((newSubTask: any) => {
+         setIsSubTaskLoader(true)
+         console.log(newSubTask)
+        // const newTaskValue = {
+        //   ID: newSubTask.data?.Id,
+        //   TaskTitle: requestPayload.Title,
+        //   Description: requestPayload.Descriptions,
+        //   Priority: requestPayload.Priority,
+        //   Status: requestPayload.Status,
+        //   StartDate: requestPayload.StartDate,
+        //   DueDate: requestPayload.DueDate,
+        //   AssignTo: peopleHandler(formDetails.AssignedTo.value),
+        //   isReminder: requestPayload.isReminder,
+        //   isTaskOverdue: requestPayload.isTaskOverdue,
+        //   ProjectOfID: formDetails.ProjectOfID?.value,
+        //   ProjectOfTitle: formDetails.ProjectOfTitle?.value,
+        // };
+        // setLocalState((prev: any) => {
+        //   const updated = [newTaskValue, ...prev];
+        //   return updated;
+        // });
+        setPopupResponseFun(
+          setPopupResponse,
+          index,
+          false,
+          "Success!",
+          "New Sub task have been added successfully."
+        );
+        getSubtasksData(taskID , setLocalState)
+      })
+      .catch((err) => console.error(err));
+  } catch (err: any) {
+    console.log("Error in addSubTaskList:", err);
+  }
+};
+export const updateSubTask = async (
+  formDetails: any,
+  recId: number | undefined,
+  setLocalState: any,
+  setPopupResponse: any,
+  index: number,
+  taskID:number | undefined,
+  setIsSubTaskLoader?:any
+)=>{
+try {
+    const payloadDetails = {
+      Title: formDetails.TaskTitle.value,
+      Descriptions: formDetails.Description?.value,
+      Priority: formDetails.Priority.value,
+      Status: formDetails.Status.value,
+      StartDate: formDetails.StartDate.value,
+      DueDate: formDetails.DueDate.value,
+      AssignToId: {
+        results: formDetails.AssignedTo.value?.map(
+          (assignTo: any) => assignTo.id || assignTo.ID || assignTo.Id
+        ),
+      },
+      isReminder: formDetails.isReminder?.value ? true : false,
+      isTaskOverdue: formDetails.isTaskOverdue?.value ? true : false,
+      ProjectOfId: formDetails.ProjectOfID?.value,
+    };
+    await SpServices.SPUpdateItem({
+    Listname: SPLists.SubTaskList,
+    ID: recId,
+    RequestJSON: payloadDetails,
+  })
+      .then((newSubTask: any) => {
+         console.log(newSubTask)
+        setPopupResponseFun(
+          setPopupResponse,
+          index,
+          false,
+          "Success!",
+          "New Sub task have been Updated successfully."
+        );
+        setIsSubTaskLoader(true)
+        getSubtasksData(taskID , setLocalState)
+      })
+      .catch((err) => console.error(err));
+  } catch (err: any) {
+    console.log("Error in update SubTaskList:", err);
+  }
+}
