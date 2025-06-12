@@ -9,7 +9,7 @@ import styles from "./ToDoList.module.scss";
 import DefaultButton from "../../../../Common/Buttons/DefaultButton/DefaultButton";
 import AddIcon from "@mui/icons-material/Add";
 import CustomSearchInput from "../../../../Common/CustomInputFields/CustomSearchInput/CustomSearchInput";
-import CustomDataTable from "../../../../Common/DataTable/DataTable";
+// import CustomDataTable from "../../../../Common/DataTable/DataTable";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import {
@@ -25,9 +25,9 @@ import {
   fetchProjectTasks,
   submitProjectTaskForm,
   updateProjectTaskForm,
-  getSubtasksData,
-  addSubTask,
-  updateSubTask,
+  // getSubtasksData,
+  submitSubTaskForm,
+  updateSubTaskForm,
 } from "../../../../../../../Services/Tasks/TaskService";
 import {
   IProjectTaskDeatils,
@@ -51,6 +51,8 @@ import { Checkbox } from "primereact/checkbox";
 import "./ToDoList.css";
 import CustomAutoSelect from "../../../../Common/CustomInputFields/CustomAutoSelect/CustomAutoSelect";
 import AppLoader from "../../../../Common/AppLoader/AppLoader";
+import CustomAccordion from "../../../../Common/Accordion/CustomAccordion";
+import ModuleHeader from "../../../../Common/Headers/ModuleHeader/ModuleHeader";
 interface projectOf {
   ID: number;
   Title: string;
@@ -63,6 +65,8 @@ const ToDoList: React.FC<ToDoListProps> = ({
   ProjectDetails,
   setProjectTasksList,
 }) => {
+  console.log("ProjectDetails", ProjectDetails);
+
   const initialPopupController = [
     {
       open: false,
@@ -94,23 +98,22 @@ const ToDoList: React.FC<ToDoListProps> = ({
     },
   ];
   const cloneFormDetails = deepClone(taskFormDetails);
-  const [projectTasksData, setProjectTasksData] = useState<
-    IProjectTaskDeatils[]
-  >([]);
-  const [parentTaskID,setParentTaskID]=useState<number>();
-  const [taskpopupController,setTaskPopupController]=useState<any>({
-    Type: "Task"
-  })
+  // const [parentTaskID, setParentTaskID] = useState<number>();
+  const [taskTypeController, setTaskTypeController] = useState<any>({
+    Type: "",
+    Control: "",
+    ParentTaskId: 0,
+    TaskId: 0,
+  });
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
   };
+  const [projectTasksData, setProjectTasksData] = useState<
+    IProjectTaskDeatils[]
+  >([]);
   const [masterProjectTasksData, setMasterProjectTasksData] = useState<
     IProjectTaskDeatils[]
   >([]);
-  const [expandedRows, setExpandedRows] = useState<any>(null);
-  const [subTasksMap, setSubTasksMap] = useState<Record<number, IProjectTaskDeatils[]>>({});
-  console.log(subTasksMap, "subTasksMap");
-  console.log(expandedRows, "expandedRows");
   const [selectedRow, setSelectedRow] = useState<IProjectTaskDeatils>();
   const [projectOfData, setProjectOfData] = useState<projectOf[]>([]);
   const [formDetails, setFormDetails] = useState(deepClone(cloneFormDetails));
@@ -119,7 +122,13 @@ const ToDoList: React.FC<ToDoListProps> = ({
   );
   const [popupResponse, setPopupResponse] = useState(initialPopupResponse);
   const [isLoader, setIsLoader] = useState<boolean>(true);
-  const [isSubTaskLoader,setIsSubTaskLoader]=useState<boolean>(true);
+  console.log(
+    "taskTypeController",
+    taskTypeController,
+    formDetails,
+    masterProjectTasksData
+  );
+
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
@@ -516,43 +525,189 @@ const ToDoList: React.FC<ToDoListProps> = ({
         isMandatory: true,
       },
     });
-   setTaskPopupController({
-              Type: "SubTask"
-            })
-    togglePopupVisibility(setPopupController, 1, "open", `Update Task`);
+    setTaskTypeController({
+      Type: "Task",
+      Control: "Edit",
+      ParentTaskId: taskData?.ID,
+      TaskId: taskData?.ID,
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Task`);
   };
+
+  const addSubTaskForm = (taskDetails: any) => {
+    console.log("taskDetails", taskDetails);
+
+    const taskData = taskDetails;
+    setSelectedRow(taskData);
+    setFormDetails({
+      TaskTitle: {
+        value: "",
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: "",
+        isValid: true,
+        isMandatory: true,
+      },
+
+      Priority: {
+        value: "",
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: "Not Started",
+        isValid: true,
+        isMandatory: true,
+      },
+      StartDate: {
+        value: "",
+        isValid: true,
+        isMandatory: true,
+      },
+      DueDate: {
+        value: "",
+        isValid: true,
+        isMandatory: true,
+      },
+      AssignedTo: {
+        value: [],
+        isValid: true,
+        isMandatory: true,
+      },
+      isReminder: {
+        value: false,
+        isValid: true,
+        isMandatory: false,
+      },
+      isTaskOverdue: {
+        value: false,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectOfTitle: {
+        value: taskData.ProjectOfTitle,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectOfID: {
+        value: taskData.ProjectOfID,
+        isValid: true,
+        isMandatory: false,
+      },
+    });
+    setTaskTypeController({
+      Type: "Sub Task",
+      Control: "New",
+      ParentTaskId: taskData?.ID,
+      TaskId: 0,
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Add Sub Task`);
+  };
+
+  const editSubTaskForm = (subTaskDetails: any) => {
+    console.log("subTaskDetails", subTaskDetails);
+    const taskData = subTaskDetails;
+    setSelectedRow(taskData);
+    setFormDetails({
+      TaskTitle: {
+        value: taskData.TaskTitle,
+        isValid: true,
+        isMandatory: true,
+      },
+      Description: {
+        value: taskData.Description,
+        isValid: true,
+        isMandatory: true,
+      },
+
+      Priority: {
+        value: taskData.Priority,
+        isValid: true,
+        isMandatory: true,
+      },
+      Status: {
+        value: taskData.Status,
+        isValid: true,
+        isMandatory: true,
+      },
+      StartDate: {
+        value: taskData.StartDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      DueDate: {
+        value: taskData.DueDate,
+        isValid: true,
+        isMandatory: true,
+      },
+      AssignedTo: {
+        value: taskData.AssignTo,
+        isValid: true,
+        isMandatory: true,
+      },
+      isReminder: {
+        value: taskData.isReminder,
+        isValid: true,
+        isMandatory: false,
+      },
+      isTaskOverdue: {
+        value: taskData.isTaskOverdue,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectOfTitle: {
+        value: taskData.ProjectOfTitle,
+        isValid: true,
+        isMandatory: false,
+      },
+      ProjectOfID: {
+        value: taskData.ProjectOfID,
+        isValid: true,
+        isMandatory: false,
+      },
+    });
+    setTaskTypeController({
+      Type: "Sub Task",
+      Control: "Edit",
+      ParentTaskId: subTaskDetails?.ParentId,
+      TaskId: subTaskDetails?.ID,
+    });
+    togglePopupVisibility(setPopupController, 0, "open", `Update Sub Task`);
+  };
+
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
 
     if (isFormValid) {
       setPopupResponseFun(setPopupResponse, 0, true, "", "");
-      if(taskpopupController?.Type === "Task"){
-        await  submitProjectTaskForm(
-        formDetails,
-        setMasterProjectTasksData,
-        setProjectTasksData,
-        tasksUpdateToAllTasks,
-        setPopupResponse,
-        0
-      );
-      }
-      else if(taskpopupController?.Type==="SubTask"){
-        await addSubTask(
-        formDetails,
-        setSubTasksMap,
-        setPopupResponse,
-        0,
-        parentTaskID,
-        setIsSubTaskLoader
-        )
+      if (taskTypeController?.Type === "Task") {
+        await submitProjectTaskForm(
+          formDetails,
+          setMasterProjectTasksData,
+          setProjectTasksData,
+          tasksUpdateToAllTasks,
+          setPopupResponse,
+          0
+        );
+      } else if (taskTypeController?.Type === "Sub Task") {
+        await submitSubTaskForm(
+          formDetails,
+          setMasterProjectTasksData,
+          setProjectTasksData,
+          taskTypeController,
+          setPopupResponse,
+          0
+        );
       }
     }
   };
   const handleUpdateFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
     if (isFormValid) {
-      if(taskpopupController?.Type === "Task"){
-        setPopupResponseFun(setPopupResponse, 1, true, "", "");
+      if (taskTypeController?.Type === "Task") {
+        setPopupResponseFun(setPopupResponse, 0, true, "", "");
         updateProjectTaskForm(
           formDetails,
           selectedRow?.ID,
@@ -560,20 +715,18 @@ const ToDoList: React.FC<ToDoListProps> = ({
           setProjectTasksData,
           tasksUpdateToAllTasks,
           setPopupResponse,
-          1
-      );
+          0
+        );
+      } else if (taskTypeController?.Type === "Sub Task") {
+        await updateSubTaskForm(
+          formDetails,
+          setMasterProjectTasksData,
+          setProjectTasksData,
+          taskTypeController,
+          setPopupResponse,
+          0
+        );
       }
-       else if(taskpopupController?.Type==="SubTask"){
-       await  updateSubTask(
-         formDetails,
-         selectedRow?.ID,
-         setSubTasksMap,
-         setPopupResponse,
-        1,
-        parentTaskID,
-        setIsSubTaskLoader
-       )
-       }
     }
   };
   const popupActions: any[] = [
@@ -597,7 +750,9 @@ const ToDoList: React.FC<ToDoListProps> = ({
         endIcon: false,
         startIcon: false,
         onClick: () => {
-          handleSubmitFuction();
+          taskTypeController?.Control === "New"
+            ? handleSubmitFuction()
+            : handleUpdateFuction();
         },
       },
     ],
@@ -626,106 +781,106 @@ const ToDoList: React.FC<ToDoListProps> = ({
       },
     ],
   ];
-  const onRowExpand = (e: any) => {
-    const rowData = e.data;
-    setParentTaskID(rowData?.ID)
-    getSubtasksData(rowData?.ID,setSubTasksMap,setIsSubTaskLoader);
-  };
-  const onRowCollapse = (row: any) => {
-    setExpandedRows(null);
-  };
-  const rowExpansionTemplate = (data: IProjectTaskDeatils) => {
-    const subtasks = subTasksMap[data.ID] || [];
-    return isSubTaskLoader?(
-    <AppLoader/>
-  ):(   
-      <div className="subtask_wrapper">
-        <div className="subTaskButton">
-        <DefaultButton
-                btnType="primaryBtn"
-                text="Add Sub Task"
-                startIcon={<AddIcon />}
-                onClick={() => {
-                  setTaskPopupController({
-                    Type:"SubTask"
-                  })
-                  // setFormDetails(deepClone(cloneFormDetails));
-                  setInitialState();
-                  togglePopupVisibility(setPopupController, 0, "open", `Add Sub Task`);
-                }}
-              />
-        </div>
-        <DataTable value={subtasks} emptyMessage="No subtasks available">
-          <Column
-            field="TaskTitle"
-            header="Task name"
-            style={{ minWidth: "25%", maxWidth: "25%" }}
-            body={(rowData) => <OnTextRender text={rowData?.TaskTitle} />}
-            sortable
-          />
-          <Column
-            field="CreatedBy"
-            header="Assigned by"
-            style={{ minWidth: "15%", maxWidth: "25%" }}
-            body={(rowData) => <OnUsersRender users={rowData?.CreatedBy} />}
-            sortable
-          />
-          <Column
-            field="AssignTo"
-            header="Person in charge"
-            style={{ minWidth: "15%", maxWidth: "25%" }}
-            body={(rowData) => <OnUsersRender users={rowData?.AssignTo} />}
-            sortable
-          />
-          <Column
-            field="StartDate"
-            header="Start date"
-            style={{ minWidth: "15%", maxWidth: "25%" }}
-            body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
-            sortable
-          />
-          <Column
-            field="DueDate"
-            header="Due date"
-            style={{ minWidth: "15%", maxWidth: "25%" }}
-            body={(rowData) => <OnDateRender date={rowData?.DueDate} />}
-            sortable
-          />
-          <Column
-            field="Status"
-            header="Status"
-            style={{ minWidth: "15%" }}
-            body={(rowData) => <OnStatusRender status={rowData?.Status} />}
-            sortable
-          />
-          <Column
-          field=""
-          header="Actions"
-          style={{ minWidth: "15%" }}
-          body={(rowData) => (
-            <OnActionsRender
-              editAction={setEditForm}
-              isShowLunch={false}
-              isShowUserAccess={false}
-              rowData={rowData}
-            />
-          )}
-        />
-        </DataTable>
-      </div>
-    );
-  };
+  // const onRowExpand = (e: any) => {
+  //   const rowData = e.data;
+  //   setParentTaskID(rowData?.ID);
+  //   getSubtasksData(rowData?.ID, setSubTasksMap, setIsSubTaskLoader);
+  // };
+  // const onRowCollapse = (row: any) => {
+  //   setExpandedRows(null);
+  // };
+  // const rowExpansionTemplate = (data: IProjectTaskDeatils) => {
+  //   const subtasks = subTasksMap[data.ID] || [];
+  //   return isSubTaskLoader ? (
+  //     <AppLoader />
+  //   ) : (
+  //     <div className="subtask_wrapper">
+  //       <div className="subTaskButton">
+  //         <DefaultButton
+  //           btnType="primaryBtn"
+  //           text="Add Sub Task"
+  //           startIcon={<AddIcon />}
+  //           onClick={() => {
+  //             setTaskPopupController({
+  //               Type: "SubTask",
+  //             });
+  //             // setFormDetails(deepClone(cloneFormDetails));
+  //             setInitialState();
+  //             togglePopupVisibility(
+  //               setPopupController,
+  //               0,
+  //               "open",
+  //               `Add Sub Task`
+  //             );
+  //           }}
+  //         />
+  //       </div>
+  //       <DataTable value={subtasks} emptyMessage="No subtasks available">
+  //         <Column
+  //           field="TaskTitle"
+  //           header="Task name"
+  //           style={{ minWidth: "25%", maxWidth: "25%" }}
+  //           body={(rowData) => <OnTextRender text={rowData?.TaskTitle} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field="CreatedBy"
+  //           header="Assigned by"
+  //           style={{ minWidth: "15%", maxWidth: "25%" }}
+  //           body={(rowData) => <OnUsersRender users={rowData?.CreatedBy} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field="AssignTo"
+  //           header="Person in charge"
+  //           style={{ minWidth: "15%", maxWidth: "25%" }}
+  //           body={(rowData) => <OnUsersRender users={rowData?.AssignTo} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field="StartDate"
+  //           header="Start date"
+  //           style={{ minWidth: "15%", maxWidth: "25%" }}
+  //           body={(rowData) => <OnDateRender date={rowData?.StartDate} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field="DueDate"
+  //           header="Due date"
+  //           style={{ minWidth: "15%", maxWidth: "25%" }}
+  //           body={(rowData) => <OnDateRender date={rowData?.DueDate} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field="Status"
+  //           header="Status"
+  //           style={{ minWidth: "15%" }}
+  //           body={(rowData) => <OnStatusRender status={rowData?.Status} />}
+  //           sortable
+  //         />
+  //         <Column
+  //           field=""
+  //           header="Actions"
+  //           style={{ minWidth: "15%" }}
+  //           body={(rowData) => (
+  //             <OnActionsRender
+  //               editAction={setEditForm}
+  //               isShowLunch={false}
+  //               isShowUserAccess={false}
+  //               rowData={rowData}
+  //             />
+  //           )}
+  //         />
+  //       </DataTable>
+  //     </div>
+  //   );
+  // };
 
   const tableColumns = [
     [
       <DataTable
         value={projectTasksData}
-        onRowExpand={(row) => onRowExpand(row)}
-        onRowCollapse={onRowCollapse}
-        rowExpansionTemplate={rowExpansionTemplate}
-        expandedRows={expandedRows}
         dataKey="ID"
-        onRowToggle={(e) => setExpandedRows(e.data)}
         className={
           ProjectDetails?.ProjectName !== ""
             ? "min_height_48vh"
@@ -810,6 +965,8 @@ const ToDoList: React.FC<ToDoListProps> = ({
     ],
   ];
 
+  console.log("tableColumns", tableColumns);
+
   const tasksUpdateToAllTasks = (allTasks: IProjectTaskDeatils) => {
     setProjectTasksList?.(allTasks);
   };
@@ -844,7 +1001,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
           isMandatory: true,
         },
         Status: {
-          value: "",
+          value: "Not Started",
           isValid: true,
           isMandatory: true,
         },
@@ -903,21 +1060,35 @@ const ToDoList: React.FC<ToDoListProps> = ({
     <AppLoader />
   ) : (
     <div className={styles.TodoList_Wrapper}>
-      <div className="justify-end gap-10">
-        <CustomSearchInput searchFunction={searchFilterFunctionality} />
-        <DefaultButton
-          btnType="primaryBtn"
-          text="Add Task"
-          startIcon={<AddIcon />}
-          onClick={() => {
-            setTaskPopupController({
-              Type: "Task"
-            })
-            // setFormDetails(deepClone(cloneFormDetails));
-            setInitialState();
-            togglePopupVisibility(setPopupController, 0, "open", `Add Task`);
-          }}
-        />
+      <div
+        className={
+          ProjectDetails?.ProjectName !== ""
+            ? "justify-end margin-top-10"
+            : "justify-space-between"
+        }
+      >
+        {ProjectDetails?.ProjectName === "" && (
+          <ModuleHeader title="My Tasks" />
+        )}
+        <div className="gap-10">
+          <CustomSearchInput searchFunction={searchFilterFunctionality} />
+          <DefaultButton
+            btnType="primaryBtn"
+            text="Add Task"
+            startIcon={<AddIcon />}
+            onClick={() => {
+              setTaskTypeController({
+                Type: "Task",
+                Control: "New",
+                ParentTaskId: 0,
+                TaskId: 0,
+              });
+              // setFormDetails(deepClone(cloneFormDetails));
+              setInitialState();
+              togglePopupVisibility(setPopupController, 0, "open", `Add Task`);
+            }}
+          />
+        </div>
       </div>
       <div>
         {popupController?.map((popupData: any, index: number) => (
@@ -945,7 +1116,13 @@ const ToDoList: React.FC<ToDoListProps> = ({
         ))}
       </div>
       <div className={styles.TodoList_main}>
-        <CustomDataTable table={tableColumns[0]} />
+        {/* <CustomDataTable table={tableColumns[0]} /> */}
+        <CustomAccordion
+          tasksData={projectTasksData}
+          editTaskForm={setEditForm}
+          addSubTaskForm={addSubTaskForm}
+          editSubTaskForm={editSubTaskForm}
+        />
       </div>
     </div>
   );

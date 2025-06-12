@@ -306,7 +306,7 @@ const taskFormDetails = {
     isMandatory: true,
   },
   Status: {
-    value: "",
+    value: "Not Started",
     isValid: true,
     isMandatory: true,
   },

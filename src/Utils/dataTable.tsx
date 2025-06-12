@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 const editIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/edit.png");
 const launchIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/document.png");
 const usersIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/adduser.png");
+const subTaskIcon = require("../webparts/businessDevelopmentSystem/assets/images/png/subTask.png");
 import "./dataTable.css";
 
 interface IActionsProps {
@@ -24,6 +25,7 @@ interface IActionsProps {
   launchAction?: React.Dispatch<React.SetStateAction<any>>;
   isShowLunch?: boolean;
   isShowUserAccess?: boolean;
+  isShowSubTask?: boolean;
   rowData: any;
 }
 interface IStatusRenderProps {
@@ -51,6 +53,7 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
   launchAction,
   isShowLunch = true,
   isShowUserAccess = true,
+  isShowSubTask = false,
   rowData,
 }) => {
   return (
@@ -106,6 +109,22 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
             launchAction?.(rowData);
           }}
           title="Lookup"
+        />
+      )}
+      {isShowSubTask && (
+        <img
+          src={subTaskIcon}
+          style={{
+            width: "16px",
+            height: "16px",
+            cursor: "pointer",
+          }}
+          alt=""
+          onClick={(e) => {
+            e.stopPropagation();
+            launchAction?.(rowData);
+          }}
+          title="Sub task"
         />
       )}
     </div>
@@ -217,26 +236,25 @@ export const OnCountryStatusRender: React.FC<{ status: string }> = ({
 }) => {
   return (
     <>
-    {status==="Active"?
-    (<div className="cardStatusActive">
-        <i
-          className="pi pi-circle-fill"
-          style={{ fontSize: "6px", placeSelf: "center" }}
-        />
-        <span>{status}</span>
-      </div>
-   
-  ):(<div className="cardStatusInactive">
-        <i
-          className="pi pi-circle-fill"
-          style={{ fontSize: "6px", placeSelf: "center" }}
-        />
-        <span>{status}</span>
-      </div>
-   
-  )}
-   </>
-   ) 
+      {status === "Active" ? (
+        <div className="cardStatusActive">
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "6px", placeSelf: "center" }}
+          />
+          <span>{status}</span>
+        </div>
+      ) : (
+        <div className="cardStatusInactive">
+          <i
+            className="pi pi-circle-fill"
+            style={{ fontSize: "6px", placeSelf: "center" }}
+          />
+          <span>{status}</span>
+        </div>
+      )}
+    </>
+  );
 };
 export const OnCountryActionsRender: React.FC = () => {
   return (
