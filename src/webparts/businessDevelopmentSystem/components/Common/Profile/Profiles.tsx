@@ -6,7 +6,14 @@ import * as React from "react";
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
 import "./Profiles.css";
-import { DirectionalHint, TooltipHost } from "@fluentui/react";
+import {
+  DirectionalHint,
+  Label,
+  Persona,
+  PersonaPresence,
+  PersonaSize,
+  TooltipHost,
+} from "@fluentui/react";
 import { IUserDetails } from "../../../../../Interface/CommonInterface";
 interface ProfileProps {
   value: IUserDetails[];
@@ -15,7 +22,34 @@ interface ProfileProps {
 const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
   let visibleUsers = value;
   let remainingCount = 0;
-  const tooltipValue = value?.map((user) => user.DisplayName).join("\n");
+  const tooltipValue = () => {
+    return (
+      <ul style={{ margin: "7px 5px 0px 5px", padding: 0 }}>
+        {value?.map((DName: any, index: number) => {
+          return (
+            <li
+              style={{ listStyleType: "none", paddingBottom: "5px" }}
+              key={index}
+            >
+              <div style={{ display: "flex" }}>
+                <Persona
+                  showOverflowTooltip
+                  size={PersonaSize.size24}
+                  presence={PersonaPresence.none}
+                  showInitialsUntilImageLoads={true}
+                  imageUrl={
+                    "/_layouts/15/userphoto.aspx?size=S&username=" +
+                    `${DName.Email}`
+                  }
+                />
+                <Label style={{ fontSize: 12 }}>{DName.DisplayName}</Label>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
   if (maxVisible > 1) {
     visibleUsers = value?.slice(0, maxVisible);
     remainingCount = value?.length - maxVisible;
@@ -25,7 +59,7 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
       {maxVisible > 1 ? (
         <div className="avatarGroup">
           <TooltipHost
-            content={tooltipValue}
+            content={tooltipValue()}
             tooltipProps={{
               directionalHint: DirectionalHint.bottomCenter,
               onRenderContent: (props) => (

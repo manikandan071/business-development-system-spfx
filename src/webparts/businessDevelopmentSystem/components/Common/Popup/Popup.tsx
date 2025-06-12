@@ -66,7 +66,7 @@ const Popup = ({
       }`}
     >
       <div className={styles.header}>{popupTitle}</div>
-      <span>
+      <span className="requirement_message">
         <img src={InfoIcon} alt="info" />
         Fill out the required fields to submit the form
       </span>
@@ -189,10 +189,13 @@ const Popup = ({
   return (
     <Dialog
       // closeIcon={defaultCloseBtn}
+
       closable={defaultCloseBtn}
       draggable={false}
       position="right"
-      className={`popupWrapper ${styles.popupWrapper}`}
+      className={`popupWrapper ${styles.popupWrapper}  ${
+        response?.Title && "response_dialog"
+      }`}
       visible={visibility}
       modal
       header={PopupType !== "confirmation" && headerElement}

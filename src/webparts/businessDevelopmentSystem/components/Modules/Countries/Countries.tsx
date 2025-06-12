@@ -432,6 +432,12 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   };
 
   const setEditForm = (countryDetails: ICountriesDetails) => {
+    filterCountryUnselected(
+      countriesData,
+      allCountries,
+      setAllCountries,
+      countryDetails
+    );
     setFormDetails({
       CountryName: {
         value: countryDetails?.countryName,
@@ -605,7 +611,8 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
               filterCountryUnselected(
                 countriesData,
                 allCountries,
-                setAllCountries
+                setAllCountries,
+                {}
               );
               togglePopupVisibility(
                 setPopupController,

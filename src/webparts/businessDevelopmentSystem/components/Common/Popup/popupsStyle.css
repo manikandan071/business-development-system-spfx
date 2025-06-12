@@ -17,6 +17,10 @@
             z-index:100;
 }
 
+.response_dialog .requirement_message{
+    display: none;
+}
+
 
 
 /* content style */

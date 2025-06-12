@@ -14,6 +14,7 @@ import Projects from "./Modules/Projects/Projects";
 import MyTasks from "./Modules/MyTasks/MyTasks";
 import { useDispatch } from "react-redux";
 import {
+  setCurrentUserDetails,
   setMainSPContext,
   setSiteUrl,
   setTenantUrl,
@@ -21,7 +22,6 @@ import {
 } from "../../../Redux/Features/MainSPContextSlice";
 import { sp } from "@pnp/sp";
 import Events from "./Modules/Events/Events";
-import TaskAndSubTasks from "./Modules/TaskAndSubTasks/TaskAndSubTasks";
 
 const MainComponent = (props: any) => {
   const dispatch = useDispatch();
@@ -29,14 +29,12 @@ const MainComponent = (props: any) => {
   const [selectedCountry, setSelectedCountry] = useState<any>({});
 
   useEffect(() => {
-    sp.web.currentUser
-      .get()
-      ?.then((res: any) => {
-        console.log("Current User : ", res);
-      })
-      .catch((err: any) => {
-        console.log("Error : ", err);
-      });
+    debugger;
+    const currentUserDetails = sp.web.currentUser.get().then((user) => {
+      console.log("Current User Details:", user);
+      return user;
+    });
+    dispatch(setCurrentUserDetails(currentUserDetails));
     dispatch(setWebUrl(props?.context?._pageContext?._site?.absoluteUrl));
     dispatch(
       setTenantUrl(
@@ -81,7 +79,6 @@ const MainComponent = (props: any) => {
             )}
             {activeTab === "Events" && <Events />}
             {activeTab === "My Tasks" && <MyTasks />}
-            {activeTab == "Aari's Components" && <TaskAndSubTasks />}
           </div>
         </div>
       </div>

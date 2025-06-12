@@ -6,7 +6,7 @@
 
 import * as React from "react";
 import styles from "./MyTasks.module.scss";
-import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
+// import ModuleHeader from "../../Common/Headers/ModuleHeader/ModuleHeader";
 import ToDoList from "../Projects/ProjectsSections/ToDoList/ToDoList";
 import { IProjectTaskDeatils } from "../../../../../Interface/ModulesInterface";
 import LabelIcon from "@mui/icons-material/Label";
@@ -114,9 +114,9 @@ const MyTasks: React.FC = () => {
 
   return (
     <>
-      <div className="justify-space-between margin-right-20">
+      {/* <div className="justify-space-between margin-right-20">
         <ModuleHeader title="My Tasks" />
-      </div>
+      </div> */}
       <div className={styles.mytasks_container}>
         <div style={{ width: "82%" }}>
           <ToDoList

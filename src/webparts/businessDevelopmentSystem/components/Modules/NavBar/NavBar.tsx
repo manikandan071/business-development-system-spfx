@@ -46,11 +46,6 @@ const NavBar: React.FC<NavBarProps> = ({
       icon: require("../../../assets/images/png/navImages/list-check.png"),
       activeIcon: require("../../../assets/images/png/navImages/list-check-active.png"),
     },
-    {
-      name: "Aari's Components",
-      icon: require("../../../assets/images/png/navImages/list-check.png"),
-      activeIcon: require("../../../assets/images/png/navImages/list-check-active.png"),
-    },
   ];
   React.useEffect(() => {
     setActiveIndex(setCustomActiveTab);

@@ -72,6 +72,22 @@ interface ICalenderDetails {
   CreatedBy?: IUserDetails[];
 }
 
+interface IProjectSubTaskDeatils {
+  ID: number;
+  TaskTitle: string;
+  Description: string;
+  Priority: string;
+  Status: string;
+  StartDate: string;
+  DueDate: string;
+  AssignTo: IUserDetails[];
+  isReminder: boolean;
+  isTaskOverdue: boolean;
+  ProjectOfID: number;
+  ProjectOfTitle: string;
+  CreatedBy?: IUserDetails[];
+  ParentId: number;
+}
 interface IProjectTaskDeatils {
   ID: number;
   TaskTitle: string;
@@ -85,7 +101,8 @@ interface IProjectTaskDeatils {
   isTaskOverdue: boolean;
   ProjectOfID: number;
   ProjectOfTitle: string;
-  CreatedBy: IUserDetails[];
+  CreatedBy?: IUserDetails[];
+  SubTasks?: IProjectSubTaskDeatils[];
 }
 interface ITasksDetails {
   ID: number;
@@ -120,5 +137,6 @@ export {
   IObligationDetails,
   ICalenderDetails,
   IProjectTaskDeatils,
+  IProjectSubTaskDeatils,
   IDocumentsDetails,
 };
