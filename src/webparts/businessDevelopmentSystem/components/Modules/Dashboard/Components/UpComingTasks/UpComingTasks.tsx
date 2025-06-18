@@ -25,6 +25,8 @@ const UpComingTasks: React.FC<IUpcomingTasksProps> = ({
   tasksData,
   viewAllTasks,
 }) => {
+  console.log("task Data",tasksData);
+  
   const tableColumns = [
     [
       <DataTable
@@ -33,7 +35,7 @@ const UpComingTasks: React.FC<IUpcomingTasksProps> = ({
             new Date(a.DueDate).getTime() - new Date(b.DueDate).getTime()
         )}
         scrollable
-        scrollHeight="37vh"
+        scrollHeight="38vh"
         style={{ minWidth: "100%" }}
         key={0}
         // paginator

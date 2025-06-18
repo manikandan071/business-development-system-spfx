@@ -19,7 +19,7 @@ interface IProjectDetails {
 }
 
 interface ICountriesDetails {
-  ID: number;
+  Id: number;
   countryName: string;
   ProjectCount?: number;
   ISOCode: string;
@@ -42,7 +42,6 @@ interface IAllCountriesJson {
   Currency: string;
   TimeZone: string;
 }
-
 interface IObligationDetails {
   Id: number;
   Title: string;

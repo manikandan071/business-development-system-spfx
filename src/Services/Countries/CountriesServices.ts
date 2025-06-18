@@ -14,7 +14,6 @@ import {
 } from "../../Utils/togglePopup";
 import { setCountriesData } from "../../Redux/Features/CountryContextSlice";
 import { ICountriesDetails } from "../../Interface/ModulesInterface";
-
 export const getCountriesList = async (
   setAllCountries: any,
   setMasterProjectData: any,
@@ -81,7 +80,9 @@ export const getCountriesList = async (
         TimeZone: country.timezones[0],
       });
     });
-    setAllCountries([...customCountries, ...tempCountryData]);
+    tempCountryData.push(...customCountries)
+    tempCountryData.sort((a: any, b: any) => a.CountryName.localeCompare(b.CountryName));
+    setAllCountries(tempCountryData);
 
     // await SpServices.SPReadItems({
     //   Listname: SPLists.Countrieslist,
@@ -147,13 +148,13 @@ export const getCountriesList = async (
             {
               FilterKey: "CountryOfId",
               Operator: "eq",
-              FilterValue: country?.ID,
+              FilterValue: country?.Id,
             },
           ],
         });
 
         return {
-          ID: country.ID,
+          Id: country.Id,
           countryName: country.Title,
           ProjectCount: response?.length || 0,
           ISOCode: country.ISOCode,
@@ -219,7 +220,7 @@ export const submitCountryForm = async (
   })
     .then((newValue: any) => {
       const countryDetails: ICountriesDetails = {
-        ID: newValue.data?.ID,
+        Id: newValue.data?.ID,
         countryName: requestPayload.Title,
         ISOCode: requestPayload.ISOCode,
         Manager: peopleHandler(managerData) || [],
@@ -296,7 +297,7 @@ export const updateCountryForm = async (
   })
     .then((newValue: any) => {
       const countryDetails: ICountriesDetails = {
-        ID: recId,
+        Id: recId,
         countryName: requestPayload.Title,
         ISOCode: requestPayload.ISOCode,
         Manager: peopleHandler(formDetails.selectedPeople.value) || [],
@@ -315,14 +316,14 @@ export const updateCountryForm = async (
       };
       setMasterState((prev: any) => {
         const updated = prev.map((item: any) =>
-          item.ID === recId ? { ...item, ...countryDetails } : item
+          item.Id === recId ? { ...item, ...countryDetails } : item
         );
         setDispatch(setCountriesData(updated));
         return updated;
       });
       setLocalState((prev: any) => {
         const updated = prev.map((item: any) =>
-          item.ID === recId ? { ...item, ...countryDetails } : item
+          item.Id === recId ? { ...item, ...countryDetails } : item
         );
         return updated;
       });
@@ -380,12 +381,12 @@ export const submitManageAccessForm = (
       };
       setMasterState((prev: any) =>
         prev.map((item: any) =>
-          item.ID === recId ? { ...item, ...countryDetails } : item
+          item.Id=== recId ? { ...item, ...countryDetails } : item
         )
       );
       setLocalState((prev: any) =>
         prev.map((item: any) =>
-          item.ID === recId ? { ...item, ...countryDetails } : item
+          item.Id === recId ? { ...item, ...countryDetails } : item
         )
       );
       togglePopupVisibility(setPopupController, index, "close");

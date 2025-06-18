@@ -167,7 +167,8 @@ export const submitProjectTaskForm = async (
   setLocalState: any,
   tasksUpdateToAllTasks: any,
   setPopupResponse: any,
-  index: number
+  index: number,
+  currentUserDetails:any
 ) => {
   try {
     const requestPayload = {
@@ -204,7 +205,7 @@ export const submitProjectTaskForm = async (
           isTaskOverdue: requestPayload.isTaskOverdue,
           ProjectOfID: formDetails.ProjectOfID?.value,
           ProjectOfTitle: formDetails.ProjectOfTitle?.value,
-          CreatedBy: [],
+          CreatedBy: peopleHandler(currentUserDetails),
           SubTasks: [],
         };
 
@@ -383,9 +384,9 @@ export const submitSubTaskForm = async (
   setLocalState: any,
   taskTypeController: any,
   setPopupResponse: any,
-  index: number
+  index: number,
+  currentUserDetails:any
 ) => {
-  debugger;
   try {
     const requestPayload = {
       Title: formDetails.TaskTitle.value,
@@ -409,7 +410,6 @@ export const submitSubTaskForm = async (
       RequestJSON: requestPayload,
     })
       .then((newSubTask: any) => {
-        debugger;
         const tempSubTaskDetails: IProjectSubTaskDeatils = {
           ID: newSubTask.data?.Id,
           TaskTitle: requestPayload.Title,
@@ -423,28 +423,29 @@ export const submitSubTaskForm = async (
           isTaskOverdue: requestPayload.isTaskOverdue,
           ProjectOfID: formDetails.ProjectOfID?.value,
           ProjectOfTitle: formDetails.ProjectOfTitle?.value,
-          CreatedBy: [],
+          CreatedBy: peopleHandler(currentUserDetails),
           ParentId: taskTypeController?.ParentTaskId,
         };
+        console.log(tempSubTaskDetails)
         setMasterState((prevTasks: IProjectTaskDeatils[]) =>
-          prevTasks.map((task: any) => {
+          prevTasks?.map((task: any) => {
             if (task.ID !== taskTypeController?.ParentTaskId) return task;
-
-            const updatedSubtasks = task?.SubTasks.push(tempSubTaskDetails);
+            const updatedSubtasks:any[] = task?.SubTasks;
+            // updatedSubtasks.push(tempSubTaskDetails)
             return {
               ...task,
-              SubTasks: updatedSubtasks,
+              SubTasks: [tempSubTaskDetails,...updatedSubtasks],
             };
           })
         );
         setLocalState((prevTasks: IProjectTaskDeatils[]) =>
-          prevTasks.map((task: any) => {
+          prevTasks?.map((task: any) => {
             if (task.ID !== taskTypeController?.ParentTaskId) return task;
-
-            const updatedSubtasks = task?.SubTasks.push(tempSubTaskDetails);
+            const updatedSubtasks:any[] = task?.SubTasks;
+           
             return {
               ...task,
-              SubTasks: updatedSubtasks,
+              SubTasks: [tempSubTaskDetails,...updatedSubtasks]
             };
           })
         );
@@ -469,7 +470,6 @@ export const updateSubTaskForm = async (
   setPopupResponse: any,
   index: number
 ) => {
-  debugger;
   const recId = taskTypeController?.TaskId;
   try {
     const payloadDetails = {
@@ -494,7 +494,6 @@ export const updateSubTaskForm = async (
       RequestJSON: payloadDetails,
     })
       .then((updateSubTask: any) => {
-        debugger;
         console.log("updateSubTask", updateSubTask);
         const tempSubTaskDetails: IProjectSubTaskDeatils = {
           ID: recId,
@@ -548,3 +547,25 @@ export const updateSubTaskForm = async (
     console.log("Error in update SubTaskList:", err);
   }
 };
+  export const generateStatusCounts = (
+    tasks: any[],
+    setStatusCount: React.Dispatch<React.SetStateAction<any[]>>
+  ) => {
+    const statusOrder = ["Not Started", "In Progress", "Completed", "Overdue"];
+    const summaryMap: { [key: string]: number } = {};
+    tasks.forEach((task) => {
+      const status = task?.Status || "Unknown";
+      summaryMap[status] = (summaryMap[status] || 0) + 1;
+    });
+    const summaryArray = Object.entries(summaryMap)
+    .filter(([status]) => status !== "Unknown")
+    .map(([status, count]) => ({
+      status,
+      count,
+    }));
+    setStatusCount(
+      summaryArray?.sort(
+        (a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
+      )
+    );
+  };

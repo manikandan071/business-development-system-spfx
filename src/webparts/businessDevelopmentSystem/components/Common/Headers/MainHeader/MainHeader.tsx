@@ -2,19 +2,23 @@
 import * as React from "react";
 import { Persona, PersonaSize } from "@fluentui/react";
 import styles from "./MainHeader.module.scss";
+import { useSelector } from "react-redux";
 
 const MainHeader = () => {
-  const [person, setPerson] = React.useState({
-    name: "Kali Muthu",
-    email: "kalimuthu@chandrudemo.onmicrosoft.com",
-  });
+  const currentUserDetails = useSelector((state: any) => state?.MainSPContext?.currentUserDetails);
+const [person, setPerson] = React.useState({
+  name: "",
+  email: "",
+});
 
-  React.useEffect(() => {
+React.useEffect(() => {
+  if (currentUserDetails[0]?.DisplayName && currentUserDetails[0]?.Email) {
     setPerson({
-      name: "Kali Muthu",
-      email: "kalimuthu@chandrudemo.onmicrosoft.com",
+      name: currentUserDetails[0].DisplayName,
+      email: currentUserDetails[0].Email,
     });
-  }, []);
+  }
+}, [currentUserDetails]);
   return (
     <div className={styles.mainHeader_container}>
       <div className={styles.mainHeader_UserDetails}>

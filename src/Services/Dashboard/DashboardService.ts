@@ -137,7 +137,7 @@ const fetchTasksData = async (setEventsData: any) => {
             ProjectOfTitle: tasks?.ProjectOf?.Title || null,
           })
         );
-        setEventsData([...tempsetTasks, ...tempsetTasks]);
+        setEventsData([...tempsetTasks]);
       })
       .catch((err) => console.log("Error reading SharePoint items:", err));
   } catch (err: any) {

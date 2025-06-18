@@ -72,10 +72,12 @@ const manageAccessUsersDeserializedForForm = (storedText: string) => {
           },
         ],
         isValid: true,
+        isMandatory:true,
       },
       Permission: {
         value: permission,
         isValid: true,
+        isMandatory:true,
       },
     };
   });
@@ -140,13 +142,13 @@ const submitManageAccessForm = (
       };
 
       setMasterState((prev: any) =>
-        prev.map((item: any) =>
-          item.Id === recId ? { ...item, ...projectDetails } : item
+         prev.map((item: any) =>
+          item?.Id === recId ? { ...item, ...projectDetails } : item
         )
       );
       setLocalState((prev: any) =>
         prev.map((item: any) =>
-          item.Id === recId ? { ...item, ...projectDetails } : item
+          item?.Id=== recId ? { ...item, ...projectDetails } : item
         )
       );
       setPopupResponseFun(

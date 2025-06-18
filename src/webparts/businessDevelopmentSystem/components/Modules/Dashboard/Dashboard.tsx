@@ -72,7 +72,7 @@ const Dashboard: React.FC<{ viewAll: any }> = ({ viewAll }) => {
             </div>
           </div>
           <div className={styles.scond_row_wrapper}>
-            <TaskActivityChart />
+            <TaskActivityChart taskData={tasksData}/>
           </div>
         </div>
       </div>

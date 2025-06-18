@@ -110,6 +110,9 @@ const CustomAccordion: React.FC<ICustomAccordionProps> = ({
           Actions
         </div>
       </div>
+      {tasksData?.length === 0 && (
+          <div className="no_data_found_message task">No records found.</div>
+        )}
       <Accordion
         multiple
         activeIndex={activeIndex}

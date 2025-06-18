@@ -42,7 +42,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
 
   const [activeTab, setActiveTab] = useState<any>({});
   const [countryDetails, setCountryDetails] = useState<ICountriesDetails>({
-    ID: 0,
+    Id: 0,
     countryName: "",
     ProjectCount: 0,
     Currency: "",
@@ -81,7 +81,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
       }
     });
     countryDataState.forEach((state: ICountriesDetails) => {
-      if (state?.ID === countryId) {
+      if (state?.Id === countryId) {
         setCountryDetails(state);
       }
     });
@@ -139,7 +139,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
       >
         <CountryDetails
           countryDetails={{
-            Id: `C00${countryDetails?.ID}`,
+            Id: `C00${countryDetails?.Id}`,
             Name: countryDetails?.countryName,
             projectsCount: 5,
             status: countryDetails?.Status,

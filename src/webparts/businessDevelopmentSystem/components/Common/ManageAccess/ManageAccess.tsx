@@ -17,6 +17,7 @@ const hoverImg = require("../../../assets/images/png/trash_active.png");
 import "./ManageAccess.css";
 import { rowValidateFunction } from "../../../../../Utils/validations";
 import PopupSectionHeader from "../Headers/PopupSectionHeader/PopupSectionHeader";
+import CustomInputLabel from "../CustomInputFields/CustomInputLabel/CustomInputLabel";
 
 interface IManageAccessProps {
   ManageAccess: any[];
@@ -35,7 +36,7 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
   const [manageAccessList, setManageAccessList] = useState<any[]>(
     ManageAccess || []
   );
-
+  console.log("Manage Access",manageAccessList)
   useEffect(() => {
     setManageAccessList(
       ManageAccess?.length !== 0
@@ -53,7 +54,7 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
             },
           ]
     );
-  }, [ManageAccess]);
+  }, [ManageAccess || manageAccessList]);
 
   const addNewRow = () => {
     const isValid = rowValidateFunction(
@@ -87,6 +88,18 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
     setManageAccessList(updatedList);
     onChange?.(updatedList);
   };
+  const validateDoubleEntry=(newUserArray:any,currentIndex:number)=>{
+     console.log("Verify Data",newUserArray);
+  const newUser = newUserArray?.[0];
+  if (!newUser) return true;
+  const isDuplicate = manageAccessList?.some((entry: any, idx: number) =>
+    idx !== currentIndex && 
+    entry?.User?.value?.some((user: any) =>
+      user.email === newUser.email
+    )
+  );
+    return !isDuplicate
+  }
   return (
     <div style={{ marginTop: "10px" }}>
       <div className="justify-space-between">
@@ -99,8 +112,15 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
       </div>
       <div>
         <div className="section-wrapper">
-          <div className="two manage-access-table-header">User</div>
-          <div className="three manage-access-table-header">Permission</div>
+          <div className="two manage-access-table-header">
+            <CustomInputLabel
+          labelText={"User"}
+          mandatory={true}
+        /></div>
+          <div className="three manage-access-table-header">
+             <CustomInputLabel
+          labelText={"Permission"}
+          mandatory={true}/></div>
           <div className="manage-access-table-header">Action</div>
         </div>
         <div className={`manage-access-table-body-container-${showList}`}>
@@ -117,17 +137,31 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
                 maxHeight="38px"
                 personSelectionLimit={1}
                 onChange={(value: any[]) => {
-                  rowOnChangeFunction(
+                  const validateUser = validateDoubleEntry(value,index);
+                  console.log("validateUser",validateUser);
+                  
+                  if(validateUser){
+                      rowOnChangeFunction(
                     "User",
                     value,
                     setManageAccessList,
                     index,
                     onChange
                   );
+                  }else{
+                    rowOnChangeFunction(
+                   "User",
+                   [],
+                   setManageAccessList,
+                   index,
+                   onChange
+                 )
+                    // alert(`${value[0]?.name} aldready entered`)
+                  }
                 }}
                 isValid={item?.User?.isValid}
                 withLabel={false}
-                mandatory={false}
+                mandatory={true}
                 labelText=""
               />
               <CustomDropDown
@@ -146,7 +180,7 @@ const ManageAccess: React.FC<IManageAccessProps> = ({
                 }}
                 isValid={item?.Permission?.isValid}
                 withLabel={false}
-                mandatory={false}
+                mandatory={true}
                 labelText=""
               />
               <div>

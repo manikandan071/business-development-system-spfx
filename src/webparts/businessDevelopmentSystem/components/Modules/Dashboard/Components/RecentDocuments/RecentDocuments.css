@@ -101,3 +101,17 @@
     text-align: center;
     font-weight: 600;
 }
+.no_data_found_message.task{
+    font-size: 14px;
+    color: var(--basic-font-color);
+    text-align: center;
+    font-weight: 600;
+    margin-top: 8px;
+}
+.no_data_found_message.chart{
+    font-size: 14px;
+    color: var(--basic-font-color);
+    text-align: center;
+    font-weight: 600;
+    margin-top: 15px;
+}

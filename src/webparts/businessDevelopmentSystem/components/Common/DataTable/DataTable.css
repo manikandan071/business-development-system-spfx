@@ -3,13 +3,13 @@
     min-height: 60vh !important;
 } */
  .min_height_60vh .p-datatable-wrapper{
-    min-height: 66vh !important;
+    min-height: 69vh !important;
  }
  .min_height_48vh .p-datatable-wrapper{
-    min-height: 53vh !important;
+    min-height: 57vh !important;
  }
  .min_height_62vh .p-datatable-wrapper{
-    min-height: 62vh !important;
+    min-height: 65vh !important;
  }
 .custom-data-table .p-datatable thead>tr>th {
     color: var(--data-table-header-font-color) !important;
@@ -62,7 +62,7 @@
     display: flex;
     justify-content: end;
     align-items: center;
-    padding: 15px 0px;
+    padding: 10px 0px;
     gap: 5px;
 }
 .custom-data-table .p-paginator .p-paginator-pages {
