@@ -53,6 +53,7 @@ import CustomAutoSelect from "../../../../Common/CustomInputFields/CustomAutoSel
 import AppLoader from "../../../../Common/AppLoader/AppLoader";
 import CustomAccordion from "../../../../Common/Accordion/CustomAccordion";
 import ModuleHeader from "../../../../Common/Headers/ModuleHeader/ModuleHeader";
+import { useSelector } from "react-redux";
 interface projectOf {
   ID: number;
   Title: string;
@@ -65,6 +66,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
   ProjectDetails,
   setProjectTasksList,
 }) => {
+const currentUser = useSelector((state: any) => state?.MainSPContext?.currentUserDetails);
   console.log("ProjectDetails", ProjectDetails);
 
   const initialPopupController = [
@@ -128,7 +130,6 @@ const ToDoList: React.FC<ToDoListProps> = ({
     formDetails,
     masterProjectTasksData
   );
-
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
@@ -201,6 +202,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
           />
           <CustomDatePicker
             value={formDetails?.StartDate?.value}
+            maxDate={formDetails?.DueDate?.value?(formDetails?.DueDate?.value):""}
             placeholder="Enter start date"
             sectionType="two"
             onChange={(value: string) => {
@@ -215,6 +217,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
           />
           <CustomDatePicker
             value={formDetails?.DueDate?.value}
+            minDate={formDetails?.StartDate?.value}
             placeholder="Enter due date"
             sectionType="two"
             onChange={(value: string) => {
@@ -369,6 +372,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
           />
           <CustomDatePicker
             value={formDetails?.StartDate?.value}
+            maxDate={formDetails?.DueDate?.value?(formDetails?.DueDate?.value):""}
             placeholder="Enter start date"
             sectionType="two"
             onChange={(value: string) => {
@@ -383,6 +387,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
           />
           <CustomDatePicker
             value={formDetails?.DueDate?.value}
+            minDate={formDetails?.StartDate?.value}
             placeholder="Enter due date"
             sectionType="two"
             onChange={(value: string) => {
@@ -478,7 +483,6 @@ const ToDoList: React.FC<ToDoListProps> = ({
         isValid: true,
         isMandatory: true,
       },
-
       Priority: {
         value: taskData.Priority,
         isValid: true,
@@ -689,7 +693,8 @@ const ToDoList: React.FC<ToDoListProps> = ({
           setProjectTasksData,
           tasksUpdateToAllTasks,
           setPopupResponse,
-          0
+          0,
+          currentUser
         );
       } else if (taskTypeController?.Type === "Sub Task") {
         await submitSubTaskForm(
@@ -698,7 +703,8 @@ const ToDoList: React.FC<ToDoListProps> = ({
           setProjectTasksData,
           taskTypeController,
           setPopupResponse,
-          0
+          0,
+          currentUser
         );
       }
     }
@@ -744,7 +750,7 @@ const ToDoList: React.FC<ToDoListProps> = ({
         },
       },
       {
-        text: "Submit",
+        text: taskTypeController?.Control === "New"?"Submit":"Update",
         btnType: "primaryBtn",
         disabled: false,
         endIcon: false,
@@ -1047,11 +1053,17 @@ const ToDoList: React.FC<ToDoListProps> = ({
   };
 
   const searchFilterFunctionality = (value: string) => {
+     const searchTerm = value.toLowerCase();
     const filteredOptions = masterProjectTasksData.filter(
       (item) =>
         item.TaskTitle.toLowerCase().includes(value.toLowerCase()) ||
         item.Priority.toLowerCase().includes(value.toLowerCase()) ||
-        item.Status.toLowerCase().includes(value.toLowerCase())
+        item.Status.toLowerCase().includes(value.toLowerCase()) ||
+         item.SubTasks?.some(
+      (subTask: any) =>
+        subTask?.TaskTitle.toLowerCase().includes(searchTerm) ||
+        subTask?.Status?.toLowerCase().includes(searchTerm)
+    )
     );
     setProjectTasksData(filteredOptions);
   };

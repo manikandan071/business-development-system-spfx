@@ -13,6 +13,7 @@ import LabelIcon from "@mui/icons-material/Label";
 // import AccessTimeIcon from "@mui/icons-material/AccessTime";
 // import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useEffect, useState } from "react";
+import { generateStatusCounts } from "../../../../../Services/Tasks/TaskService";
 
 const notStartIcon = require("../../../assets/images/png/notstarted.png");
 const pendingIcon = require("../../../assets/images/png/inprogress.png");
@@ -24,30 +25,6 @@ const MyTasks: React.FC = () => {
     IProjectTaskDeatils[]
   >([]);
   const [statusCount, setStatusCount] = useState<any[]>([]);
-
-  const generateStatusCounts = (
-    tasks: any[],
-    setStatusCount: React.Dispatch<React.SetStateAction<any[]>>
-  ) => {
-    const statusOrder = ["Not Started", "In Progress", "Completed", "Overdue"];
-    const summaryMap: { [key: string]: number } = {};
-
-    tasks.forEach((task) => {
-      const status = task?.Status || "Unknown";
-      summaryMap[status] = (summaryMap[status] || 0) + 1;
-    });
-
-    const summaryArray = Object.entries(summaryMap).map(([status, count]) => ({
-      status,
-      count,
-    }));
-    setStatusCount(
-      summaryArray?.sort(
-        (a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
-      )
-    );
-  };
-
   useEffect(() => {
     generateStatusCounts(projectTasksData, setStatusCount);
   }, [projectTasksData]);
@@ -151,7 +128,10 @@ const MyTasks: React.FC = () => {
           >
             Tasks Status Overview
           </div>
-          <div className={styles.card_container}>
+          {projectTasksData.length===0?(
+            <div className="no_data_found_message task">No records found.</div>
+          ):(
+            <div className={styles.card_container}>
             {statusCount.map((item, index) => {
               const { icon, className } = getStatusStyles(item.status);
               return (
@@ -165,6 +145,8 @@ const MyTasks: React.FC = () => {
               );
             })}
           </div>
+          )}
+          
         </div>
       </div>
     </>

@@ -59,6 +59,7 @@
 }
 .custom_accordion_wrapper .p-accordion-tab-active{
     border: 1px solid #eee9ea;
+    margin-bottom: 2px;
 }
 
 

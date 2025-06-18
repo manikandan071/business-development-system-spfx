@@ -30,11 +30,15 @@ const MainComponent = (props: any) => {
 
   useEffect(() => {
     debugger;
-    const currentUserDetails = sp.web.currentUser.get().then((user) => {
-      console.log("Current User Details:", user);
-      return user;
-    });
-    dispatch(setCurrentUserDetails(currentUserDetails));
+   sp.web.currentUser.get().then((currentUserDetails) => {
+  const currentUser=[{
+  Id:currentUserDetails.Id,
+  Email:currentUserDetails.Email,
+  DisplayName:currentUserDetails.Title,
+  ImgUrl:`/_layouts/15/userphoto.aspx?size=S&accountname=` + `${currentUserDetails.Email}`
+     }]
+      dispatch(setCurrentUserDetails(currentUser));
+    });    
     dispatch(setWebUrl(props?.context?._pageContext?._site?.absoluteUrl));
     dispatch(
       setTenantUrl(

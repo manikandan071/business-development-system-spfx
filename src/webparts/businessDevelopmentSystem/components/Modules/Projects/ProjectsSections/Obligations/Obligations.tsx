@@ -250,6 +250,7 @@ const Obligations: React.FC<IObligationsProps> = ({
           0
         );
       } else {
+        debugger;
         updateObligationForm(
           formDetails,
           isUpdateDetails,
@@ -336,7 +337,7 @@ const Obligations: React.FC<IObligationsProps> = ({
       DueDate: {
         value: obligationDetails?.DueDate,
         isValid: true,
-        isMandatory: true,
+        isMandatory: false,
       },
       Remarks: {
         value: obligationDetails?.Remarks,

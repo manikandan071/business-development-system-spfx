@@ -7,7 +7,7 @@ import {
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { useSelector } from "react-redux";
-import { memo } from "react";
+import { memo, useState } from "react";
 import CustomInputLabel from "../CustomInputLabel/CustomInputLabel";
 
 interface ICustomPeoplePickerProps {
@@ -51,11 +51,12 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
   popupControl = false,
   sectionType,
 }) => {
+  console.log("selectedItem",selectedItem);
   const mainContext: any = useSelector(
     (state: any) => state.MainSPContext.value
   );
   const webUrl: any = useSelector((state: any) => state?.MainSPContext?.webUrl);
-
+  const [pickerKey, setPickerKey] = useState<number>(0);
   const handleChange = (items: any[]): void => {
     const obj = items?.map((item: any) => {
       return {
@@ -159,6 +160,11 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
       },
     },
   };
+  React.useEffect(()=>{
+    if(selectedItem?.length === 0){
+      setPickerKey(prev => prev+1)
+    }    
+  },[selectedItem])
 
   return (
     <div
@@ -173,6 +179,7 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         />
       )}
       <PeoplePicker
+      key={pickerKey}
         context={mainContext}
         webAbsoluteUrl={webUrl}
         personSelectionLimit={personSelectionLimit}
@@ -184,9 +191,9 @@ const CustomPeoplePicker: React.FC<ICustomPeoplePickerProps> = ({
         principalTypes={[PrincipalType.User]}
         // defaultSelectedUsers={selectedUserItem ? selectedUserItem : []}
         defaultSelectedUsers={
-          selectedItem?.map(
+          selectedItem.length !== 0 ? selectedItem?.map(
             (u: any) => u.secondaryText || u.Email || u.email
-          ) ?? []
+          ) : []
         }
         resolveDelay={1000}
         disabled={disabled}

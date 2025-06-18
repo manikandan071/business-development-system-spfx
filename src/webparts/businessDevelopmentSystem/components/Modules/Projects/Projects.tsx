@@ -173,7 +173,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
             labelText="Description"
             /> */}
           <CustomAutoSelect
-            value={formDetails?.Country?.value}
+            value={formDetails?.Country?.value||""}
             options={registeredCountries.map((country: any) => ({
               Text: country.CountryName,
               ...country,
@@ -191,6 +191,10 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
             sectionType="two"
             isValid={formDetails?.Country?.isValid}
             withLabel={true}
+            disabled={
+                isUpdateDetails?.Type === "Update" ||
+                (selectedCountry && Object.keys(selectedCountry).length > 0)
+              }
             mandatory={formDetails?.Country?.isMandatory}
             labelText="Country"
           />
@@ -583,7 +587,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
   useEffect(() => {
     getRegisteredCountries(setRegisteredCountries);
     fetchProjectData(
-      selectedCountry?.ID,
+      selectedCountry?.Id,
       setProjectData,
       setMasterProjectData,
       dispatch,
@@ -641,7 +645,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
                         isMandatory: true,
                       },
                       CountryId: {
-                        value: selectedCountry?.ID,
+                        value: selectedCountry?.Id,
                         isValid: true,
                         isMandatory: true,
                       },
