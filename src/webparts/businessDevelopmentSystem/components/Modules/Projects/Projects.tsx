@@ -52,10 +52,14 @@ import { SPLists } from "../../../../../Config/config";
 import AppLoader from "../../Common/AppLoader/AppLoader";
 
 interface IProjectProps {
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
   selectedCountry: any;
 }
 
-const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
+const Projects: React.FC<IProjectProps> = ({
+  setActiveTab,
+  selectedCountry,
+}) => {
   const dispatch = useDispatch();
   const cloneFormDetails = deepClone(ProjectFormDetails);
   const handleClosePopup = (index?: any): void => {
@@ -125,7 +129,11 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
     Status: "",
     ManageAccess: [],
     ManageAccessFormFormat: [],
+    BreakPermission: false,
   });
+  console.log("registeredCountries", registeredCountries);
+  console.log("formDetails", formDetails);
+  console.log("formDetails", formDetails?.Country?.value ? true : false);
 
   const popupInputs: any[] = [
     [
@@ -173,7 +181,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
             labelText="Description"
             /> */}
           <CustomAutoSelect
-            value={formDetails?.Country?.value||""}
+            value={formDetails?.Country?.value || ""}
             options={registeredCountries.map((country: any) => ({
               Text: country.CountryName,
               ...country,
@@ -186,15 +194,20 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
             ) => {
               onChangeFunction("Country", option?.CountryName, setFormDetails);
               onChangeFunction("CountryId", option?.Id, setFormDetails);
+              onChangeFunction(
+                "ManageAccess",
+                (option as any)?.ManageAccessFormFormat || [],
+                setFormDetails
+              );
             }}
             placeholder="Select country"
             sectionType="two"
             isValid={formDetails?.Country?.isValid}
             withLabel={true}
-            disabled={
-                isUpdateDetails?.Type === "Update" ||
-                (selectedCountry && Object.keys(selectedCountry).length > 0)
-              }
+            readOnly={
+              isUpdateDetails?.Type === "Update" ||
+              (selectedCountry && Object.keys(selectedCountry).length > 0)
+            }
             mandatory={formDetails?.Country?.isMandatory}
             labelText="Country"
           />
@@ -285,17 +298,29 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
             }}
             isValid={formDetails?.Status?.isValid}
             withLabel={true}
+            readOnly={isUpdateDetails?.Type === "New" ? true : false}
             mandatory={formDetails?.Status?.isMandatory}
             labelText="Status"
           />
         </div>
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
-          onChange={(value: any) => {
-            onChangeFunction("ManageAccess", value, setFormDetails);
+          onChange={(value: any, isBreakeCondition?: boolean) => {
+            console.log("ManageAccess value", value);
+            console.log("isBreakeCondition", isBreakeCondition);
+
+            if (isBreakeCondition) {
+              onChangeFunction("BreakPermission", value, setFormDetails);
+            } else {
+              onChangeFunction("ManageAccess", value, setFormDetails);
+            }
           }}
           showList="3"
           showSectionTitle={true}
+          breakCondition={formDetails?.BreakPermission?.value}
+          ifShowManageAccess={
+            formDetails?.Country?.value !== undefined ? true : false
+          }
         />
       </div>,
     ],
@@ -303,11 +328,19 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
       <div key={1} style={{ width: "100%" }}>
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
-          onChange={(value: any) => {
-            onChangeFunction("ManageAccess", value, setFormDetails);
+          onChange={(value: any, isBreakeCondition?: boolean) => {
+            console.log("ManageAccess value", value);
+            console.log("isBreakeCondition", isBreakeCondition);
+            if (isBreakeCondition) {
+              onChangeFunction("BreakPermission", value, setFormDetails);
+            } else {
+              onChangeFunction("ManageAccess", value, setFormDetails);
+            }
           }}
           showList="10"
           showSectionTitle={false}
+          breakCondition={formDetails?.BreakPermission?.value}
+          ifShowManageAccess={true}
         />
       </div>,
     ],
@@ -315,11 +348,35 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
 
   const handleSubmitFuction = async (): Promise<void> => {
     const isFormValid = validateForm(formDetails, setFormDetails);
+    const parentManageAccess = (registeredCountries as any[])?.filter(
+      (country: any) => {
+        return country.CountryName === formDetails?.Country?.value;
+      }
+    )[0]?.ManageAccess;
+    console.log("parentManageAccess", parentManageAccess);
+    const parentManageAccessEmails = parentManageAccess.map((user: any) =>
+      user.Email.toLowerCase()
+    );
+
+    const secondaryMAUsers: any[] = [];
+
+    formDetails?.ManageAccess?.value?.forEach((entry: any) => {
+      entry.User.value.forEach((user: any) => {
+        const email = user.email?.toLowerCase();
+        const isAlreadyInMaster = parentManageAccessEmails.includes(email);
+        if (email && !isAlreadyInMaster) {
+          secondaryMAUsers.push(user);
+        }
+      });
+    });
+
+    console.log(secondaryMAUsers);
     if (isFormValid) {
       setPopupResponseFun(setPopupResponse, 0, true, "", "");
       if (isUpdateDetails?.Type === "New") {
         submitAddProjectForm(
           formDetails,
+          secondaryMAUsers,
           setMasterProjectData,
           setProjectData,
           setPopupResponse,
@@ -329,6 +386,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
       } else {
         updateProjectForm(
           formDetails,
+          secondaryMAUsers,
           isUpdateDetails,
           setMasterProjectData,
           setProjectData,
@@ -351,7 +409,9 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
         setMasterProjectData,
         setProjectData,
         setPopupResponse,
-        1
+        1,
+        SPLists.Countrieslist,
+        selectedProject?.CountryId
       );
     }
   };
@@ -413,6 +473,11 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
   const projectManageAccessAction = (project: any) => {
     setSelectedProject(project);
     setFormDetails({
+      BreakPermission: {
+        value: project?.BreakPermission || false,
+        isValid: true,
+        isMandatory: false,
+      },
       ManageAccess: {
         value: project?.ManageAccessFormFormat,
         isValid: true,
@@ -486,6 +551,11 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
       },
       UnitSize: {
         value: projectDetails?.UnitSize,
+        isValid: true,
+        isMandatory: false,
+      },
+      BreakPermission: {
+        value: projectDetails?.BreakPermission || false,
         isValid: true,
         isMandatory: false,
       },
@@ -595,6 +665,10 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
     );
   }, []);
 
+  const backToCountries = () => {
+    setActiveTab("Countries");
+  };
+
   const searchFilterFunctionality = (value: string) => {
     const filteredOptions = masterProjectData.filter(
       (item) =>
@@ -618,6 +692,7 @@ const Projects: React.FC<IProjectProps> = ({ selectedCountry }) => {
               <ModuleHeader
                 title="Projects"
                 selectedCountry={selectedCountry}
+                backToCountries={backToCountries}
               />
               <div className="gap-10">
                 <CustomSearchInput searchFunction={searchFilterFunctionality} />

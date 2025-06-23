@@ -72,6 +72,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
     Status: "",
     ManageAccess: [],
     ManageAccessFormFormat: [],
+    BreakPermission: false,
   });
 
   useEffect(() => {
@@ -143,6 +144,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
             Name: countryDetails?.countryName,
             projectsCount: 5,
             status: countryDetails?.Status,
+            manageAccess: countryDetails?.ManageAccess,
           }}
         />
         <ProjectDetails
@@ -155,6 +157,7 @@ const ProjectActiveSection: React.FC<IProjectActiveSectionPros> = ({
                 "day"
               ) + 1,
             Status: projectDetails?.Status,
+            manageAccess: projectDetails?.ManageAccess,
           }}
         />
       </div>

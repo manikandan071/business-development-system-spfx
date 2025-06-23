@@ -7,6 +7,7 @@ import {
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
   manageAccessUsersSerialized,
+  updateSecondaryMAUsers,
 } from "../CommonService/CommonService";
 import { IProjectDetails } from "../../Interface/ModulesInterface";
 import { setProjectsData } from "../../Redux/Features/ProjectContextSlice";
@@ -19,6 +20,10 @@ const getRegisteredCountries = async (setRegisteredCountries: any) => {
         return {
           Id: country?.Id,
           CountryName: country?.Title,
+          ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
+          ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+            country?.ManageAccess
+          ),
         };
       });
       setRegisteredCountries([...tempCoiuntriesList]);
@@ -81,6 +86,7 @@ const fetchProjectData = async (
       ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
         project?.ManageAccess
       ),
+      BreakPermission: project?.IsBreakParentPermission || false,
     };
   });
   setProjectData([...tempArray]);
@@ -91,6 +97,7 @@ const fetchProjectData = async (
 
 const submitAddProjectForm = (
   formDetails: any,
+  secondaryMAUsers: any[],
   setMasterProjectDatas: any,
   setProjectDatas: any,
   setPopupResponse: any,
@@ -110,12 +117,19 @@ const submitAddProjectForm = (
     UnitSize: formDetails?.UnitSize?.value,
     Status: formDetails?.Status?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
+    IsBreakParentPermission: formDetails?.BreakPermission?.value || false,
   };
   SpServices.SPAddItem({
     Listname: SPLists.Projectslist,
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
+      updateSecondaryMAUsers(
+        manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+        res?.data?.Id,
+        SPLists.Countrieslist,
+        payloadDetails?.CountryOfId
+      );
       const projectDetails: IProjectDetails = {
         Id: res?.data?.Id,
         ProjectName: payloadDetails?.Title,
@@ -136,6 +150,7 @@ const submitAddProjectForm = (
         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
           payloadDetails?.ManageAccess
         ),
+        BreakPermission: payloadDetails?.IsBreakParentPermission || false,
       };
       setMasterProjectDatas((prev: any) => {
         const updated = [projectDetails, ...prev];
@@ -160,6 +175,7 @@ const submitAddProjectForm = (
 };
 const updateProjectForm = (
   formDetails: any,
+  secondaryMAUsers: any[],
   isUpdateDetails: any,
   setMasterState: any,
   setLocalState: any,
@@ -181,6 +197,7 @@ const updateProjectForm = (
     UnitSize: formDetails?.UnitSize?.value,
     Status: formDetails?.Status?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
+    IsBreakParentPermission: formDetails?.BreakPermission?.value || false,
   };
   SpServices.SPUpdateItem({
     Listname: SPLists.Projectslist,
@@ -188,6 +205,13 @@ const updateProjectForm = (
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
+      debugger;
+      updateSecondaryMAUsers(
+        manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+        recId,
+        SPLists.Countrieslist,
+        payloadDetails?.CountryOfId
+      );
       const projectDetails: IProjectDetails = {
         Id: recId,
         ProjectName: payloadDetails?.Title,
@@ -208,6 +232,7 @@ const updateProjectForm = (
         ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
           payloadDetails?.ManageAccess
         ),
+        BreakPermission: payloadDetails?.IsBreakParentPermission || false,
       };
       setMasterState((prev: any) => {
         const updated = prev.map((item: any) =>

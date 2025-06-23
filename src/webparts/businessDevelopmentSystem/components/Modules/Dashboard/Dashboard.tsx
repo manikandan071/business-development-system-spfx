@@ -31,6 +31,7 @@ const Dashboard: React.FC<{ viewAll: any }> = ({ viewAll }) => {
   const [eventsData, setEventsData] = useState<ICalenderDetails[]>([]);
   const [tasksData, setTasksData] = useState<ITasksDetails[]>([]);
   const [documentsData, setDocumentsData] = useState<any[]>([]);
+  console.log("tasksData", tasksData);
 
   useEffect(() => {
     fetchCountryData(dispatch);
@@ -72,7 +73,7 @@ const Dashboard: React.FC<{ viewAll: any }> = ({ viewAll }) => {
             </div>
           </div>
           <div className={styles.scond_row_wrapper}>
-            <TaskActivityChart taskData={tasksData}/>
+            <TaskActivityChart taskData={tasksData} />
           </div>
         </div>
       </div>

@@ -126,21 +126,19 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   });
   const [languagesOptions, setLanguagesOptions] = useState<any[]>([""]);
   const [isLoader, setIsLoader] = useState<boolean>(true);
-  console.log("formDetails",formDetails);
-  
-  const filterLanguageOption=(countryName:any)=>{
-    const country = allCountries.find(
-    (c) => c.CountryName === countryName
-  );
-   return country?.languageOptions || [];
-  }
+  console.log("formDetails", formDetails);
+
+  const filterLanguageOption = (countryName: any) => {
+    const country = allCountries.find((c) => c.CountryName === countryName);
+    return country?.languageOptions || [];
+  };
   const popupInputs: any[] = [
     [
       <div key={0} style={{ width: "100%" }}>
         <PopupSectionHeader Title="Basic Details" />
         <div className="section-wrapper">
           <CustomAutoSelect
-            value={formDetails?.CountryName?.value||""}
+            value={formDetails?.CountryName?.value || ""}
             options={allCountries.map((country: any) => ({
               Text: country.CountryName,
               ...country,
@@ -153,7 +151,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
                 Region: string;
                 Currency: string;
                 TimeZone: string;
-                languageOptions: any; 
+                languageOptions: any;
               } | null
             ) => {
               onChangeFunction(
@@ -161,8 +159,8 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
                 option?.CountryName,
                 setFormDetails
               );
-              console.log("formDetails",formDetails?.CountryName?.value);
-              onChangeFunction("Languages","",setFormDetails)              
+              console.log("formDetails", formDetails?.CountryName?.value);
+              onChangeFunction("Languages", "", setFormDetails);
               setLanguagesOptions(option?.languageOptions);
               onChangeFunction(
                 "CountryISOCode",
@@ -196,8 +194,10 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
             disabled={false}
           />
           <CustomDropDown
-            options={languagesOptions||[""]}
-            value={(formDetails?.Languages?.value)?(formDetails?.Languages?.value):""}
+            options={languagesOptions || [""]}
+            value={
+              formDetails?.Languages?.value ? formDetails?.Languages?.value : ""
+            }
             placeholder="Select languages"
             sectionType="two"
             onChange={(value: string) => {
@@ -311,6 +311,9 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
           }}
           showList="6"
           showSectionTitle={true}
+          showBreakCondition={false}
+          breakCondition={true}
+          ifShowManageAccess={true}
         />
       </div>,
     ],
@@ -324,6 +327,9 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
           }}
           showList="10"
           showSectionTitle={false}
+          showBreakCondition={false}
+          breakCondition={true}
+          ifShowManageAccess={true}
         />
       </div>,
     ],
@@ -358,7 +364,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   const handleManageAccessSubmitFuction = () => {
     debugger;
     const isFormValid = validateForm(formDetails, setFormDetails);
-    console.log("manage access checking",formDetails);
+    console.log("manage access checking", formDetails);
     if (isFormValid) {
       setPopupResponseFun(setPopupResponse, 1, true, "", "");
       submitManageAccessForm(
@@ -370,7 +376,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
         setPopupResponse,
         1
       );
-      console.log("Countries Data", countriesData)
+      console.log("Countries Data", countriesData);
     }
   };
   const popupActions: any[] = [
@@ -422,7 +428,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
     ],
   ];
   const countryManageAccessAction = (country: any) => {
-    console.log("Console Data",country);
+    console.log("Console Data", country);
     setSelectedCountry(country);
     setFormDetails({
       ManageAccess: {
@@ -501,7 +507,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
         isValid: true,
       },
     });
-    setLanguagesOptions(filterLanguageOption(countryDetails?.countryName))
+    setLanguagesOptions(filterLanguageOption(countryDetails?.countryName));
     setIsUpdateDetails({
       Id: countryDetails?.Id,
       Type: "Update",
@@ -549,15 +555,14 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
         <Column
           field=""
           header="Project counts"
-          style={{ minWidth: "20%"}}
+          style={{ minWidth: "20%" }}
           body={(rowData) => (
-            <div style={{cursor:"pointer"}}>
+            <div style={{ cursor: "pointer" }}>
               <OnProjectCountRender
-              rowData={rowData}
-              onClick={projectCountClick}
-            />
+                rowData={rowData}
+                onClick={projectCountClick}
+              />
             </div>
-            
           )}
         />
         <Column

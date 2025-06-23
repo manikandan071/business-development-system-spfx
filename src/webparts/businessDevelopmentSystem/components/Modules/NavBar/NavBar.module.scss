@@ -74,6 +74,9 @@
             padding: 7px 10px;
             cursor: pointer;
             // margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
             &:hover{
                 background-color: #e6dcdc52;
                 border-radius: 5px;
@@ -82,6 +85,17 @@
                 font-size: 15px;
                 color: #68728c;
             }
+            .ripple {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background: rgba(0, 0, 0, 0.2); 
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple-effect 0.6s ease-out;
+                pointer-events: none;
+                z-index: -1;       
+                }
         }
         .navBar_active_option{
             display: flex;
@@ -92,10 +106,29 @@
             cursor: pointer;
             border-radius: 5px;
             // margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
             span{
                 font-size: 15px;
                 color: #6b5e43;
                 font-weight: 500;
             }
+            .ripple {position: absolute;
+                width: 10px;
+                height: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple-effect 0.6s ease-out;
+                pointer-events: none;
+                z-index: -1;           
+                }
         }
 }
+
+@keyframes ripple-effect {
+    to {
+        transform: scale(20);
+        opacity: 0;
+    } }

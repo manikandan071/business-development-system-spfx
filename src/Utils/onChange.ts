@@ -33,7 +33,7 @@ export const rowOnChangeFunction = (
       },
     };
     if (onChange) {
-      onChange(updatedState);
+      onChange(updatedState, false);
     }
     return updatedState;
   });

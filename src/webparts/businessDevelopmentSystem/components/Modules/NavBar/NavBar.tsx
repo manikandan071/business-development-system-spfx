@@ -113,7 +113,19 @@ const NavBar: React.FC<NavBarProps> = ({
               <div
                 key={index}
                 className={styles.navBar_active_option}
-                onClick={() => {
+                onClick={(e) => {
+                  const target = e.currentTarget;
+                  const ripple = document.createElement("span");
+                  ripple.className = styles.ripple;
+                  const rect = target.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  ripple.style.left = `${x}px`;
+                  ripple.style.top = `${y}px`;
+                  target.appendChild(ripple);
+                  setTimeout(() => {
+                    ripple.remove();
+                  }, 600);
                   setActiveIndex(option.name);
                   setActiveTab(option.name);
                 }}
@@ -130,7 +142,19 @@ const NavBar: React.FC<NavBarProps> = ({
               <div
                 key={index}
                 className={styles.navBar_option}
-                onClick={() => {
+                onClick={(e) => {
+                  const target = e.currentTarget;
+                  const ripple = document.createElement("span");
+                  ripple.className = styles.ripple;
+                  const rect = target.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  ripple.style.left = `${x}px`;
+                  ripple.style.top = `${y}px`;
+                  target.appendChild(ripple);
+                  setTimeout(() => {
+                    ripple.remove();
+                  }, 600);
                   setActiveIndex(option.name);
                   setActiveTab(option.name);
                   rejectSelectedCountry({});

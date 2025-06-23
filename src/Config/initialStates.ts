@@ -170,6 +170,11 @@ const ProjectFormDetails = {
     isValid: true,
     isMandatory: true,
   },
+  BreakPermission: {
+    value: false,
+    isValid: true,
+    isMandatory: false,
+  },
   ManageAccess: {
     value: [
       {
@@ -205,7 +210,7 @@ const ObligationFormDetails = {
     isMandatory: true,
   },
   Priority: {
-    value: "Normal",
+    value: "",
     isValid: true,
     isMandatory: true,
   },

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { IUserDetails } from "../../Interface/CommonInterface";
 import { setPopupResponseFun } from "../../Utils/togglePopup";
@@ -72,12 +73,12 @@ const manageAccessUsersDeserializedForForm = (storedText: string) => {
           },
         ],
         isValid: true,
-        isMandatory:true,
+        isMandatory: true,
       },
       Permission: {
         value: permission,
         isValid: true,
-        isMandatory:true,
+        isMandatory: true,
       },
     };
   });
@@ -121,7 +122,9 @@ const submitManageAccessForm = (
   setMasterState: any,
   setLocalState: any,
   setPopupResponse: any,
-  index: number
+  index: number,
+  parentListName?: string,
+  parentListId?: number
 ) => {
   const payloadDetails = {
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
@@ -132,6 +135,14 @@ const submitManageAccessForm = (
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
+      if (parentListName !== "" && parentListId) {
+        updateSecondaryMAUsers(
+          manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+          recId,
+          parentListName || "",
+          parentListId || 0
+        );
+      }
       const projectDetails = {
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
@@ -142,13 +153,13 @@ const submitManageAccessForm = (
       };
 
       setMasterState((prev: any) =>
-         prev.map((item: any) =>
+        prev.map((item: any) =>
           item?.Id === recId ? { ...item, ...projectDetails } : item
         )
       );
       setLocalState((prev: any) =>
         prev.map((item: any) =>
-          item?.Id=== recId ? { ...item, ...projectDetails } : item
+          item?.Id === recId ? { ...item, ...projectDetails } : item
         )
       );
       setPopupResponseFun(
@@ -164,6 +175,141 @@ const submitManageAccessForm = (
     });
 };
 
+// const updateSecondaryMAUsers = async (
+//   secondaryMAUsers: any[],
+//   changedMAUsers: any[],
+//   childId: number,
+//   listName: string,
+//   parentId: number
+// ) => {
+//   debugger;
+//   console.log("changedMAUsers", changedMAUsers);
+
+//   try {
+//     await SpServices.SPReadItemUsingId({
+//       Listname: listName,
+//       SelectedId: parentId,
+//       Select: "",
+//       Expand: "",
+//     }).then((res: any) => {
+//       debugger;
+//       console.log("Update Secondary MA Users Response:", res);
+//       const tempSecondaryMAUsers = secondaryMAUsers.map((user) => user.email);
+//       const initialMAUsersString = `${childId}|${tempSecondaryMAUsers.join(
+//         ","
+//       )}`;
+
+//       // const inputString =
+//       //   "23|Chandru@chandrudemo.onmicrosoft.com,leo@chandrudemo.onmicrosoft.com~24|Kali@chandrudemo.onmicrosoft.com,kamesh@chandrudemo.onmicrosoft.com";
+//       if (res?.SecondaryManageAccess) {
+//         // Step 1: Convert secondaryMAUsers to email string
+//         const newEmails = Array.from(
+//           new Set(secondaryMAUsers.map((u) => u.email.toLowerCase()))
+//         );
+
+//         // Step 2: Parse existing string into map
+//         const accessMap: Record<number, string[]> = {};
+//         (res?.SecondaryManageAccess || "").split("~").forEach((group: any) => {
+//           const [projectIdStr, emailsStr] = group.split("|");
+//           const projectId = parseInt(projectIdStr);
+//           const emails = emailsStr?.split(",").map((e: any) => e.trim()) || [];
+//           accessMap[projectId] = emails;
+//         });
+
+//         // Step 3: If childId already exists, merge. Else add.
+//         if (accessMap[childId]) {
+//           const existing = accessMap[childId].map((e) => e.toLowerCase());
+//           accessMap[childId] = Array.from(new Set([...existing, ...newEmails]));
+//         } else {
+//           accessMap[childId] = newEmails;
+//         }
+
+//         // Step 4: Rebuild the final string
+//         const updatedAccessString = Object.entries(accessMap)
+//           .map(([projId, emails]) => `${projId}|${emails.join(",")}`)
+//           .join("~");
+
+//         console.log(
+//           "✅ Final Updated SecondaryManageAccess:",
+//           updatedAccessString
+//         );
+
+//         // Step 5: Update in SharePoint
+//         SpServices.SPUpdateItem({
+//           ID: parentId,
+//           Listname: listName,
+//           RequestJSON: {
+//             SecondaryManageAccess: updatedAccessString,
+//           },
+//         });
+//       } else {
+//         SpServices.SPUpdateItem({
+//           ID: parentId,
+//           Listname: listName,
+//           RequestJSON: {
+//             SecondaryManageAccess: initialMAUsersString,
+//           },
+//         });
+//       }
+//     });
+//   } catch (error) {
+//     console.log("Error updating secondary MA users:", error);
+//   }
+// };
+
+const updateSecondaryMAUsers = async (
+  updatedCurrentUsersList: any[], // final selected users
+  childId: number,
+  listName: string,
+  parentId: number
+) => {
+  try {
+    const resRaw = await SpServices.SPReadItemUsingId({
+      Listname: listName,
+      SelectedId: parentId,
+      Select: "",
+      Expand: "",
+    });
+    // If resRaw is an array, get the first item; else use as is
+    const res = Array.isArray(resRaw) ? resRaw[0] : resRaw;
+
+    const finalEmails = updatedCurrentUsersList.map((u) =>
+      u.Email.toLowerCase()
+    );
+
+    // Parse the SecondaryManageAccess string
+    const accessMap: Record<number, string[]> = {};
+    (res?.SecondaryManageAccess || "").split("~").forEach((group: any) => {
+      const [projectIdStr, emailsStr] = group.split("|");
+      const projectId = parseInt(projectIdStr);
+      const emails = emailsStr?.split(",").map((e: any) => e.trim()) || [];
+      accessMap[projectId] = emails;
+    });
+
+    // Update only the specified childId → override with finalEmails
+    accessMap[childId] = finalEmails;
+
+    // Rebuild the SecondaryManageAccess string
+    const updatedAccessString = Object.entries(accessMap)
+      .filter(([, emails]) => emails.length > 0) // skip empty lists
+      .map(([projId, emails]) => `${projId}|${emails.join(",")}`)
+      .join("~");
+
+    // Update in SharePoint
+    await SpServices.SPUpdateItem({
+      ID: parentId,
+      Listname: listName,
+      RequestJSON: {
+        SecondaryManageAccess: updatedAccessString,
+      },
+    });
+
+    console.log("✅ Final Updated SecondaryManageAccess:", updatedAccessString);
+  } catch (error) {
+    console.log("❌ Error updating secondary MA users:", error);
+  }
+};
+
 export {
   peopleHandler,
   manageAccessUsersSerialized,
@@ -172,4 +318,5 @@ export {
   appendCategoryToFileName,
   removeCategoryFromFileName,
   submitManageAccessForm,
+  updateSecondaryMAUsers,
 };

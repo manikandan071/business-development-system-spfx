@@ -113,6 +113,7 @@ const MyTasks: React.FC = () => {
               Status: "",
               ManageAccess: [],
               ManageAccessFormFormat: [],
+              BreakPermission: false,
             }}
             setProjectTasksList={setProjectTasksData}
           />
@@ -128,25 +129,24 @@ const MyTasks: React.FC = () => {
           >
             Tasks Status Overview
           </div>
-          {projectTasksData.length===0?(
+          {projectTasksData.length === 0 ? (
             <div className="no_data_found_message task">No records found.</div>
-          ):(
+          ) : (
             <div className={styles.card_container}>
-            {statusCount.map((item, index) => {
-              const { icon, className } = getStatusStyles(item.status);
-              return (
-                <div className={className} key={index}>
-                  <div className={styles.left}>
-                    {icon}
-                    <span className={styles.count}>{item.status}</span>
+              {statusCount.map((item, index) => {
+                const { icon, className } = getStatusStyles(item.status);
+                return (
+                  <div className={className} key={index}>
+                    <div className={styles.left}>
+                      {icon}
+                      <span className={styles.count}>{item.status}</span>
+                    </div>
+                    <div className={styles.label}>{item.count}</div>
                   </div>
-                  <div className={styles.label}>{item.count}</div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
           )}
-          
         </div>
       </div>
     </>
