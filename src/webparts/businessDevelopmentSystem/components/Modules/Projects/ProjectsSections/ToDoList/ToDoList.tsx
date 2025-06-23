@@ -258,7 +258,7 @@ const currentUser = useSelector((state: any) => state?.MainSPContext?.currentUse
             mandatory={formDetails?.Status?.isMandatory}
             labelText="Status"
             disabled={false}
-            readOnly={false}
+            readOnly={taskTypeController?.Control === "New"?true:false}
           />
         </div>
         {/* <div>

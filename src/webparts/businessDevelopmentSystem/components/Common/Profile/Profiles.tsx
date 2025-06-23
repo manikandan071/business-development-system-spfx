@@ -94,27 +94,29 @@ const Profiles: React.FC<ProfileProps> = ({ value, maxVisible }) => {
         </div>
       ) : maxVisible === 1 ? (
         <div>
+          <TooltipHost
+            content={tooltipValue()}
+            tooltipProps={{
+              directionalHint: DirectionalHint.bottomCenter,
+              onRenderContent: (props) => (
+                <div style={{ whiteSpace: "pre-line" }}>{props?.content}</div>
+              ),
+            }}
+          > 
           <AvatarGroup>
             {visibleUsers?.map((user, index) => (
               <>
-                <TooltipHost
-                  content={user.DisplayName}
-                  tooltipProps={{
-                    directionalHint: DirectionalHint.bottomCenter,
-                  }}
-                >
-                  <Avatar
+                <Avatar
                     key={index}
                     image={user.ImgUrl}
                     size="large"
                     shape="circle"
                   />
                   <span className="avatar_user_name">{user.DisplayName}</span>
-                </TooltipHost>
-                {/* <span style={{fontSize:"12px"}}>{user.text}</span> */}
-              </>
+              </>  
             ))}
           </AvatarGroup>
+           </TooltipHost>
         </div>
       ) : null}
     </>

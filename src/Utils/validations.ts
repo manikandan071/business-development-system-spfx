@@ -27,7 +27,6 @@ export const validateForm = (formDetails: any, setFormDetails: any) => {
     } else {
       isValid = !!value;
     }
-
     updatedForm[key].isValid = isValid;
     if (!isValid) isFormValid = false;
   });
@@ -80,7 +79,6 @@ export const validateForm = (formDetails: any, setFormDetails: any) => {
         if (!rowIsValid) {
           manageAccessValid = false;
         }
-
         return updatedRow;
       }
     );
@@ -123,16 +121,13 @@ export const rowValidateFunction = (
       if (!isValid) {
         isFormValid = false;
       }
-
       updatedRow[key] = {
         ...row[key],
         isValid,
       };
     });
-
     return updatedRow;
   });
-
   setFormDetails(updatedFormDetails);
   if (onchange) {
     onchange(updatedFormDetails);

@@ -33,7 +33,7 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
       return COLORS[index % COLORS.length];
     }
   };
-  const [data, setChartData] = React.useState<
+  const [chartData, setChartData] = React.useState<
     { name: string; value: number; color: string }[]
   >([]);
   const [statusCounts, setStatusCount] = React.useState<
@@ -42,6 +42,7 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
   React.useEffect(() => {
     generateStatusCounts(taskData, setStatusCount);
   }, [taskData]);
+  console.log("TaskData",statusCounts)
   React.useEffect(() => {
     const chartFormattedData = statusCounts
       .filter((item) => item.status !== "Unknown")
@@ -54,7 +55,7 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
   }, [statusCounts]);
   return (
     <>
-      {data.length !== 0 ? (
+      {chartData.length === 0 ? (
         <div
           className="rounded-2xl p-4 shadow-md"
           style={{
@@ -84,7 +85,7 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
             <PieChart  >
               <Tooltip />
               <Pie
-                data={data}
+                data={chartData}
                 dataKey="value"
                 cx="50%"
                 cy="80%"
@@ -94,9 +95,8 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
                 outerRadius={90}
                 paddingAngle={0}
                 cursor="pointer"
-                // 
               >
-                {data.map((entry, index) => (
+                {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -106,11 +106,10 @@ const TaskActivityChart: React.FC<TaskActivityChartProps> = ({ taskData }) => {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-
           <div
             style={{ display: "flex", justifyContent: "center", gap: "10px" }}
           >
-            {data.map((item, index) => (
+            {chartData.map((item, index) => (
               <div
                 style={{ display: "flex", alignItems: "center", gap: "5px" }}
                 key={index}
