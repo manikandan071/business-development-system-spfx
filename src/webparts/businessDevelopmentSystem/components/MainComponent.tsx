@@ -30,15 +30,19 @@ const MainComponent = (props: any) => {
 
   useEffect(() => {
     debugger;
-   sp.web.currentUser.get().then((currentUserDetails) => {
-  const currentUser=[{
-  Id:currentUserDetails.Id,
-  Email:currentUserDetails.Email,
-  DisplayName:currentUserDetails.Title,
-  ImgUrl:`/_layouts/15/userphoto.aspx?size=S&accountname=` + `${currentUserDetails.Email}`
-     }]
+    sp.web.currentUser.get().then((currentUserDetails) => {
+      const currentUser = [
+        {
+          Id: currentUserDetails.Id,
+          Email: currentUserDetails.Email,
+          DisplayName: currentUserDetails.Title,
+          ImgUrl:
+            `/_layouts/15/userphoto.aspx?size=S&accountname=` +
+            `${currentUserDetails.Email}`,
+        },
+      ];
       dispatch(setCurrentUserDetails(currentUser));
-    });    
+    });
     dispatch(setWebUrl(props?.context?._pageContext?._site?.absoluteUrl));
     dispatch(
       setTenantUrl(
@@ -79,7 +83,10 @@ const MainComponent = (props: any) => {
               <Countries onSelectCountry={onSelectCountry} />
             )}
             {activeTab === "Projects" && (
-              <Projects selectedCountry={selectedCountry} />
+              <Projects
+                setActiveTab={setActiveTab}
+                selectedCountry={selectedCountry}
+              />
             )}
             {activeTab === "Events" && <Events />}
             {activeTab === "My Tasks" && <MyTasks />}

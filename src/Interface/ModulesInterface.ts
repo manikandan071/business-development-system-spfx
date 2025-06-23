@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IUserDetails } from "./CommonInterface";
 
 interface IProjectDetails {
@@ -16,6 +17,7 @@ interface IProjectDetails {
   Status: string;
   ManageAccess: IUserDetails[];
   ManageAccessFormFormat: any[];
+  BreakPermission: boolean;
 }
 
 interface ICountriesDetails {

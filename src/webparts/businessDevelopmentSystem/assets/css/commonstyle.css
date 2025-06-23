@@ -84,3 +84,7 @@
 .country_chart .recharts-wrapper{
     top: 10px !important;
 }
+.p-checkbox-box{
+    padding: 0px 2px !important;
+    background-color: #d74c14;
+}
