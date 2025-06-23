@@ -5,6 +5,7 @@
 
 import * as React from "react";
 import "./ProjectDetails.css";
+import { OnUsersRender } from "../../../../../../../Utils/dataTable";
 
 interface IProjectDetailsProps {
   projectDetails: any;
@@ -30,8 +31,8 @@ const ProjectDetails: React.FC<IProjectDetailsProps> = ({ projectDetails }) => {
           <p>{projectDetails?.Days} days</p>
         </div>
         <div className="project-details-item">
-          <span>Contributors</span>
-          <p>Custom component</p>
+          <span style={{width:"100%"}}>Contributors</span>
+      <OnUsersRender users={projectDetails?.manageAccess}/>
         </div>
         <div className="project-details-item">
           <span>Status</span>

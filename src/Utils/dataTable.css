@@ -70,7 +70,12 @@
   color: #298a3f;
   border: 1px solid #40cc6038;
 }
-.overdue, .missed, .not-started {
+.not-started {
+  background-color: #6da3ef;
+  color: #f9f2f2;
+  border: 1px solid #d4dbf9;
+}
+.overdue, .missed {
   background-color: #ff9393;
   color: #2e2929;
   border: 1px solid #ff9393;

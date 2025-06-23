@@ -190,6 +190,7 @@ const Obligations: React.FC<IObligationsProps> = ({
             }}
             isValid={formDetails?.Status?.isValid}
             withLabel={true}
+            readOnly={isUpdateDetails?.Type ==="New"?true:false}
             mandatory={formDetails?.Status?.isMandatory}
             labelText="Status"
           />

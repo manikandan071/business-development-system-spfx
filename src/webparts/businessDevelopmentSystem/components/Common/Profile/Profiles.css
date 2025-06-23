@@ -9,7 +9,6 @@
 .avatar_user_name{
     font-size: 13px;
     align-self: center;
-    margin-left: 10px;
     color: var(--basic-font-color);
 }
 .p-avatar{

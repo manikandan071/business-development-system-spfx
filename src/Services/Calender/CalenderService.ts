@@ -124,11 +124,11 @@ const updateCalenderDorm = (
   isUpdateDetails: any,
   setMasterState: any,
   setLocalState: any,
-  countryDetails: ICountriesDetails,
   projectDetails: IProjectDetails,
   setPopupResponse: any,
   index: number
 ) => {
+  debugger;
   const recId = isUpdateDetails?.Id;
   const payloadDetails = {
     Title: formDetails?.EventTitle?.value,
@@ -140,7 +140,7 @@ const updateCalenderDorm = (
     EventDateTime: formDetails?.EventDateTime?.value,
     AssignedToId: {
       results: formDetails?.AssignedTo?.value?.map(
-        (manager: any) => manager?.id || manager?.ID
+        (manager: any) => manager?.Id || manager?.ID || manager?.id
       ),
     },
   };

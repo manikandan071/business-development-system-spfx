@@ -5,8 +5,7 @@
 
 import * as React from "react";
 import "./CountryDetails.css";
-import { OnCountryStatusRender } from "../../../../../../../Utils/dataTable";
-
+import { OnUsersRender } from "../../../../../../../Utils/dataTable";
 interface ICountryDetailsProps {
   countryDetails: any;
 }
@@ -31,12 +30,8 @@ const CountryDetails: React.FC<ICountryDetailsProps> = ({ countryDetails }) => {
           <p>{countryDetails?.projectsCount} projects</p>
         </div>
         <div className="country-details-item">
-          <span>Contributors</span>
-          <p>Custom component</p>
-        </div>
-        <div className="country-details-item">
-          <span>Status</span>
-          <OnCountryStatusRender status={countryDetails?.status} />
+          <span style={{width:"100%"}}>Contributors</span>
+          <OnUsersRender users={countryDetails?.manageAccess}/>
         </div>
       </div>
     </div>

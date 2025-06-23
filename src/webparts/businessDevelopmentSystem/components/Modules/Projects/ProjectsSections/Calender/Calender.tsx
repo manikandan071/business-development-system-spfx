@@ -88,7 +88,7 @@ const Calender: React.FC<ICalendersProps> = ({
     Type: "",
   });
   console.log("masterCalenderData", masterCalenderData);
-
+  console.log("FormCalenderDetails",formDetails)
   // const events = [
   //   {
   //     title: "Team meeting Team meeting Team meeting Team meeting",
@@ -214,6 +214,7 @@ const Calender: React.FC<ICalendersProps> = ({
             }}
             isValid={formDetails?.Status?.isValid}
             withLabel={true}
+            readOnly={isUpdateDetails?.Type ==="New"?true:false}
             mandatory={formDetails?.Status?.isMandatory}
             labelText="Status"
           />
@@ -242,7 +243,6 @@ const Calender: React.FC<ICalendersProps> = ({
           isUpdateDetails,
           setMasterCalenderData,
           setCalenderData,
-          countryDetails,
           projectDetails,
           setPopupResponse,
           0

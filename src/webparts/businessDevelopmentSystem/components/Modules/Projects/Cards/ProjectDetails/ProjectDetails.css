@@ -36,7 +36,6 @@
 
 .project-details-item span {
     display: inline-block;
-    width: 100%;
     font-size: 12px;
     /* color: var(--header-font-color); */
     color: #adadad;
