@@ -30,7 +30,17 @@ const MainComponent = (props: any) => {
 
   useEffect(() => {
     debugger;
-    sp.web.currentUser.get().then((currentUserDetails) => {
+    sp.web.currentUser.get().then(async (currentUserDetails) => {
+      // Get members of the BDSAdmin group
+      const groupUsers = await sp.web.siteGroups
+        .getByName("BusinessDevelopmentSystemAdmin")
+        .users.get();
+
+      // Check if current user is in the BDSAdmin group
+      const isAdmin = groupUsers.some(
+        (user) =>
+          user.Email?.toLowerCase() === currentUserDetails.Email.toLowerCase()
+      );
       const currentUser = [
         {
           Id: currentUserDetails.Id,
@@ -39,6 +49,7 @@ const MainComponent = (props: any) => {
           ImgUrl:
             `/_layouts/15/userphoto.aspx?size=S&accountname=` +
             `${currentUserDetails.Email}`,
+          isAdmin: isAdmin,
         },
       ];
       dispatch(setCurrentUserDetails(currentUser));

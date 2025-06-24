@@ -3,9 +3,11 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
+import { sp } from "@pnp/sp";
 import { IUserDetails } from "../../Interface/CommonInterface";
 import { setPopupResponseFun } from "../../Utils/togglePopup";
 import SpServices from "../SPServices/SpServices";
+import { SPLists } from "../../Config/config";
 
 const peopleHandler = (Users: any[]): IUserDetails[] => {
   return Users?.map((user, index) => ({
@@ -46,6 +48,143 @@ const manageAccessUsersSerialized = (userList: any[]) => {
     .join("\n");
   return serialized;
 };
+
+const checkCurrentUserForManageAccess = async (
+  responseData: any[],
+  manageAccessKey: string,
+  secondaryAccessKey: string,
+  thirdAccessKey?: string
+) => {
+  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+
+  const userItems = responseData
+    .map((obj: any) => {
+      const manageAccess = obj[manageAccessKey]?.toLowerCase() || "";
+      const secondaryAccess = obj[secondaryAccessKey]?.toLowerCase() || "";
+      const thirdAccess = thirdAccessKey
+        ? obj[thirdAccessKey]?.toLowerCase() || ""
+        : "";
+
+      if (manageAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: true };
+      } else if (secondaryAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: false };
+      } else if (thirdAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: false };
+      } else {
+        return null; // Exclude item
+      }
+    })
+    .filter((item) => item !== null);
+
+  return userItems;
+};
+
+const checkCurrentUserForProjectManageAccess = async (
+  responseData: any[],
+  manageAccessKey: string,
+  secondaryAccessKey: string,
+  thirdAccessKey?: string
+) => {
+  debugger;
+  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+
+  const countryLists = await SpServices.SPReadItems({
+    Listname: SPLists.Countrieslist,
+    Select: "*,Manager/ID,Manager/Title,Manager/EMail",
+    Expand: "Manager",
+    Orderby: "ID",
+    Orderbydecorasc: false,
+  });
+
+  const filterCUCountryMAPermission = countryLists.map((country: any) => {
+    const manageAccess = country[manageAccessKey]?.toLowerCase() || "";
+
+    if (manageAccess.includes(currentUserEmail)) {
+      return country?.Title;
+    } else {
+      return null; // Exclude item
+    }
+  });
+
+  const userItems = responseData
+    .map((obj: any) => {
+      const manageAccess = obj[manageAccessKey]?.toLowerCase() || "";
+      const secondaryAccess = obj[secondaryAccessKey]?.toLowerCase() || "";
+      const thirdAccess = thirdAccessKey
+        ? obj[thirdAccessKey]?.toLowerCase() || ""
+        : "";
+      if (
+        obj?.CountryOf?.Title &&
+        filterCUCountryMAPermission.includes(obj?.CountryOf?.Title)
+      ) {
+        return { ...obj, isPermission: true };
+      } else if (manageAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: true };
+      } else if (secondaryAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: false };
+      } else if (thirdAccess.includes(currentUserEmail)) {
+        return { ...obj, isPermission: false };
+      } else {
+        return null; // Exclude item
+      }
+    })
+    .filter((item) => item !== null);
+
+  return userItems;
+};
+
+const countriesPermissionbyUser = async (
+  responseData: any[],
+  manageAccessKey: string,
+  secondaryAccessKey: string,
+  thirdAccessKey?: string
+) => {
+  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+
+  const projectResponse = await SpServices.SPReadItems({
+    Listname: SPLists.Projectslist,
+    Select: "*,CountryOf/Id,CountryOf/Title",
+    Expand: "CountryOf",
+    Orderby: "ID",
+    Orderbydecorasc: false,
+  });
+
+  const countrySet = new Set<string>();
+
+  projectResponse?.forEach((project) => {
+    const manageAccess = project[manageAccessKey]?.toLowerCase() || "";
+    const secondaryAccess = project[secondaryAccessKey]?.toLowerCase() || "";
+
+    if (
+      manageAccess.includes(currentUserEmail) ||
+      secondaryAccess.includes(currentUserEmail)
+    ) {
+      const countryTitle = project?.CountryOf?.Title;
+      if (countryTitle) {
+        countrySet.add(countryTitle); // Set ensures uniqueness
+      }
+    }
+  });
+
+  const uniqueCountriesList = Array.from(countrySet);
+  console.log("Unique Countries with Access:", uniqueCountriesList);
+
+  const filterCountryResponse = responseData
+    .map((country) => {
+      const manageAccess = country[manageAccessKey]?.toLowerCase() || "";
+      if (manageAccess.includes(currentUserEmail)) {
+        return { ...country, isPermission: true };
+      } else if (uniqueCountriesList.includes(country.Title)) {
+        return { ...country, isPermission: false };
+      } else {
+        return null;
+      }
+    })
+    .filter((item) => item !== null);
+  return filterCountryResponse;
+};
+
 const manageAccessUsersDeserialized = (storedText: string) => {
   const deserialized: IUserDetails[] = storedText.split("\n").map((line) => {
     const [id, email, name, permission] = line.split("~_");
@@ -124,9 +263,12 @@ const submitManageAccessForm = (
   setPopupResponse: any,
   index: number,
   parentListName?: string,
-  parentListId?: number
+  parentListId?: number,
+  thirdListName?: string,
+  thirdListId?: number
 ) => {
   const payloadDetails = {
+    IsBreakParentPermission: formDetails?.BreakPermission?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
   };
   SpServices.SPUpdateItem({
@@ -135,7 +277,7 @@ const submitManageAccessForm = (
     RequestJSON: payloadDetails,
   })
     .then((res: any) => {
-      if (parentListName !== "" && parentListId) {
+      if (parentListName !== "" && parentListId && !thirdListName) {
         updateSecondaryMAUsers(
           manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
           recId,
@@ -143,7 +285,18 @@ const submitManageAccessForm = (
           parentListId || 0
         );
       }
+      if (thirdListName) {
+        updateDocumentMAUsers(
+          manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+          recId,
+          parentListId || 0,
+          parentListName || "",
+          thirdListId,
+          thirdListName
+        );
+      }
       const projectDetails = {
+        BreakPermission: payloadDetails?.IsBreakParentPermission,
         ManageAccess: manageAccessUsersDeserialized(
           payloadDetails?.ManageAccess
         ),
@@ -173,6 +326,77 @@ const submitManageAccessForm = (
     .catch((err: any) => {
       console.log("Error :", err);
     });
+};
+
+const updateDocumentMAUsers = async (
+  updatedCurrentUsersList: any[],
+  documentId: number,
+  secondaryId: number,
+  secondaryListName: string,
+  thirdId?: number,
+  thirdListName?: string
+) => {
+  try {
+    const resRawSecondary = await SpServices.SPReadItemUsingId({
+      Listname: secondaryListName,
+      SelectedId: secondaryId,
+      Select: "",
+      Expand: "",
+    });
+    const resSec = Array.isArray(resRawSecondary)
+      ? resRawSecondary[0]
+      : resRawSecondary;
+    const finalEmails = updatedCurrentUsersList.map((u) =>
+      u.Email.toLowerCase()
+    );
+    const accessMap: Record<number, string[]> = {};
+    (resSec?.SecondaryManageAccess || "").split("~").forEach((group: any) => {
+      const [projectIdStr, emailsStr] = group.split("|");
+      const projectId = parseInt(projectIdStr);
+      const emails = emailsStr?.split(",").map((e: any) => e.trim()) || [];
+      accessMap[projectId] = emails;
+    });
+    accessMap[documentId] = finalEmails;
+    const updatedAccessString = Object.entries(accessMap)
+      .filter(([, emails]) => emails.length > 0) // skip empty lists
+      .map(([projId, emails]) => `${projId}|${emails.join(",")}`)
+      .join("~");
+    await SpServices.SPUpdateItem({
+      ID: secondaryId,
+      Listname: secondaryListName,
+      RequestJSON: {
+        SecondaryManageAccess: updatedAccessString,
+      },
+    });
+    const allProjects = await SpServices.SPReadItems({
+      Listname: secondaryListName,
+      Filter: `CountryOf/Id eq ${thirdId}`,
+      Select: "ID,SecondaryManageAccess",
+    });
+    const allAccessMap: Record<number, string[]> = {};
+    allProjects.forEach((proj: any) => {
+      const accessString = proj.SecondaryManageAccess || "";
+      accessString.split("~").forEach((group: string) => {
+        const [docIdStr, emailsStr] = group.split("|");
+        const docId = parseInt(docIdStr);
+        const emails = emailsStr?.split(",").map((e: any) => e.trim()) || [];
+        allAccessMap[docId] = emails;
+      });
+    });
+    const updatedThirdAccessString = Object.entries(allAccessMap)
+      .filter(([, emails]) => emails.length > 0)
+      .map(([docId, emails]) => `${docId}|${emails.join(",")}`)
+      .join("~");
+    await SpServices.SPUpdateItem({
+      ID: thirdId,
+      Listname: thirdListName,
+      RequestJSON: {
+        ThirdManageAccess: updatedThirdAccessString,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 // const updateSecondaryMAUsers = async (
@@ -312,6 +536,9 @@ const updateSecondaryMAUsers = async (
 
 export {
   peopleHandler,
+  countriesPermissionbyUser,
+  checkCurrentUserForManageAccess,
+  checkCurrentUserForProjectManageAccess,
   manageAccessUsersSerialized,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
@@ -319,4 +546,5 @@ export {
   removeCategoryFromFileName,
   submitManageAccessForm,
   updateSecondaryMAUsers,
+  updateDocumentMAUsers,
 };

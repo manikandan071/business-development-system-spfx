@@ -3,6 +3,8 @@
 import SpServices from "../SPServices/SpServices";
 import { SPLists } from "../../Config/config";
 import {
+  // checkCurrentUserForManageAccess,
+  countriesPermissionbyUser,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
   manageAccessUsersSerialized,
@@ -15,6 +17,7 @@ import {
 import { setCountriesData } from "../../Redux/Features/CountryContextSlice";
 import { ICountriesDetails } from "../../Interface/ModulesInterface";
 export const getCountriesList = async (
+  isAdmin: boolean,
   setAllCountries: any,
   setMasterProjectData: any,
   setCountries: any,
@@ -80,8 +83,10 @@ export const getCountriesList = async (
         TimeZone: country.timezones[0],
       });
     });
-    tempCountryData.push(...customCountries)
-    tempCountryData.sort((a: any, b: any) => a.CountryName.localeCompare(b.CountryName));
+    tempCountryData.push(...customCountries);
+    tempCountryData.sort((a: any, b: any) =>
+      a.CountryName.localeCompare(b.CountryName)
+    );
     setAllCountries(tempCountryData);
 
     // await SpServices.SPReadItems({
@@ -138,8 +143,24 @@ export const getCountriesList = async (
       Orderbydecorasc: false,
     });
 
+    const filteredResponse: any[] = isAdmin
+      ? items
+      : await countriesPermissionbyUser(
+          items,
+          "ManageAccess",
+          "SecondaryManageAccess",
+          "ThirdManageAccess"
+        );
+    // : await checkCurrentUserForManageAccess(
+    //     items,
+    //     "ManageAccess",
+    //     "SecondaryManageAccess",
+    //     "ThirdManageAccess"
+    //   );
+    console.log("filteredResponse", filteredResponse);
+
     const tempsetCountries = await Promise.all(
-      items.map(async (country) => {
+      filteredResponse.map(async (country) => {
         const response = await SpServices.SPReadItems({
           Listname: SPLists.Projectslist,
           Select: "*,CountryOf/Id,CountryOf/Title",
@@ -169,6 +190,7 @@ export const getCountriesList = async (
           ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
             country?.ManageAccess
           ),
+          isManageAccessPermission: isAdmin ? true : country?.isPermission,
         };
       })
     );
@@ -381,7 +403,7 @@ export const submitManageAccessForm = (
       };
       setMasterState((prev: any) =>
         prev.map((item: any) =>
-          item.Id=== recId ? { ...item, ...countryDetails } : item
+          item.Id === recId ? { ...item, ...countryDetails } : item
         )
       );
       setLocalState((prev: any) =>
