@@ -128,6 +128,7 @@ interface IDocumentsDetails {
   ManageAccess: IUserDetails[];
   ManageAccessFormFormat: any[];
   ProjectOfId: number;
+  BreakPermission?:boolean;
 }
 
 export {

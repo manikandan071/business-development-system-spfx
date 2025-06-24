@@ -59,6 +59,7 @@ const Documents: React.FC<IDocumentsProps> = ({
   countryDetails,
   projectDetails,
 }) => {
+  console.log("Project Details:",projectDetails)
   const cloneFormDetails = deepClone(DocumentsFormDetails);
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
@@ -117,8 +118,10 @@ const Documents: React.FC<IDocumentsProps> = ({
     ProjectOfId: 0,
     ManageAccessFormFormat: [],
   });
-
-  const openDocumentAction = async (documentDetails: any) => {
+   console.log("Form Details...",formDetails)
+  const openDocumentAction = async (documentDetails: IDocumentsDetails) => {
+    console.log("Documents Details",documentDetails);
+    
     const tempAttachments: FileItem[] = await getLibraryAttachments(
       countryDetails?.countryName,
       projectDetails?.ProjectName,
@@ -159,6 +162,11 @@ const Documents: React.FC<IDocumentsProps> = ({
         value: documentDetails?.ManageAccessFormFormat,
         isValid: true,
       },
+       BreakPermission: {
+          value: documentDetails?.BreakPermission,
+          isValid: true,
+          isMandatory: false,
+       },
     });
     setIsUpdateDetails({
       Id: documentDetails?.Id,
@@ -174,6 +182,10 @@ const Documents: React.FC<IDocumentsProps> = ({
         isValid: true,
         isMandatory: true,
       },
+      BreakPermission:{
+       value: document?.BreakPermission,
+       isValid:true
+      }
     });
     togglePopupVisibility(
       setPopupController,
@@ -257,12 +269,20 @@ const Documents: React.FC<IDocumentsProps> = ({
           isValid={formDetails?.Attachments?.isValid}
         />
         <ManageAccess
-          ManageAccess={formDetails?.ManageAccess?.value}
-          onChange={(value: any) => {
-            onChangeFunction("ManageAccess", value, setFormDetails);
-          }}
+          ManageAccess={formDetails?.ManageAccess.value}
+          onChange={(value: any, isBreakeCondition?: boolean) => {
+                     console.log("ManageAccess value", value);
+                     console.log("isBreakeCondition", isBreakeCondition);
+                     if (isBreakeCondition) {
+                       onChangeFunction("BreakPermission", value, setFormDetails);
+                     } else {
+                       onChangeFunction("ManageAccess", value, setFormDetails);
+                     }
+                   }}
           showList="3"
           showSectionTitle={true}
+          breakCondition={formDetails?.BreakPermission?.value || false}
+          ifShowManageAccess={true}
         />
       </div>,
     ],
@@ -270,17 +290,26 @@ const Documents: React.FC<IDocumentsProps> = ({
       <div key={1} style={{ width: "100%" }}>
         <ManageAccess
           ManageAccess={formDetails?.ManageAccess?.value}
-          onChange={(value: any) => {
-            onChangeFunction("ManageAccess", value, setFormDetails);
-          }}
+           onChange={(value: any, isBreakeCondition?: boolean) => {
+                     console.log("ManageAccess value", value);
+                     console.log("isBreakeCondition", isBreakeCondition);
+                     if (isBreakeCondition) {
+                       onChangeFunction("BreakPermission", value, setFormDetails);
+                     } else {
+                       onChangeFunction("ManageAccess", value, setFormDetails);
+                     }
+                   }}
           showList="10"
           showSectionTitle={false}
+          breakCondition={formDetails?.BreakPermission?.value || false}
+          ifShowManageAccess={true}
         />
       </div>,
     ],
   ];
 
   const handleSubmitFuction = async (): Promise<void> => {
+    debugger
     const isFormValid = validateForm(formDetails, setFormDetails);
     if (isFormValid) {
       setPopupResponseFun(setPopupResponse, 0, true, "", "");
@@ -320,7 +349,11 @@ const Documents: React.FC<IDocumentsProps> = ({
         setMasterDocumentsData,
         setDocumentsData,
         setPopupResponse,
-        1
+        1,
+        SPLists.Projectslist,
+        projectDetails?.Id,
+        SPLists.Countrieslist,
+        countryDetails?.Id
       );
     }
   };
@@ -483,7 +516,14 @@ const Documents: React.FC<IDocumentsProps> = ({
               "open",
               `Add Document`
             );
-            setFormDetails(deepClone(cloneFormDetails));
+            const newFormTemp = deepClone(cloneFormDetails);
+            setFormDetails({
+              ...newFormTemp,
+              ManageAccess:{
+                value:projectDetails?.ManageAccessFormFormat,
+                isValid:true
+              }
+            });
           }}
         />
       </div>
