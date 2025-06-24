@@ -46,7 +46,7 @@ import {
   submitAddProjectForm,
   updateProjectForm,
 } from "../../../../../Services/Projects/ProjectService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { submitManageAccessForm } from "../../../../../Services/CommonService/CommonService";
 import { SPLists } from "../../../../../Config/config";
 import AppLoader from "../../Common/AppLoader/AppLoader";
@@ -62,6 +62,11 @@ const Projects: React.FC<IProjectProps> = ({
 }) => {
   const dispatch = useDispatch();
   const cloneFormDetails = deepClone(ProjectFormDetails);
+  const currentUserDetails = useSelector(
+    (state: any) => state?.MainSPContext?.currentUserDetails
+  );
+  console.log("currentUserDetails", currentUserDetails);
+
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
   };
@@ -646,6 +651,8 @@ const Projects: React.FC<IProjectProps> = ({
               editAction={setEditForm}
               userAccessAction={projectManageAccessAction}
               launchAction={openProjectAction}
+              isShowEdit={rowData?.isManageAccessPermission}
+              isShowUserAccess={rowData?.isManageAccessPermission}
               rowData={rowData}
             />
           )}
@@ -657,6 +664,7 @@ const Projects: React.FC<IProjectProps> = ({
   useEffect(() => {
     getRegisteredCountries(setRegisteredCountries);
     fetchProjectData(
+      currentUserDetails[0].isAdmin,
       selectedCountry?.Id,
       setProjectData,
       setMasterProjectData,
@@ -688,7 +696,7 @@ const Projects: React.FC<IProjectProps> = ({
           <AppLoader />
         ) : (
           <div className={styles.projects_container}>
-            <div className="justify-space-between margin-right-20">
+            <div className="justify-space-between margin-left-right-20">
               <ModuleHeader
                 title="Projects"
                 selectedCountry={selectedCountry}
@@ -723,6 +731,10 @@ const Projects: React.FC<IProjectProps> = ({
                         value: selectedCountry?.Id,
                         isValid: true,
                         isMandatory: true,
+                      },
+                      ManageAccess: {
+                        value: selectedCountry?.ManageAccessFormFormat,
+                        isValid: true,
                       },
                     });
                   }}

@@ -4,6 +4,7 @@
 import { SPLists } from "../../Config/config";
 import SpServices from "../SPServices/SpServices";
 import {
+  checkCurrentUserForProjectManageAccess,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
   manageAccessUsersSerialized,
@@ -32,6 +33,7 @@ const getRegisteredCountries = async (setRegisteredCountries: any) => {
 };
 
 const fetchProjectData = async (
+  isAdmin: boolean,
   countryId: number,
   setProjectData: (data: IProjectDetails[]) => void,
   setMasterProjectData: (data: IProjectDetails[]) => void,
@@ -55,7 +57,17 @@ const fetchProjectData = async (
     Orderbydecorasc: false,
   }).then();
 
-  const tempArray: IProjectDetails[] = response.map((project: any) => {
+  const filteredResponse: any[] = isAdmin
+    ? response
+    : await checkCurrentUserForProjectManageAccess(
+        response,
+        "ManageAccess",
+        "SecondaryManageAccess",
+        "ThirdManageAccess"
+      );
+  console.log("filteredResponse", filteredResponse);
+
+  const tempArray: IProjectDetails[] = filteredResponse.map((project: any) => {
     // Transform ManageAccess to match IUserDetails[]
     // const deserializedAccess = manageAccessUsersDeserialized(
     //   project?.ManageAccess
@@ -87,6 +99,7 @@ const fetchProjectData = async (
         project?.ManageAccess
       ),
       BreakPermission: project?.IsBreakParentPermission || false,
+      isManageAccessPermission: isAdmin ? true : project?.isPermission,
     };
   });
   setProjectData([...tempArray]);

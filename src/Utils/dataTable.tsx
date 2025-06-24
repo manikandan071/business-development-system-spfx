@@ -23,6 +23,7 @@ interface IActionsProps {
   editAction?: React.Dispatch<React.SetStateAction<any>>;
   userAccessAction?: React.Dispatch<React.SetStateAction<any>>;
   launchAction?: React.Dispatch<React.SetStateAction<any>>;
+  isShowEdit?: boolean;
   isShowLunch?: boolean;
   isShowUserAccess?: boolean;
   isShowSubTask?: boolean;
@@ -51,6 +52,7 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
   editAction,
   userAccessAction,
   launchAction,
+  isShowEdit = true,
   isShowLunch = true,
   isShowUserAccess = true,
   isShowSubTask = false,
@@ -65,20 +67,22 @@ export const OnActionsRender: React.FC<IActionsProps> = ({
         padding: "5px",
       }}
     >
-      <img
-        src={editIcon}
-        style={{
-          width: "18px",
-          height: "18px",
-          cursor: "pointer",
-        }}
-        alt=""
-        onClick={(e) => {
-          e.stopPropagation();
-          editAction?.(rowData);
-        }}
-        title="Edit"
-      />
+      {isShowEdit && (
+        <img
+          src={editIcon}
+          style={{
+            width: "18px",
+            height: "18px",
+            cursor: "pointer",
+          }}
+          alt=""
+          onClick={(e) => {
+            e.stopPropagation();
+            editAction?.(rowData);
+          }}
+          title="Edit"
+        />
+      )}
       {isShowUserAccess && (
         <img
           src={usersIcon}

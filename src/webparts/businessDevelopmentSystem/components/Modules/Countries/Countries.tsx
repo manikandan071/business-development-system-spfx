@@ -45,7 +45,7 @@ import CustomInput from "../../Common/CustomInputFields/CustomInput/CustomInput"
 // import CustomPeoplePicker from "../../Common/CustomInputFields/CustomPeoplePicker/CustomPeoplePicker";
 import ManageAccess from "../../Common/ManageAccess/ManageAccess";
 import { validateForm } from "../../../../../Utils/validations";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   IAllCountriesJson,
   ICountriesDetails,
@@ -64,6 +64,9 @@ interface ICountriesProps {
 const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   const dispatch = useDispatch();
   const cloneFormDetails = deepClone(countryFormDetails);
+  const currentUserDetails = useSelector(
+    (state: any) => state?.MainSPContext?.currentUserDetails
+  );
   const handleClosePopup = (index?: any): void => {
     togglePopupVisibility(setPopupController, index, "close");
   };
@@ -127,6 +130,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   const [languagesOptions, setLanguagesOptions] = useState<any[]>([""]);
   const [isLoader, setIsLoader] = useState<boolean>(true);
   console.log("formDetails", formDetails);
+  console.log("masterCountriesData", masterCountriesData);
 
   const filterLanguageOption = (countryName: any) => {
     const country = allCountries.find((c) => c.CountryName === countryName);
@@ -586,6 +590,8 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
               editAction={setEditForm}
               launchAction={onSelectCountry}
               userAccessAction={countryManageAccessAction}
+              isShowEdit={rowData?.isManageAccessPermission}
+              isShowUserAccess={rowData?.isManageAccessPermission}
               rowData={rowData}
             />
           )}
@@ -595,6 +601,7 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
   ];
   useEffect(() => {
     getCountriesList(
+      currentUserDetails[0].isAdmin,
       setAllCountries,
       setMasterCountriesData,
       setCountriesData,
@@ -616,34 +623,36 @@ const Countries: React.FC<ICountriesProps> = ({ onSelectCountry }) => {
     <AppLoader />
   ) : (
     <div className={styles.countries_container}>
-      <div className="justify-space-between margin-right-20">
+      <div className="justify-space-between margin-left-right-20">
         <ModuleHeader title="Countries" />
         <div className="gap-10">
           <CustomSearchInput searchFunction={searchFilterFunctionality} />
-          <DefaultButton
-            btnType="primaryBtn"
-            text="Add Country"
-            startIcon={<AddIcon />}
-            onClick={() => {
-              setIsUpdateDetails({
-                Id: null,
-                Type: "New",
-              });
-              filterCountryUnselected(
-                countriesData,
-                allCountries,
-                setAllCountries,
-                {}
-              );
-              togglePopupVisibility(
-                setPopupController,
-                0,
-                "open",
-                `Add Country`
-              );
-              setFormDetails(deepClone(cloneFormDetails));
-            }}
-          />
+          {currentUserDetails[0].isAdmin && (
+            <DefaultButton
+              btnType="primaryBtn"
+              text="Add Country"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setIsUpdateDetails({
+                  Id: null,
+                  Type: "New",
+                });
+                filterCountryUnselected(
+                  countriesData,
+                  allCountries,
+                  setAllCountries,
+                  {}
+                );
+                togglePopupVisibility(
+                  setPopupController,
+                  0,
+                  "open",
+                  `Add Country`
+                );
+                setFormDetails(deepClone(cloneFormDetails));
+              }}
+            />
+          )}
         </div>
       </div>
       <div>
