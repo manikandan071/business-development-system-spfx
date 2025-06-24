@@ -15,6 +15,7 @@ import {
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
   manageAccessUsersSerialized,
+  updateDocumentMAUsers,
 } from "../CommonService/CommonService";
 import SpServices from "../SPServices/SpServices";
 import { FileItem } from "../../Interface/CommonInterface";
@@ -67,11 +68,10 @@ const fetchDocumentsData = async (
       Orderby: "ID",
       Orderbydecorasc: false,
     }).then();
-
-    const tempArray: IDocumentsDetails[] = [];
-
-    tempDocuments?.map((document: any) => {
-      const documentDetails: IDocumentsDetails = {
+     
+    const tempArray: IDocumentsDetails[] = tempDocuments?.map((document: any) => {
+      console.log("Document Data",document)
+      return {
         Id: document?.Id,
         Category: document?.Category,
         ContractType: document?.ContractType,
@@ -82,11 +82,11 @@ const fetchDocumentsData = async (
           document?.ManageAccess
         ),
         ProjectOfId: document?.ProjectOfId,
+       BreakPermission: document?.IsBreakParentPermission || false,
       };
-      tempArray.push(documentDetails);
     });
-    setMasterState(tempArray);
-    setLocalState(tempArray);
+    setMasterState([...tempArray]);
+    setLocalState([...tempArray]);
     setLoader(false);
   } catch (err) {
     console.log("Error : ", err);
@@ -121,6 +121,7 @@ const submitDocumentForm = async (
   setPopupResponse: any,
   index: number
 ) => {
+  debugger;
   const payloadDetails = {
     Category: formDetails?.Category?.value,
     ContractType: formDetails?.ContractType?.value,
@@ -128,12 +129,21 @@ const submitDocumentForm = async (
     Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
+    IsBreakParentPermission:formDetails?.BreakPermission?.value || false
   };
   await SpServices.SPAddItem({
     Listname: SPLists.DocumentsList,
     RequestJSON: payloadDetails,
   })
     .then(async (res: any) => {
+      updateDocumentMAUsers(
+        manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+        res?.data?.Id,
+        projectDetails?.Id,
+        SPLists?.Projectslist,
+        countryDetails?.Id,
+        SPLists?.Countrieslist
+      )
       const folderPath = `${countryDetails?.countryName.trimEnd()}/${projectDetails?.ProjectName.trimEnd()}/${payloadDetails?.Category.trimEnd()}`;
       const fullPath = await createFolderIfNotExists(folderPath);
       console.log("fullPath", fullPath);
@@ -165,6 +175,7 @@ const submitDocumentForm = async (
           payloadDetails?.ManageAccess
         ),
         ProjectOfId: projectDetails?.Id,
+        BreakPermission:payloadDetails?.IsBreakParentPermission || false
       };
 
       setMasterState((prev: any) => {
@@ -203,6 +214,7 @@ const updateDocumentForm = async (
     Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
+    IsBreakParentPermission:formDetails?.BreakPermission?.value
   };
   await SpServices.SPUpdateItem({
     Listname: SPLists.DocumentsList,
@@ -211,7 +223,6 @@ const updateDocumentForm = async (
   })
     .then(async (res: any) => {
       console.log("res", res);
-
       const folderPath = `${countryDetails?.countryName.trimEnd()}/${projectDetails?.ProjectName.trimEnd()}/${payloadDetails?.Category.trimEnd()}`;
       const fullPath = await createFolderIfNotExists(folderPath);
       console.log("fullPath", fullPath);
@@ -251,8 +262,14 @@ const updateDocumentForm = async (
           payloadDetails?.ManageAccess
         ),
         ProjectOfId: projectDetails?.Id,
+        BreakPermission:payloadDetails?.IsBreakParentPermission
       };
-
+updateDocumentMAUsers(
+        manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
+        recId,
+        projectDetails?.Id,
+        SPLists?.Projectslist,
+      )
       setMasterState((prev: any) =>
         prev.map((item: any) =>
           item.Id === recId ? { ...item, ...documentDetails } : item

@@ -395,6 +395,11 @@ const DocumentsFormDetails = {
     ],
     isValid: true,
   },
+  BreakPermission: {
+    value: false,
+    isValid: true,
+    isMandatory: false,
+  },
 };
 
 export {
