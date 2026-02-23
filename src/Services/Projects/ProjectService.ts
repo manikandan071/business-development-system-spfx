@@ -4,6 +4,7 @@
 import { SPLists } from "../../Config/config";
 import SpServices from "../SPServices/SpServices";
 import {
+  getCurrentUserEmail,
   checkCurrentUserForProjectManageAccess,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
@@ -15,18 +16,27 @@ import { setProjectsData } from "../../Redux/Features/ProjectContextSlice";
 import { setPopupResponseFun } from "../../Utils/togglePopup";
 
 const getRegisteredCountries = async (setRegisteredCountries: any) => {
+  const currentUserEmail = await getCurrentUserEmail();
   await SpServices.SPReadItems({ Listname: SPLists.Countrieslist }).then(
     (res: any) => {
-      const tempCoiuntriesList = res?.map((country: any) => {
-        return {
-          Id: country?.Id,
-          CountryName: country?.Title,
-          ManageAccess: manageAccessUsersDeserialized(country?.ManageAccess),
-          ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-            country?.ManageAccess
-          ),
-        };
-      });
+      const tempCoiuntriesList = res
+        ?.map((country: any) => {
+          if (country?.ManageAccess?.toLowerCase().includes(currentUserEmail)) {
+            return {
+              Id: country?.Id,
+              CountryName: country?.Title,
+              ManageAccess: manageAccessUsersDeserialized(
+                country?.ManageAccess
+              ),
+              ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+                country?.ManageAccess
+              ),
+            };
+          } else {
+            return null;
+          }
+        })
+        .filter((item: any) => item !== null);
       setRegisteredCountries([...tempCoiuntriesList]);
     }
   );

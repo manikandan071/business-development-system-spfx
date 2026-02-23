@@ -9,6 +9,16 @@ import { setPopupResponseFun } from "../../Utils/togglePopup";
 import SpServices from "../SPServices/SpServices";
 import { SPLists } from "../../Config/config";
 
+const getCurrentUserEmail = async () => {
+  try {
+    const user = await sp.web.currentUser.get();
+    return user.Email.toLowerCase();
+  } catch (error) {
+    console.error("Error fetching current user email:", error);
+    return "";
+  }
+};
+
 const peopleHandler = (Users: any[]): IUserDetails[] => {
   return Users?.map((user, index) => ({
     Id: parseInt(user.ID || user.Id || user.id),
@@ -55,7 +65,7 @@ const checkCurrentUserForManageAccess = async (
   secondaryAccessKey: string,
   thirdAccessKey?: string
 ) => {
-  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+  const currentUserEmail = await getCurrentUserEmail();
 
   const userItems = responseData
     .map((obj: any) => {
@@ -87,7 +97,7 @@ const checkCurrentUserForProjectManageAccess = async (
   thirdAccessKey?: string
 ) => {
   debugger;
-  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+  const currentUserEmail = await getCurrentUserEmail();
 
   const countryLists = await SpServices.SPReadItems({
     Listname: SPLists.Countrieslist,
@@ -140,7 +150,7 @@ const countriesPermissionbyUser = async (
   secondaryAccessKey: string,
   thirdAccessKey?: string
 ) => {
-  const currentUserEmail = (await sp.web.currentUser.get()).Email.toLowerCase();
+  const currentUserEmail = await getCurrentUserEmail();
 
   const projectResponse = await SpServices.SPReadItems({
     Listname: SPLists.Projectslist,
@@ -183,6 +193,36 @@ const countriesPermissionbyUser = async (
     })
     .filter((item) => item !== null);
   return filterCountryResponse;
+};
+
+const projectDocumentsPermissionbyUser = async (
+  responseData: any[],
+  manageAccessKey: string,
+  projectId: number
+) => {
+  const projectResponse: any = await SpServices.SPReadItemUsingId({
+    Listname: SPLists.Projectslist,
+    SelectedId: projectId,
+    Select: "",
+    Expand: "",
+  }).then();
+  const currentUserEmail = await getCurrentUserEmail();
+
+  const manageAccess = projectResponse[manageAccessKey]?.toLowerCase() || "";
+  if (manageAccess.includes(currentUserEmail)) {
+    return responseData.map((doc) => ({ ...doc, isPermission: true }));
+  } else {
+    return responseData
+      .map((doc) => {
+        const docManageAccess = doc[manageAccessKey]?.toLowerCase() || "";
+        if (docManageAccess.includes(currentUserEmail)) {
+          return { ...doc, isPermission: true };
+        } else {
+          return null;
+        }
+      })
+      .filter((item) => item !== null);
+  }
 };
 
 const manageAccessUsersDeserialized = (storedText: string) => {
@@ -535,10 +575,12 @@ const updateSecondaryMAUsers = async (
 };
 
 export {
+  getCurrentUserEmail,
   peopleHandler,
   countriesPermissionbyUser,
   checkCurrentUserForManageAccess,
   checkCurrentUserForProjectManageAccess,
+  projectDocumentsPermissionbyUser,
   manageAccessUsersSerialized,
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,

@@ -15,6 +15,7 @@ import {
   manageAccessUsersDeserialized,
   manageAccessUsersDeserializedForForm,
   manageAccessUsersSerialized,
+  projectDocumentsPermissionbyUser,
   updateDocumentMAUsers,
 } from "../CommonService/CommonService";
 import SpServices from "../SPServices/SpServices";
@@ -48,13 +49,14 @@ const getLibraryAttachments = async (
 };
 
 const fetchDocumentsData = async (
+  isAdmin: boolean,
   setMasterState: any,
   setLocalState: any,
   projectId: number,
   setLoader: any
 ) => {
   try {
-    const tempDocuments = await SpServices.SPReadItems({
+    const documentsResponse = await SpServices.SPReadItems({
       Listname: SPLists.DocumentsList,
       Select: "*,ProjectOf/Id,ProjectOf/Title",
       Expand: "ProjectOf",
@@ -68,23 +70,34 @@ const fetchDocumentsData = async (
       Orderby: "ID",
       Orderbydecorasc: false,
     }).then();
-     
-    const tempArray: IDocumentsDetails[] = tempDocuments?.map((document: any) => {
-      console.log("Document Data",document)
-      return {
-        Id: document?.Id,
-        Category: document?.Category,
-        ContractType: document?.ContractType,
-        Party: document?.Party,
-        Date: document?.Date,
-        ManageAccess: manageAccessUsersDeserialized(document?.ManageAccess),
-        ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
-          document?.ManageAccess
-        ),
-        ProjectOfId: document?.ProjectOfId,
-       BreakPermission: document?.IsBreakParentPermission || false,
-      };
-    });
+
+    const filteredResponse: any[] = isAdmin
+      ? documentsResponse
+      : await projectDocumentsPermissionbyUser(
+          documentsResponse,
+          "ManageAccess",
+          projectId
+        );
+    console.log("filteredResponse", filteredResponse);
+
+    const tempArray: IDocumentsDetails[] = filteredResponse?.map(
+      (document: any) => {
+        console.log("Document Data", document);
+        return {
+          Id: document?.Id,
+          Category: document?.Category,
+          ContractType: document?.ContractType,
+          Party: document?.Party,
+          Date: document?.Date,
+          ManageAccess: manageAccessUsersDeserialized(document?.ManageAccess),
+          ManageAccessFormFormat: manageAccessUsersDeserializedForForm(
+            document?.ManageAccess
+          ),
+          ProjectOfId: document?.ProjectOfId,
+          BreakPermission: document?.IsBreakParentPermission || false,
+        };
+      }
+    );
     setMasterState([...tempArray]);
     setLocalState([...tempArray]);
     setLoader(false);
@@ -129,7 +142,7 @@ const submitDocumentForm = async (
     Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
-    IsBreakParentPermission:formDetails?.BreakPermission?.value || false
+    IsBreakParentPermission: formDetails?.BreakPermission?.value || false,
   };
   await SpServices.SPAddItem({
     Listname: SPLists.DocumentsList,
@@ -143,7 +156,7 @@ const submitDocumentForm = async (
         SPLists?.Projectslist,
         countryDetails?.Id,
         SPLists?.Countrieslist
-      )
+      );
       const folderPath = `${countryDetails?.countryName.trimEnd()}/${projectDetails?.ProjectName.trimEnd()}/${payloadDetails?.Category.trimEnd()}`;
       const fullPath = await createFolderIfNotExists(folderPath);
       console.log("fullPath", fullPath);
@@ -175,7 +188,7 @@ const submitDocumentForm = async (
           payloadDetails?.ManageAccess
         ),
         ProjectOfId: projectDetails?.Id,
-        BreakPermission:payloadDetails?.IsBreakParentPermission || false
+        BreakPermission: payloadDetails?.IsBreakParentPermission || false,
       };
 
       setMasterState((prev: any) => {
@@ -214,7 +227,7 @@ const updateDocumentForm = async (
     Date: formDetails?.Date?.value,
     ManageAccess: manageAccessUsersSerialized(formDetails?.ManageAccess?.value),
     ProjectOfId: projectDetails?.Id,
-    IsBreakParentPermission:formDetails?.BreakPermission?.value
+    IsBreakParentPermission: formDetails?.BreakPermission?.value,
   };
   await SpServices.SPUpdateItem({
     Listname: SPLists.DocumentsList,
@@ -262,14 +275,14 @@ const updateDocumentForm = async (
           payloadDetails?.ManageAccess
         ),
         ProjectOfId: projectDetails?.Id,
-        BreakPermission:payloadDetails?.IsBreakParentPermission
+        BreakPermission: payloadDetails?.IsBreakParentPermission,
       };
-updateDocumentMAUsers(
+      updateDocumentMAUsers(
         manageAccessUsersDeserialized(payloadDetails?.ManageAccess),
         recId,
         projectDetails?.Id,
-        SPLists?.Projectslist,
-      )
+        SPLists?.Projectslist
+      );
       setMasterState((prev: any) =>
         prev.map((item: any) =>
           item.Id === recId ? { ...item, ...documentDetails } : item
